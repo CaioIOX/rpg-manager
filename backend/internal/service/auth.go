@@ -3,19 +3,22 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
 	"github.com/CaioIOX/rpg-manager/backend/internal/model"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
-	userRepo *repository.UserRepository
+	userRepo  *repository.UserRepository
+	jwtSecret string
 }
 
-func NewAuthService(userRepo *repository.UserRepository) *AuthService {
-	return &AuthService{userRepo: userRepo}
+func NewAuthService(userRepo *repository.UserRepository, jwtSecret string) *AuthService {
+	return &AuthService{userRepo: userRepo, jwtSecret: jwtSecret}
 }
 
 func (s *AuthService) Register(ctx context.Context, req dto.RegisterInput) error {
@@ -45,4 +48,29 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterInput) error
 	}
 
 	return nil
+}
+
+func (s *AuthService) Login(ctx context.Context, req dto.LoginInput) (string, error) {
+	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	if err != nil {
+		return "", errors.New("Credenciais inválidas!")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		return "", errors.New("Credenciais inválidas!")
+	}
+
+	claims := jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := token.SignedString([]byte(s.jwtSecret))
+	if err != nil {
+		return "", errors.New("Algo deu errado, por favor tente novamente!")
+	}
+
+	return signed, nil
+
 }
