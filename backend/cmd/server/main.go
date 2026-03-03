@@ -5,6 +5,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/CaioIOX/rpg-manager/backend/internal/handler"
+	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
+	"github.com/CaioIOX/rpg-manager/backend/internal/service"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
@@ -42,6 +46,23 @@ func main() {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 	log.Println("Migrations applied")
+
+	// Repositórios
+	userRepo := repository.NewUserRepository(db)
+
+	// Services
+	jwtSecret := os.Getenv("JWT_SECRET")
+	authService := service.NewAuthService(userRepo, jwtSecret)
+
+	// Handlers
+	validate := validator.New()
+	authHandler := handler.NewAuthHandler(authService, validate)
+
+	// Rotas
+	api := app.Group("/api")
+	auth := api.Group("/auth")
+	auth.Post("Register", authHandler.Register)
+	auth.Post("login", authHandler.Login)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
