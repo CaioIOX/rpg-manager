@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/handler"
+	"github.com/CaioIOX/rpg-manager/backend/internal/middleware"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
 	"github.com/CaioIOX/rpg-manager/backend/internal/service"
 	"github.com/go-playground/validator/v10"
@@ -64,7 +65,10 @@ func main() {
 	auth.Post("Register", authHandler.Register)
 	auth.Post("login", authHandler.Login)
 
-	app.Get("/health", func(c *fiber.Ctx) error {
+	// campanhas
+	campaigns := api.Group("/campaigns", middleware.AuthRequired)
+
+	campaigns.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
