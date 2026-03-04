@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
 	"github.com/CaioIOX/rpg-manager/backend/internal/model"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
@@ -18,10 +19,27 @@ func NewCampaignService(campaignRepo *repository.CampaignRepository, userRepo *r
 	return &CampaignService{campaignRepo: campaignRepo, userRepo: userRepo}
 }
 
+func (s *CampaignService) GetByID(ctx context.Context, id string, loggedUser string) (model.Campaign, error) {
+	hasPermission, err := s.campaignRepo.GetMemberRole(ctx, id, loggedUser)
+	if err != nil {
+		return model.Campaign{}, errors.New("Ocorreu um erro ao recuperar campanha.")
+	}
+
+	if hasPermission != "owner" && hasPermission != "editor" && hasPermission != "viewer" {
+		return model.Campaign{}, customErrors.ErrUnauthorized
+	}
+
+	campaign, err := s.campaignRepo.GetByID(ctx, id)
+	if err != nil {
+		return model.Campaign{}, errors.New("Erro ao recuperar campanha.")
+	}
+	return *campaign, err
+}
+
 func (s *CampaignService) GetByUser(ctx context.Context, loggedUser string) ([]dto.CampaignWithRole, error) {
 	campaignList, err := s.campaignRepo.GetByUser(ctx, loggedUser)
 	if err != nil {
-		return []dto.CampaignWithRole{}, errors.New("Erro ao buscar campanhas!")
+		return []dto.CampaignWithRole{}, errors.New("Erro ao buscar campanhas.")
 	}
 	return campaignList, nil
 }
@@ -52,7 +70,7 @@ func (s *CampaignService) AddMember(ctx context.Context, dto dto.AddMemberReques
 	}
 
 	if hasPermission != "owner" {
-		return errors.New("Usuário não tem autorização para adicionar um membro!")
+		return customErrors.ErrUnauthorized
 	}
 
 	targetUser, err := s.userRepo.GetByEmail(ctx, dto.Email)
@@ -61,7 +79,7 @@ func (s *CampaignService) AddMember(ctx context.Context, dto dto.AddMemberReques
 	}
 
 	if err := s.campaignRepo.AddMember(ctx, id, targetUser.ID, dto.Role); err != nil {
-		return errors.New("Falha ao tentar adicionar usuário a campanha!")
+		return errors.New("Falha ao tentar adicionar novo membro a campanha!")
 	}
 
 	return nil
@@ -75,7 +93,7 @@ func (s *CampaignService) Update(ctx context.Context, id string, dto dto.UpdateC
 	}
 
 	if hasPermission != "owner" {
-		return nil, errors.New("Usuário não tem autorização para adicionar um membro!")
+		return nil, customErrors.ErrUnauthorized
 	}
 
 	updatedCampaign, err := s.campaignRepo.Update(ctx, id, dto)
@@ -93,7 +111,7 @@ func (s *CampaignService) Delete(ctx context.Context, id string, loggedUser stri
 	}
 
 	if hasPermission != "owner" {
-		return errors.New("Usuário não tem autorização para adicionar um membro!")
+		return customErrors.ErrUnauthorized
 	}
 
 	if err := s.campaignRepo.Delete(ctx, id); err != nil {

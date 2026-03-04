@@ -32,7 +32,7 @@ func AuthRequired(c *fiber.Ctx) error {
 	}
 
 	userID := claims["user_id"]
-	
+
 	c.Locals("user_id", userID)
 	return c.Next()
 }

@@ -50,25 +50,33 @@ func main() {
 
 	// Repositórios
 	userRepo := repository.NewUserRepository(db)
+	campaignRepo := repository.NewCampaignRepository(db)
 
 	// Services
 	jwtSecret := os.Getenv("JWT_SECRET")
 	authService := service.NewAuthService(userRepo, jwtSecret)
+	campaignService := service.NewCampaignService(campaignRepo, userRepo)
 
 	// Handlers
 	validate := validator.New()
 	authHandler := handler.NewAuthHandler(authService, validate)
+	campaignHandler := handler.NewCampaignHandler(campaignService, validate)
 
-	// Rotas
-	api := app.Group("/api")
-	auth := api.Group("/auth")
-	auth.Post("Register", authHandler.Register)
-	auth.Post("login", authHandler.Login)
+	// Rotas autênticação
+	auth := app.Group("/api/auth")
+	auth.Post("/register", authHandler.Register)
+	auth.Post("/login", authHandler.Login)
 
+	api := app.Group("/api", middleware.AuthRequired)
 	// campanhas
-	campaigns := api.Group("/campaigns", middleware.AuthRequired)
+	api.Get("/campaigns", campaignHandler.List)
+	api.Get("/campaigns/:id", campaignHandler.Get)
+	api.Post("/campaigns", campaignHandler.Create)
+	api.Post("/campaigns/:id/members", campaignHandler.AddMember)
+	api.Put("/campaigns/:id", campaignHandler.Update)
+	api.Delete("/campaigns/:id", campaignHandler.Delete)
 
-	campaigns.Get("/health", func(c *fiber.Ctx) error {
+	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
