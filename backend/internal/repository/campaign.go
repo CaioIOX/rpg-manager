@@ -17,7 +17,7 @@ func NewCampaignRepository(db *pgxpool.Pool) *CampaignRepository {
 }
 
 func (r *CampaignRepository) Create(ctx context.Context, campaign *model.Campaign) error {
-	query := `INSERT INTO campaign (name, description, owner_id) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at`
+	query := `INSERT INTO campaigns (name, description, owner_id) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at`
 	return r.db.QueryRow(ctx, query, campaign.Name, campaign.Description, campaign.OwnerId).Scan(&campaign.ID, &campaign.CreatedAt, &campaign.UpdtaedAt)
 }
 
@@ -83,7 +83,7 @@ func (r *CampaignRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (r *CampaignRepository) AddMember(ctx context.Context, campaignID, userID, role string) error {
-	query := `INSERT INTO campaign_members (campaign_id, user_id, roles) VALUES ($1, $2, $3) ON CONFLICT (campaign_id, user_id) DO UPDATE SET role =$3`
+	query := `INSERT INTO campaign_members (campaign_id, user_id, role) VALUES ($1, $2, $3) ON CONFLICT (campaign_id, user_id) DO UPDATE SET role =$3`
 	_, err := r.db.Exec(ctx, query, campaignID, userID, role)
 
 	return err
@@ -91,7 +91,7 @@ func (r *CampaignRepository) AddMember(ctx context.Context, campaignID, userID, 
 
 func (r *CampaignRepository) GetMemberRole(ctx context.Context, campaignID, userID string) (string, error) {
 	var role string
-	query := `SELECT role FROM campaign_member WHERE campaign_id = $1 AND user_id = $2`
+	query := `SELECT role FROM campaign_members WHERE campaign_id = $1 AND user_id = $2`
 
 	err := r.db.QueryRow(ctx, query, campaignID, userID).Scan(&role)
 
@@ -103,7 +103,7 @@ func (r *CampaignRepository) GetMemberRole(ctx context.Context, campaignID, user
 }
 
 func (r *CampaignRepository) RemoveMember(ctx context.Context, campaignID, userID string) error {
-	_, err := r.db.Exec(ctx, `DELETE FROM campaing_member WHERE campaign_id = $1 AND uder_id = $2`, campaignID, userID)
+	_, err := r.db.Exec(ctx, `DELETE FROM campaign_members WHERE campaign_id = $1 AND user_id = $2`, campaignID, userID)
 
 	return err
 }
