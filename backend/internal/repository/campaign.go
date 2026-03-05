@@ -104,7 +104,7 @@ func (r *CampaignRepository) Update(ctx context.Context, id string, req dto.Upda
 	WHERE id = $3 
 	RETURNING id, name, description, owner_id, created_at, updated_at`
 
-	err := r.db.QueryRow(ctx, query, req.Name, req.Description, id).Scan(&campaign.ID, &campaign.Name, &campaign.Description, &campaign.OwnerId, &campaign.CreatedAt, &campaign.UpdtaedAt)
+	err := r.db.QueryRow(ctx, query, req.Name, req.Description, id).Scan(&campaign.ID, &campaign.Name, &campaign.Description, &campaign.OwnerId, &campaign.CreatedAt, &campaign.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}

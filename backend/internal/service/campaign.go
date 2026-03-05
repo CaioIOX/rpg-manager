@@ -54,11 +54,10 @@ func (s *CampaignService) GetByUser(ctx context.Context, loggedUser string) ([]d
 	return campaignList, nil
 }
 
-func (s *CampaignService) Create(ctx context.Context, createdCampaign dto.CreateCampaignRequest, loggedUser string) error {
-
+func (s *CampaignService) Create(ctx context.Context, newCampaign dto.CreateCampaignRequest, loggedUser string) error {
 	campaign := &model.Campaign{
-		Name:        createdCampaign.Name,
-		Description: createdCampaign.Description,
+		Name:        newCampaign.Name,
+		Description: newCampaign.Description,
 		OwnerId:     loggedUser,
 	}
 
@@ -96,19 +95,19 @@ func (s *CampaignService) AddMember(ctx context.Context, dto dto.AddMemberReques
 
 }
 
-func (s *CampaignService) Update(ctx context.Context, id string, dto dto.UpdateCampaignRequest, loggedUser string) (*model.Campaign, error) {
+func (s *CampaignService) Update(ctx context.Context, id string, campaign dto.UpdateCampaignRequest, loggedUser string) (*model.Campaign, error) {
 	hasPermission, err := s.campaignRepo.GetMemberRole(ctx, id, loggedUser)
 	if err != nil {
-		return nil, errors.New("Ocorreu um erro ao atualziar campanha!")
+		return nil, errors.New("Ocorreu um erro ao atualziar campanha.")
 	}
 
 	if hasPermission != "owner" {
 		return nil, customErrors.ErrUnauthorized
 	}
 
-	updatedCampaign, err := s.campaignRepo.Update(ctx, id, dto)
+	updatedCampaign, err := s.campaignRepo.Update(ctx, id, campaign)
 	if err != nil {
-		return nil, errors.New("Erro ao atualizar campanha!")
+		return nil, errors.New("Erro ao atualizar campanha.")
 	}
 
 	return updatedCampaign, nil
@@ -117,7 +116,7 @@ func (s *CampaignService) Update(ctx context.Context, id string, dto dto.UpdateC
 func (s *CampaignService) Delete(ctx context.Context, id string, loggedUser string) error {
 	hasPermission, err := s.campaignRepo.GetMemberRole(ctx, id, loggedUser)
 	if err != nil {
-		return errors.New("Ocorreu um erro ao deletar campanha!")
+		return errors.New("Ocorreu um erro ao deletar campanha.")
 	}
 
 	if hasPermission != "owner" {
@@ -125,7 +124,7 @@ func (s *CampaignService) Delete(ctx context.Context, id string, loggedUser stri
 	}
 
 	if err := s.campaignRepo.Delete(ctx, id); err != nil {
-		return errors.New("Erro ao deletar campanha!")
+		return errors.New("Erro ao deletar campanha.")
 	}
 
 	return nil
