@@ -19,21 +19,31 @@ func NewCampaignService(campaignRepo *repository.CampaignRepository, userRepo *r
 	return &CampaignService{campaignRepo: campaignRepo, userRepo: userRepo}
 }
 
-func (s *CampaignService) GetByID(ctx context.Context, id string, loggedUser string) (model.Campaign, error) {
+func (s *CampaignService) GetByID(ctx context.Context, id string, loggedUser string) (*dto.CampaignDetailsResponse, error) {
 	hasPermission, err := s.campaignRepo.GetMemberRole(ctx, id, loggedUser)
 	if err != nil {
-		return model.Campaign{}, errors.New("Ocorreu um erro ao recuperar campanha.")
+		return nil, errors.New("Ocorreu um erro ao recuperar campanha.")
 	}
 
 	if hasPermission != "owner" && hasPermission != "editor" && hasPermission != "viewer" {
-		return model.Campaign{}, customErrors.ErrUnauthorized
+		return nil, customErrors.ErrUnauthorized
 	}
 
 	campaign, err := s.campaignRepo.GetByID(ctx, id)
 	if err != nil {
-		return model.Campaign{}, errors.New("Erro ao recuperar campanha.")
+		return nil, errors.New("Erro ao recuperar campanha.")
 	}
-	return *campaign, err
+	members, err := s.campaignRepo.GetMembers(ctx, id)
+	if err != nil {
+		return nil, errors.New("Erro ao recuperar membros da campanha.")
+	}
+
+	response := &dto.CampaignDetailsResponse{
+		Campaign: *campaign,
+		Members:  members,
+	}
+
+	return response, err
 }
 
 func (s *CampaignService) GetByUser(ctx context.Context, loggedUser string) ([]dto.CampaignWithRole, error) {

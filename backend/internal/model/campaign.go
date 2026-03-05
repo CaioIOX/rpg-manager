@@ -8,7 +8,7 @@ type Campaign struct {
 	Description string    `json:"description"`
 	OwnerId     string    `json:"owner_id"`
 	CreatedAt   time.Time `json:"created_at"`
-	UpdtaedAt   time.Time `json:"updated_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type CampaignMember struct {

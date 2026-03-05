@@ -21,3 +21,15 @@ type CampaignWithRole struct {
 	model.Campaign
 	Role string `json:"role"`
 }
+
+type MemberResponse struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+}
+
+type CampaignDetailsResponse struct {
+	model.Campaign
+	Members []MemberResponse `json:"members"`
+}

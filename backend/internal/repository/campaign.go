@@ -18,14 +18,15 @@ func NewCampaignRepository(db *pgxpool.Pool) *CampaignRepository {
 
 func (r *CampaignRepository) Create(ctx context.Context, campaign *model.Campaign) error {
 	query := `INSERT INTO campaigns (name, description, owner_id) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at`
-	return r.db.QueryRow(ctx, query, campaign.Name, campaign.Description, campaign.OwnerId).Scan(&campaign.ID, &campaign.CreatedAt, &campaign.UpdtaedAt)
+	return r.db.QueryRow(ctx, query, campaign.Name, campaign.Description, campaign.OwnerId).Scan(&campaign.ID, &campaign.CreatedAt, &campaign.UpdatedAt)
 }
 
 func (r *CampaignRepository) GetByID(ctx context.Context, id string) (*model.Campaign, error) {
 	campaign := &model.Campaign{}
 
 	query := `SELECT id, name, description, owner_id, created_at, updated_at FROM campaigns WHERE id = $1`
-	err := r.db.QueryRow(ctx, query, id).Scan(&campaign.ID, &campaign.Name, &campaign.Description, &campaign.OwnerId, &campaign.CreatedAt, &campaign.UpdtaedAt)
+
+	err := r.db.QueryRow(ctx, query, id).Scan(&campaign.ID, &campaign.Name, &campaign.Description, &campaign.OwnerId, &campaign.CreatedAt, &campaign.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -48,10 +49,11 @@ func (r *CampaignRepository) GetByUser(ctx context.Context, userID string) ([]dt
 	}
 	defer rows.Close()
 
-	var campaigns []dto.CampaignWithRole
+	campaigns := make([]dto.CampaignWithRole, 0)
+
 	for rows.Next() {
 		var c dto.CampaignWithRole
-		err := rows.Scan(&c.ID, &c.Name, &c.Description, &c.OwnerId, &c.CreatedAt, &c.UpdtaedAt, &c.Role)
+		err := rows.Scan(&c.ID, &c.Name, &c.Description, &c.OwnerId, &c.CreatedAt, &c.UpdatedAt, &c.Role)
 		if err != nil {
 			return nil, err
 		}
@@ -60,6 +62,38 @@ func (r *CampaignRepository) GetByUser(ctx context.Context, userID string) ([]dt
 	}
 
 	return campaigns, rows.Err()
+}
+
+func (r *CampaignRepository) GetMembers(ctx context.Context, campaignID string) ([]dto.MemberResponse, error) {
+	query := `
+	SELECT u.id, u.username, u.email, cm.role 
+	FROM users u 
+	JOIN campaign_members cm ON u.id = cm.user_id 
+	WHERE cm.campaign_id = $1`
+
+	rows, err := r.db.Query(ctx, query, campaignID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	members := make([]dto.MemberResponse, 0)
+
+	for rows.Next() {
+		var m dto.MemberResponse
+		err := rows.Scan(&m.ID, &m.Username, &m.Email, &m.Role)
+		if err != nil {
+			return nil, err
+		}
+
+		members = append(members, m)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return members, nil
 }
 
 func (r *CampaignRepository) Update(ctx context.Context, id string, req dto.UpdateCampaignRequest) (*model.Campaign, error) {
