@@ -66,7 +66,7 @@ func (h *CampaignHandler) Create(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar criar campanha."})
 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "Camapanha criada com sucesso!"})
+	return c.Status(201).JSON(fiber.Map{"message": "Campanha criada com sucesso!"})
 }
 
 func (h *CampaignHandler) AddMember(c *fiber.Ctx) error {

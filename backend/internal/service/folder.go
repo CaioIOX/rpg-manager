@@ -53,7 +53,15 @@ func (s *FolderService) GetByCampaign(ctx context.Context, campaignID string, lo
 	return &folder, nil
 }
 
-func (s *FolderService) Create(ctx context.Context, newFolder dto.CreateFolderRequest) error {
+func (s *FolderService) Create(ctx context.Context, newFolder dto.CreateFolderRequest, campaignID string, loggedUser string) error {
+	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
+	if err != nil {
+		return errors.New("Ocorreu um erro ao recuperar as pastas.")
+	}
+	if userRole != "owner" && userRole != "editor" && userRole != "viewer" {
+		return customErrors.ErrUnauthorized
+	}
+
 	folder := &model.Folder{
 		Name:     newFolder.Name,
 		ParentID: newFolder.ParentID,
