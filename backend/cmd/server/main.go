@@ -82,7 +82,7 @@ func main() {
 	// pastas
 	api.Get("/campaigns/:campaign_id/folders", folderHandler.List)
 	api.Get("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Get)
-	api.Post("/campaigns/?campaign_id/folders", folderHandler.Create)
+	api.Post("/campaigns/:campaign_id/folders", folderHandler.Create)
 	api.Put("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Update)
 	api.Delete("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Delete)
 

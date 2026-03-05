@@ -44,7 +44,7 @@ func (r *FolderRepository) GetByCampaign(ctx context.Context, campaignID string)
 
 func (r *FolderRepository) GetByID(ctx context.Context, id string) (*model.Folder, error) {
 	folder := &model.Folder{}
-	query := `SELECT id, campaign_id, parent_id, position_id, name, position created_at, updated_at FROM folders WHERE id = $1`
+	query := `SELECT id, campaign_id, parent_id, name, position, created_at, updated_at FROM folders WHERE id = $1`
 
 	err := r.db.QueryRow(ctx, query, id).Scan(&folder.ID, &folder.CampaignID, &folder.ParentID, &folder.Name, &folder.Position, &folder.CreatedAt, &folder.UpdatedAt)
 	if err != nil {
@@ -60,7 +60,7 @@ func (r *FolderRepository) Update(ctx context.Context, id string, req dto.Update
 		SET name = COALESCE($1, name), parent_id = COALESCE($2, parent_id), position = COALESCE($3, position), updated_at = NOW()
 		WHERE id = $4
 		RETURNING id, campaign_id, parent_id, name, position, created_at, updated_at`
-	err := r.db.QueryRow(ctx, query, req.Name, req.ParentID, req.Position, id).Scan(&folder.ID, &folder.CampaignID, &folder.ParentID, &folder.Position, &folder.Name, &folder.CreatedAt, &folder.UpdatedAt)
+	err := r.db.QueryRow(ctx, query, req.Name, req.ParentID, req.Position, id).Scan(&folder.ID, &folder.CampaignID, &folder.ParentID, &folder.Name, &folder.Position, &folder.CreatedAt, &folder.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}

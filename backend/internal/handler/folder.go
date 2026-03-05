@@ -16,7 +16,7 @@ type FolderHandler struct {
 }
 
 func NewFolderHandler(folderService *service.FolderService, validate *validator.Validate) *FolderHandler {
-	return &FolderHandler{folderService: folderService}
+	return &FolderHandler{folderService: folderService, validate: validate}
 }
 
 func (h *FolderHandler) List(c *fiber.Ctx) error {

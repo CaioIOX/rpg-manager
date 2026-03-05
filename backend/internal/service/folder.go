@@ -58,13 +58,14 @@ func (s *FolderService) Create(ctx context.Context, newFolder dto.CreateFolderRe
 	if err != nil {
 		return errors.New("Ocorreu um erro ao recuperar as pastas.")
 	}
-	if userRole != "owner" && userRole != "editor" && userRole != "viewer" {
+	if userRole != "owner" && userRole != "editor" {
 		return customErrors.ErrUnauthorized
 	}
 
 	folder := &model.Folder{
-		Name:     newFolder.Name,
-		ParentID: newFolder.ParentID,
+		Name:       newFolder.Name,
+		ParentID:   newFolder.ParentID,
+		CampaignID: campaignID,
 	}
 
 	if err := s.folderRepo.Create(ctx, folder); err != nil {
@@ -79,7 +80,7 @@ func (s *FolderService) Update(ctx context.Context, id string, campaignID string
 	if err != nil {
 		return nil, errors.New("Ocorreu um erro ao atualizar a pasta.")
 	}
-	if userRole != "owner" && userRole != "editor" && userRole != "viewer" {
+	if userRole != "owner" && userRole != "editor" {
 		return nil, customErrors.ErrUnauthorized
 	}
 
@@ -96,7 +97,7 @@ func (s *FolderService) Delete(ctx context.Context, id string, campaignID string
 	if err != nil {
 		return errors.New("Ocorreu um erro ao atualizar a pasta.")
 	}
-	if userRole != "owner" && userRole != "editor" && userRole != "viewer" {
+	if userRole != "owner" && userRole != "editor" {
 		return customErrors.ErrUnauthorized
 	}
 
