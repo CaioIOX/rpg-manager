@@ -19,7 +19,7 @@ func NewFolderService(folderRepo *repository.FolderRepository, campaignRepo *rep
 	return &FolderService{folderRepo: folderRepo, campaignRepo: campaignRepo}
 }
 
-func (s *FolderService) GetByID(ctx context.Context, campaignID string, id string, loggedUser string) (*model.Folder, error) {
+func (s *FolderService) GetByID(ctx context.Context, campaignID, id, loggedUser string) (*model.Folder, error) {
 	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
 	if err != nil {
 		return nil, errors.New("Ocorreu um erro ao recuperar pasta.")
@@ -36,7 +36,7 @@ func (s *FolderService) GetByID(ctx context.Context, campaignID string, id strin
 	return folder, err
 }
 
-func (s *FolderService) GetByCampaign(ctx context.Context, campaignID string, loggedUser string) (*[]model.Folder, error) {
+func (s *FolderService) GetByCampaign(ctx context.Context, campaignID, loggedUser string) (*[]model.Folder, error) {
 	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
 	if err != nil {
 		return nil, errors.New("Ocorreu um erro ao recuperar as pastas.")
@@ -53,7 +53,7 @@ func (s *FolderService) GetByCampaign(ctx context.Context, campaignID string, lo
 	return &folder, nil
 }
 
-func (s *FolderService) Create(ctx context.Context, newFolder dto.CreateFolderRequest, campaignID string, loggedUser string) error {
+func (s *FolderService) Create(ctx context.Context, newFolder dto.CreateFolderRequest, campaignID, loggedUser string) error {
 	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
 	if err != nil {
 		return errors.New("Ocorreu um erro ao recuperar as pastas.")
@@ -75,7 +75,7 @@ func (s *FolderService) Create(ctx context.Context, newFolder dto.CreateFolderRe
 	return nil
 }
 
-func (s *FolderService) Update(ctx context.Context, id string, campaignID string, folder dto.UpdateFolderRequest, loggedUser string) (*model.Folder, error) {
+func (s *FolderService) Update(ctx context.Context, folder dto.UpdateFolderRequest, id, campaignID, loggedUser string) (*model.Folder, error) {
 	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
 	if err != nil {
 		return nil, errors.New("Ocorreu um erro ao atualizar a pasta.")
@@ -92,7 +92,7 @@ func (s *FolderService) Update(ctx context.Context, id string, campaignID string
 	return updatedFolder, nil
 }
 
-func (s *FolderService) Delete(ctx context.Context, id string, campaignID string, loggedUser string) error {
+func (s *FolderService) Delete(ctx context.Context, id, campaignID, loggedUser string) error {
 	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
 	if err != nil {
 		return errors.New("Ocorreu um erro ao atualizar a pasta.")

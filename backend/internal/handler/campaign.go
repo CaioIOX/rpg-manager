@@ -31,10 +31,10 @@ func (h *CampaignHandler) List(c *fiber.Ctx) error {
 }
 
 func (h *CampaignHandler) Get(c *fiber.Ctx) error {
-	id := c.Params("id")
+	campaignID := c.Params("campaign_id")
 	loggedUser := c.Locals("user_id").(string)
 
-	campaign, err := h.campaignService.GetByID(c.Context(), id, loggedUser)
+	campaign, err := h.campaignService.GetByID(c.Context(), campaignID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
 			return c.Status(401).JSON(fiber.Map{"error": "Você não é membro dessa campanha!"})

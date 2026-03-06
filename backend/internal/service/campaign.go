@@ -19,7 +19,7 @@ func NewCampaignService(campaignRepo *repository.CampaignRepository, userRepo *r
 	return &CampaignService{campaignRepo: campaignRepo, userRepo: userRepo}
 }
 
-func (s *CampaignService) GetByID(ctx context.Context, id string, loggedUser string) (*dto.CampaignDetailsResponse, error) {
+func (s *CampaignService) GetByID(ctx context.Context, id, loggedUser string) (*dto.CampaignDetailsResponse, error) {
 	hasPermission, err := s.campaignRepo.GetMemberRole(ctx, id, loggedUser)
 	if err != nil {
 		return nil, errors.New("Ocorreu um erro ao recuperar campanha.")
@@ -113,7 +113,7 @@ func (s *CampaignService) Update(ctx context.Context, id string, campaign dto.Up
 	return updatedCampaign, nil
 }
 
-func (s *CampaignService) Delete(ctx context.Context, id string, loggedUser string) error {
+func (s *CampaignService) Delete(ctx context.Context, id, loggedUser string) error {
 	hasPermission, err := s.campaignRepo.GetMemberRole(ctx, id, loggedUser)
 	if err != nil {
 		return errors.New("Ocorreu um erro ao deletar campanha.")

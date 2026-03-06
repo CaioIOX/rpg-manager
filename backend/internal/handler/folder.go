@@ -89,7 +89,7 @@ func (h *FolderHandler) Update(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	folder, err := h.folderService.Update(c.Context(), folderID, campaignID, input, loggedUser)
+	folder, err := h.folderService.Update(c.Context(), input, folderID, campaignID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
 			return c.Status(401).JSON(fiber.Map{"error": err.Error()})

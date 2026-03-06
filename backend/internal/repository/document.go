@@ -143,7 +143,7 @@ func (r *DocumentRepository) GetLinksFrom(ctx context.Context, docID string) ([]
 }
 
 func (r *DocumentRepository) GetLinksTo(ctx context.Context, docID string) ([]model.DocumentLink, error) {
-	query := `SELECT id, sourcer_doc_id, target_doc_id, mention_text, created_at FROM document_links WHERE target_doc_id = $1`
+	query := `SELECT id, source_doc_id, target_doc_id, mention_text, created_at FROM document_links WHERE target_doc_id = $1`
 	rows, err := r.db.Query(ctx, query, docID)
 	if err != nil {
 		return nil, err
@@ -164,7 +164,7 @@ func (r *DocumentRepository) GetLinksTo(ctx context.Context, docID string) ([]mo
 }
 
 func (r *DocumentRepository) DeleteLinksFrom(ctx context.Context, docID string) error {
-	_, err := r.db.Exec(ctx, `DELELTE FROM document_links WHERE source_doc_id = $1`, docID)
+	_, err := r.db.Exec(ctx, `DELETE FROM document_links WHERE source_doc_id = $1`, docID)
 	return err
 }
 
