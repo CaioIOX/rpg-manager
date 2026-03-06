@@ -236,5 +236,5 @@ func (s *DocumentService) UpdateYjsState(ctx context.Context, state []byte, camp
 		return errors.New("Ocorreu um erro ao atualizar o documento.")
 	}
 
-	return err
+	return nil
 }

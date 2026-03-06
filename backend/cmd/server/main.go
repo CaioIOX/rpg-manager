@@ -52,18 +52,21 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	campaignRepo := repository.NewCampaignRepository(db)
 	folderRepo := repository.NewFolderRepository(db)
+	documentRepo := repository.NewDocumentRepository(db)
 
 	// Services
 	jwtSecret := os.Getenv("JWT_SECRET")
 	authService := service.NewAuthService(userRepo, jwtSecret)
 	campaignService := service.NewCampaignService(campaignRepo, userRepo)
 	folderService := service.NewFolderService(folderRepo, campaignRepo)
+	documentService := service.NewDocumentService(documentRepo, campaignRepo)
 
 	// Handlers
 	validate := validator.New()
 	authHandler := handler.NewAuthHandler(authService, validate)
 	campaignHandler := handler.NewCampaignHandler(campaignService, validate)
 	folderHandler := handler.NewFolderHandler(folderService, validate)
+	documentHandler := handler.NewDocumentHandler(documentService, validate)
 
 	// Rotas autênticação
 	auth := app.Group("/api/auth")
@@ -85,6 +88,15 @@ func main() {
 	api.Post("/campaigns/:campaign_id/folders", folderHandler.Create)
 	api.Put("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Update)
 	api.Delete("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Delete)
+
+	// Documentos
+	api.Get("/campaigns/:campaign_id/documents", documentHandler.List)
+	api.Get("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Get)
+	api.Post("/campaigns/:campaign_id/folders/:folder_id/documents", documentHandler.Create)
+	api.Put("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Update)
+	api.Delete("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Delete)
+	api.Get("/campaigns/:campaign_id/documents/:document_id/search", documentHandler.Search)
+	api.Get("/campaigns/:campaign_id/documents/links", documentHandler.GetLinks)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})

@@ -110,7 +110,7 @@ func (h *CampaignHandler) Update(c *fiber.Ctx) error {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
 			return c.Status(401).JSON(fiber.Map{"error": err.Error()})
 		}
-		return c.Status(400).JSON(fiber.Map{"errors": "Erro ao tentar atualizar campanha!"})
+		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar atualizar campanha!"})
 	}
 
 	return c.JSON(campaign)
@@ -124,7 +124,7 @@ func (h *CampaignHandler) Delete(c *fiber.Ctx) error {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
 			return c.Status(401).JSON(fiber.Map{"error": err.Error()})
 		}
-		return c.Status(400).JSON(fiber.Map{"errors": "Erro ao tentar apagar campanha!"})
+		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar apagar campanha!"})
 	}
 
 	return c.Status(204).Send(nil)
