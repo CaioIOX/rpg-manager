@@ -20,6 +20,15 @@ func NewTemplateService(templateRepo *repository.TemplateRepository, campaignRep
 }
 
 func (s *TemplateService) Create(ctx context.Context, newTmpl dto.CreateTemplateRequest, campaignID, loggedUser string) error {
+	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
+	if err != nil {
+		return errors.New("Ocorreu um erro ao criar o template.")
+	}
+
+	if userRole != "owner" && userRole != "editor" {
+		return customErrors.ErrUnauthorized
+	}
+
 	template := &model.Template{
 		Name:           newTmpl.Name,
 		CampaignID:     campaignID,
