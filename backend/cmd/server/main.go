@@ -53,6 +53,7 @@ func main() {
 	campaignRepo := repository.NewCampaignRepository(db)
 	folderRepo := repository.NewFolderRepository(db)
 	documentRepo := repository.NewDocumentRepository(db)
+	templatesRepo := repository.NewTemplateRepository(db)
 
 	// Services
 	jwtSecret := os.Getenv("JWT_SECRET")
@@ -60,6 +61,7 @@ func main() {
 	campaignService := service.NewCampaignService(campaignRepo, userRepo)
 	folderService := service.NewFolderService(folderRepo, campaignRepo)
 	documentService := service.NewDocumentService(documentRepo, campaignRepo)
+	templateService := service.NewTemplateService(templatesRepo, campaignRepo)
 
 	// Handlers
 	validate := validator.New()
@@ -67,6 +69,7 @@ func main() {
 	campaignHandler := handler.NewCampaignHandler(campaignService, validate)
 	folderHandler := handler.NewFolderHandler(folderService, validate)
 	documentHandler := handler.NewDocumentHandler(documentService, validate)
+	templateHandler := handler.NewTemplateHandler(templateService, validate)
 
 	// Rotas autênticação
 	auth := app.Group("/api/auth")
@@ -97,6 +100,13 @@ func main() {
 	api.Delete("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Delete)
 	api.Get("/campaigns/:campaign_id/documents/:document_id/search", documentHandler.Search)
 	api.Get("/campaigns/:campaign_id/documents/links", documentHandler.GetLinks)
+
+	// Templates
+	api.Get("/campaigns/:campaign_id/templates", templateHandler.List)
+	api.Get("/campaigns/:campaign_id/templates/:template_id", templateHandler.Get)
+	api.Post("/campaigns/:campaign_id/templates", templateHandler.Create)
+	api.Put("/campaigns/:campaign_id/templates/:template_id", templateHandler.Update)
+	api.Delete("/campaigns/:campaign_id/templates/:template_id", templateHandler.Delete)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})

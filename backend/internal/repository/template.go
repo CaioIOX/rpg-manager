@@ -51,7 +51,7 @@ func (r *TemplateRepository) GetByCampaign(ctx context.Context, campaignID strin
 	}
 	defer rows.Close()
 
-	var templates []model.Template
+	templates := make([]model.Template, 0)
 	for rows.Next() {
 		var t model.Template
 		err := rows.Scan(&t.ID, &t.CampaignID, &t.Name, &t.Description, &t.Icon, &t.Schema, &t.DefaultContent, &t.CreatedAt, &t.UpdatedAt)
@@ -71,6 +71,7 @@ func (r *TemplateRepository) GetByID(ctx context.Context, id string) (*model.Tem
 		SELECT id, campaign_id, name, COALESCE(description, ''), COALESCE(icon, '📄'), COALESCE(schema, '[]'::jsonb), COALESCE(default_content, '{}'::jsonb), created_at, updated_at 
 		FROM templates 
 		WHERE id = $1`
+		
 	err := r.db.QueryRow(ctx, query, id).
 		Scan(&tmpl.ID, &tmpl.CampaignID, &tmpl.Name, &tmpl.Description, &tmpl.Icon, &tmpl.Schema, &tmpl.DefaultContent, &tmpl.CreatedAt, &tmpl.UpdatedAt)
 	if err != nil {
@@ -87,6 +88,7 @@ func (r *TemplateRepository) Update(ctx context.Context, id string, req dto.Upda
 		SET name = COALESCE($1, name), description = COALESCE($2, description), icon = COALESCE($3, icon), schema = COALESCE($4, schema), default_content = COALESCE($5, default_content), updated_at = NOW()
 		WHERE id = $6
 		RETURNING id, campaing_id, name, description, icon, schema, default_content, created_at, updated_at`
+
 	err := r.db.QueryRow(ctx, query, req.Name, req.Description, req.Icon, req.Schema, req.DefaultContent, id).
 		Scan(&tmpl.ID, &tmpl.CampaignID, &tmpl.Name, &tmpl.Description, &tmpl.Icon, &tmpl.Schema, &tmpl.DefaultContent, &tmpl.CreatedAt, &tmpl.UpdatedAt)
 	if err == nil {
