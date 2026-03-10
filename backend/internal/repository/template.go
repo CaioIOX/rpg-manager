@@ -42,7 +42,7 @@ func (r *TemplateRepository) GetByCampaign(ctx context.Context, campaignID strin
 	query := `
 		SELECT id, campaign_id, name, COALESCE(description, ''), COALESCE(icon, '📄'), COALESCE(Schema, '[]'::jsonb), COALESCE(default_content, '{}'::jsonb), created_at, updated_at 
 		FROM templates 
-		WHERE cmpaing_id = $1 
+		WHERE campaign_id = $1 
 		ORDER BY name`
 	rows, err := r.db.Query(ctx, query, campaignID)
 
