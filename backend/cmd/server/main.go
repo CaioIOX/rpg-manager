@@ -5,6 +5,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/CaioIOX/rpg-manager/backend/internal/handler"
+	"github.com/CaioIOX/rpg-manager/backend/internal/middleware"
+	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
+	"github.com/CaioIOX/rpg-manager/backend/internal/service"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
@@ -42,6 +47,66 @@ func main() {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 	log.Println("Migrations applied")
+
+	// Repositórios
+	userRepo := repository.NewUserRepository(db)
+	campaignRepo := repository.NewCampaignRepository(db)
+	folderRepo := repository.NewFolderRepository(db)
+	documentRepo := repository.NewDocumentRepository(db)
+	templatesRepo := repository.NewTemplateRepository(db)
+
+	// Services
+	jwtSecret := os.Getenv("JWT_SECRET")
+	authService := service.NewAuthService(userRepo, jwtSecret)
+	campaignService := service.NewCampaignService(campaignRepo, userRepo)
+	folderService := service.NewFolderService(folderRepo, campaignRepo)
+	documentService := service.NewDocumentService(documentRepo, campaignRepo)
+	templateService := service.NewTemplateService(templatesRepo, campaignRepo)
+
+	// Handlers
+	validate := validator.New()
+	authHandler := handler.NewAuthHandler(authService, validate)
+	campaignHandler := handler.NewCampaignHandler(campaignService, validate)
+	folderHandler := handler.NewFolderHandler(folderService, validate)
+	documentHandler := handler.NewDocumentHandler(documentService, validate)
+	templateHandler := handler.NewTemplateHandler(templateService, validate)
+
+	// Rotas autênticação
+	auth := app.Group("/api/auth")
+	auth.Post("/register", authHandler.Register)
+	auth.Post("/login", authHandler.Login)
+
+	api := app.Group("/api", middleware.AuthRequired)
+	// campanhas
+	api.Get("/campaigns", campaignHandler.List)
+	api.Get("/campaigns/:id", campaignHandler.Get)
+	api.Post("/campaigns", campaignHandler.Create)
+	api.Post("/campaigns/:id/members", campaignHandler.AddMember)
+	api.Put("/campaigns/:id", campaignHandler.Update)
+	api.Delete("/campaigns/:id", campaignHandler.Delete)
+
+	// pastas
+	api.Get("/campaigns/:campaign_id/folders", folderHandler.List)
+	api.Get("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Get)
+	api.Post("/campaigns/:campaign_id/folders", folderHandler.Create)
+	api.Put("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Update)
+	api.Delete("/campaigns/:campaign_id/folders/:folder_id", folderHandler.Delete)
+
+	// Documentos
+	api.Get("/campaigns/:campaign_id/documents", documentHandler.List)
+	api.Get("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Get)
+	api.Post("/campaigns/:campaign_id/folders/:folder_id/documents", documentHandler.Create)
+	api.Put("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Update)
+	api.Delete("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Delete)
+	api.Get("/campaigns/:campaign_id/documents/:document_id/search", documentHandler.Search)
+	api.Get("/campaigns/:campaign_id/documents/links", documentHandler.GetLinks)
+
+	// Templates
+	api.Get("/campaigns/:campaign_id/templates", templateHandler.List)
+	api.Get("/campaigns/:campaign_id/templates/:template_id", templateHandler.Get)
+	api.Post("/campaigns/:campaign_id/templates", templateHandler.Create)
+	api.Put("/campaigns/:campaign_id/templates/:template_id", templateHandler.Update)
+	api.Delete("/campaigns/:campaign_id/templates/:template_id", templateHandler.Delete)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})

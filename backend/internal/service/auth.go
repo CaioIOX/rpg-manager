@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
 	"github.com/CaioIOX/rpg-manager/backend/internal/model"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
@@ -24,12 +25,12 @@ func NewAuthService(userRepo *repository.UserRepository, jwtSecret string) *Auth
 func (s *AuthService) Register(ctx context.Context, req dto.RegisterInput) error {
 	existingEmail, _ := s.userRepo.GetByEmail(ctx, req.Email)
 	if existingEmail != nil {
-		return errors.New("Email já utilizado")
+		return customErrors.ErrEmailAlreadyExists
 	}
 
 	existingUsername, _ := s.userRepo.GetByUsername(ctx, req.Username)
 	if existingUsername != nil {
-		return errors.New("Username já utilizado")
+		return customErrors.ErrUsernameAlreadyExists
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -53,11 +54,11 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterInput) error
 func (s *AuthService) Login(ctx context.Context, req dto.LoginInput) (string, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return "", errors.New("Credenciais inválidas!")
+		return "", customErrors.ErrInvalidCredentials
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		return "", errors.New("Credenciais inválidas!")
+		return "", customErrors.ErrInvalidCredentials
 	}
 
 	claims := jwt.MapClaims{
