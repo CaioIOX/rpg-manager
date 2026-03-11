@@ -9,8 +9,10 @@ import (
 	"github.com/CaioIOX/rpg-manager/backend/internal/middleware"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
 	"github.com/CaioIOX/rpg-manager/backend/internal/service"
+	"github.com/CaioIOX/rpg-manager/backend/internal/ws"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -48,6 +50,7 @@ func main() {
 	}
 	log.Println("Migrations applied")
 
+	hub := ws.NewHub()
 	// Repositórios
 	userRepo := repository.NewUserRepository(db)
 	campaignRepo := repository.NewCampaignRepository(db)
@@ -70,6 +73,7 @@ func main() {
 	folderHandler := handler.NewFolderHandler(folderService, validate)
 	documentHandler := handler.NewDocumentHandler(documentService, validate)
 	templateHandler := handler.NewTemplateHandler(templateService, validate)
+	wsH := ws.NewHandler(documentRepo)
 
 	// Rotas autênticação
 	auth := app.Group("/api/auth")
@@ -79,11 +83,11 @@ func main() {
 	api := app.Group("/api", middleware.AuthRequired)
 	// campanhas
 	api.Get("/campaigns", campaignHandler.List)
-	api.Get("/campaigns/:id", campaignHandler.Get)
+	api.Get("/campaigns/:campaign_id", campaignHandler.Get)
 	api.Post("/campaigns", campaignHandler.Create)
-	api.Post("/campaigns/:id/members", campaignHandler.AddMember)
-	api.Put("/campaigns/:id", campaignHandler.Update)
-	api.Delete("/campaigns/:id", campaignHandler.Delete)
+	api.Post("/campaigns/:campaign_id/members", campaignHandler.AddMember)
+	api.Put("/campaigns/:campaign_id", campaignHandler.Update)
+	api.Delete("/campaigns/:campaign_id", campaignHandler.Delete)
 
 	// pastas
 	api.Get("/campaigns/:campaign_id/folders", folderHandler.List)
@@ -108,9 +112,21 @@ func main() {
 	api.Put("/campaigns/:campaign_id/templates/:template_id", templateHandler.Update)
 	api.Delete("/campaigns/:campaign_id/templates/:template_id", templateHandler.Delete)
 
+	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
+
+	// Websocket
+	app.Use("/ws", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			return c.Next()
+		}
+
+		return fiber.ErrUpgradeRequired
+	})
+
+	app.Get("/ws/doc/:doc_id", middleware.AuthRequired, wsH.HandlerWs(hub))
 
 	app.Listen(":8080")
 }

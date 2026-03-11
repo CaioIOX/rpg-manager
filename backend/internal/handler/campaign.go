@@ -70,7 +70,7 @@ func (h *CampaignHandler) Create(c *fiber.Ctx) error {
 }
 
 func (h *CampaignHandler) AddMember(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id := c.Params("campaign_id")
 	loggedUser := c.Locals("user_id").(string)
 
 	input := dto.AddMemberRequest{}
@@ -93,7 +93,7 @@ func (h *CampaignHandler) AddMember(c *fiber.Ctx) error {
 }
 
 func (h *CampaignHandler) Update(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id := c.Params("campaign_id")
 	loggedUser := c.Locals("user_id").(string)
 
 	input := dto.UpdateCampaignRequest{}
@@ -117,7 +117,7 @@ func (h *CampaignHandler) Update(c *fiber.Ctx) error {
 }
 
 func (h *CampaignHandler) Delete(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id := c.Params("campaign_id")
 	loggedUser := c.Locals("user_id").(string)
 
 	if err := h.campaignService.Delete(c.Context(), id, loggedUser); err != nil {
