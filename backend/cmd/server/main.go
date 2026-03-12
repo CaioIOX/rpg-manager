@@ -98,12 +98,12 @@ func main() {
 
 	// Documentos
 	api.Get("/campaigns/:campaign_id/documents", documentHandler.List)
-	api.Get("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Get)
-	api.Post("/campaigns/:campaign_id/folders/:folder_id/documents", documentHandler.Create)
-	api.Put("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Update)
-	api.Delete("/campaigns/:campaign_id/folders/:folder_id/documents/:document_id", documentHandler.Delete)
-	api.Get("/campaigns/:campaign_id/documents/:document_id/search", documentHandler.Search)
-	api.Get("/campaigns/:campaign_id/documents/links", documentHandler.GetLinks)
+	api.Get("/campaigns/:campaign_id/documents/:document_id", documentHandler.Get)
+	api.Post("/campaigns/:campaign_id/documents", documentHandler.Create)
+	api.Put("/campaigns/:campaign_id/documents/:document_id", documentHandler.Update)
+	api.Delete("/campaigns/:campaign_id/documents/:document_id", documentHandler.Delete)
+	api.Get("/campaigns/:campaign_id/search", documentHandler.Search)
+	api.Get("/campaigns/:campaign_id/documents/:document_id/links", documentHandler.GetLinks)
 
 	// Templates
 	api.Get("/campaigns/:campaign_id/templates", templateHandler.List)
