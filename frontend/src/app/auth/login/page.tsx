@@ -92,7 +92,7 @@ export default function LoginPage() {
         loading={loginMutation.isPending}
         sx={{ borderRadius: "20px", textTransform: "none" }}
       >
-        {loginMutation.isPending ? "Carregando..." : "Entrar"}
+        Entrar
       </Button>
 
       <Typography variant="body2" gutterBottom>

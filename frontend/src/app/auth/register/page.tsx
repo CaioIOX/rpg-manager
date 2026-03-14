@@ -40,7 +40,7 @@ export default function RegisterPage() {
       },
       {
         onSuccess: () => {
-          router.push("/auth/login");
+          router.push("/");
         },
       },
     );
@@ -109,7 +109,7 @@ export default function RegisterPage() {
         loading={registerMutation.isPending}
         sx={{ borderRadius: "20px", textTransform: "none" }}
       >
-        {registerMutation.isPending ? "Carregando..." : "Cadastrar"}
+        Cadastrar
       </Button>
     </Box>
   );
