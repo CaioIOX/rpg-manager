@@ -4,7 +4,7 @@ import useRegisterMutation from "@/lib/hooks/useRegisterMutation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import Typography from "@mui/material/Typography";
@@ -40,7 +40,7 @@ export default function RegisterPage() {
       },
       {
         onSuccess: () => {
-          router.push("/login");
+          router.push("/auth/login");
         },
       },
     );
@@ -59,6 +59,17 @@ export default function RegisterPage() {
       }}
     >
       <TextField
+        label="Username"
+        variant="outlined"
+        fullWidth
+        {...register("username")}
+        error={!!errors.username}
+        helperText={errors.username?.message}
+        sx={{
+          "& .MuiOutlinedInput-root": { borderRadius: "20px" },
+        }}
+      />
+      <TextField
         label="Email"
         placeholder="exemplo@gmail.com"
         variant="outlined"
@@ -69,17 +80,6 @@ export default function RegisterPage() {
         {...register("email")}
         error={!!errors.email}
         helperText={errors.email?.message}
-      />
-      <TextField
-        label="Username"
-        variant="outlined"
-        fullWidth
-        {...register("username")}
-        error={!!errors.username}
-        helperText={errors.username?.message}
-        sx={{
-          "& .MuiOutlinedInput-root": { borderRadius: "20px" },
-        }}
       />
       <TextField
         label="Senha"

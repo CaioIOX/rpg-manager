@@ -11,7 +11,7 @@ export default function useRegisterMutation() {
       email: string;
       username: string;
       password: string;
-    }) => Register(email, username, password),
+    }) => Register(username, email, password),
     onSuccess: (message) => {
       console.log(message);
     },

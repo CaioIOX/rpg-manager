@@ -9,6 +9,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { useLoginMutation } from "@/lib/hooks/useLoginMutation";
 import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 
 const loginSchema = z.object({
   email: z.email("Email inválido.").min(1, "Email obrigatório."),
@@ -93,6 +94,13 @@ export default function LoginPage() {
       >
         {loginMutation.isPending ? "Carregando..." : "Entrar"}
       </Button>
+
+      <Typography variant="body2" gutterBottom>
+        Não tem uma conta?{" "}
+        <Link color="#0000ff" underline="hover" href="/auth/register">
+          Cadastre-se
+        </Link>
+      </Typography>
     </Box>
   );
 }

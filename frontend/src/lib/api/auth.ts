@@ -13,6 +13,7 @@ export async function Login(email: string, password: string): Promise<MessageRes
 
 export async function Register(username: string, email: string, password: string): Promise<MessageResponse> {
     try {
+        console.log(username, email, password)
         const resp = await apiClient.post("/api/auth/register", { username, email, password })
         return resp.data
     } catch (error) {
