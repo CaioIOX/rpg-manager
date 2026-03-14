@@ -12,6 +12,7 @@ import (
 	"github.com/CaioIOX/rpg-manager/backend/internal/ws"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/websocket/v2"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
@@ -74,6 +75,13 @@ func main() {
 	documentHandler := handler.NewDocumentHandler(documentService, validate)
 	templateHandler := handler.NewTemplateHandler(templateService, validate)
 	wsH := ws.NewHandler(documentRepo)
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000",
+		AllowMethods:     "GET, POST, HEAD, PUT, DELETE",
+		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowCredentials: true,
+	}))
 
 	// Rotas autênticação
 	auth := app.Group("/api/auth")
