@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"time"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
@@ -68,4 +69,30 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	})
 
 	return c.JSON(fiber.Map{"message": "Login realizado com sucesso!"})
+}
+
+func (h *AuthHandler) Me(c *fiber.Ctx) error {
+	loggedUser := c.Locals("user_id").(string)
+
+	user, err := h.authService.GetUser(c.Context(), loggedUser)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Usuário não encontrado."})
+	}
+	return c.JSON(user)
+}
+
+func (h *AuthHandler) Logout(c *fiber.Ctx) error {
+	cookie := fiber.Cookie{
+		Name: "token",
+		Value: "",
+		Expires: time.Now().Add(-time.Hour),
+		HTTPOnly: true,
+		Path: "/",
+	}
+
+	c.Cookie(&cookie)
+
+	return c.JSON(fiber.Map{
+		"message": "success",
+	})
 }

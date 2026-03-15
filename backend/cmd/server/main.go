@@ -89,6 +89,9 @@ func main() {
 	auth.Post("/login", authHandler.Login)
 
 	api := app.Group("/api", middleware.AuthRequired)
+
+	api.Get("/me", authHandler.Me)
+	api.Post("/logout", authHandler.Logout)
 	// campanhas
 	api.Get("/campaigns", campaignHandler.List)
 	api.Get("/campaigns/:campaign_id", campaignHandler.Get)

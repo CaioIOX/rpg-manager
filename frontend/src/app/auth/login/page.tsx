@@ -34,7 +34,7 @@ export default function LoginPage() {
       { email: data.email, password: data.password },
       {
         onSuccess: () => {
-          router.push("/campaign");
+          router.push("/campaigns");
         },
       },
     );
