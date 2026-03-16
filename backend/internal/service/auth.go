@@ -45,6 +45,7 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterInput) error
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
+
 		return errors.New("Erro ao criar conta")
 	}
 
@@ -74,4 +75,8 @@ func (s *AuthService) Login(ctx context.Context, req dto.LoginInput) (string, er
 
 	return signed, nil
 
+}
+
+func (s *AuthService) GetUser(ctx context.Context, id string) (*model.User, error) {
+	return s.userRepo.GetByID(ctx, id)
 }

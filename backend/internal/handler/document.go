@@ -144,7 +144,7 @@ func (h *DocumentHandler) Search(c *fiber.Ctx) error {
 
 	docs, err := h.documentService.SearchByTitle(c.Context(), query, campaignID, loggedUser)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Consulta nçao encontrada."})
+		return c.Status(500).JSON(fiber.Map{"error": "Consulta não encontrada."})
 	}
 
 	return c.JSON(docs)

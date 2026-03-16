@@ -37,7 +37,6 @@ func (s *CampaignService) GetByID(ctx context.Context, id, loggedUser string) (*
 	if err != nil {
 		return nil, errors.New("Erro ao recuperar membros da campanha.")
 	}
-
 	response := &dto.CampaignDetailsResponse{
 		Campaign: *campaign,
 		Members:  members,
