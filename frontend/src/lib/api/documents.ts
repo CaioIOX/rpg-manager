@@ -9,7 +9,7 @@ interface LinksResponse {
 
 export async function List(campaignID: string): Promise<DocumentSummary[]> {
     try {
-        const resp = await apiClient.get(`/campaigns/${campaignID}/documents`)
+        const resp = await apiClient.get(`/api/campaigns/${campaignID}/documents`)
         return resp.data
     } catch (error) {
         console.error("Falha ao listar os documentos: ", error)
@@ -19,7 +19,7 @@ export async function List(campaignID: string): Promise<DocumentSummary[]> {
 
 export async function GetByID(campaignID: string, documentID: string): Promise<DocumentType> {
     try {
-        const resp = await apiClient.get(`/campaigns/${campaignID}/documents/${documentID}`)
+        const resp = await apiClient.get(`/api/campaigns/${campaignID}/documents/${documentID}`)
         return resp.data
     } catch (error) {
         console.error("Falha ao recuperar informações dos documentos: ", error)
@@ -29,7 +29,7 @@ export async function GetByID(campaignID: string, documentID: string): Promise<D
 
 export async function Create(campaignID: string, title: string, content?: Record<string, unknown>, folderID?: string): Promise<MessageResponse> {
     try {
-        const resp = await apiClient.post(`/campaigns/${campaignID}/documents`, { title, content, folderID })
+        const resp = await apiClient.post(`/api/campaigns/${campaignID}/documents`, { title, content, folderID })
         return resp.data
     } catch (error) {
         console.error("Falha ao criar o documento: ", error)
@@ -39,7 +39,7 @@ export async function Create(campaignID: string, title: string, content?: Record
 
 export async function Update(campaignID: string, documentID: string, title: string, folderID?: string, content?: Record<string, unknown>): Promise<DocumentType> {
     try {
-        const resp = await apiClient.put(`/campaigns/${campaignID}/documents/${documentID}`, { title, folderID, content })
+        const resp = await apiClient.put(`/api/campaigns/${campaignID}/documents/${documentID}`, { title, folderID, content })
         return resp.data
     } catch (error) {
         console.error("Falha ao atualizar o documento: ", error)
@@ -49,7 +49,7 @@ export async function Update(campaignID: string, documentID: string, title: stri
 
 export async function Delete(campaignID: string, documentID: string): Promise<MessageResponse> {
     try {
-        const resp = await apiClient.delete(`/campaigns/${campaignID}/documents/${documentID}`)
+        const resp = await apiClient.delete(`/api/campaigns/${campaignID}/documents/${documentID}`)
         return resp.data
     } catch (error) {
         console.error("Falha ao apagar o documento: ", error)
@@ -59,7 +59,7 @@ export async function Delete(campaignID: string, documentID: string): Promise<Me
 
 export async function GetLinks(campaignID: string, documentID: string): Promise<LinksResponse> {
     try {
-        const resp = await apiClient.get(`/campaigns/${campaignID}/documents/${documentID}/links`)
+        const resp = await apiClient.get(`/api/campaigns/${campaignID}/documents/${documentID}/links`)
         return resp.data
     } catch (error) {
         console.error("Falha ao recuperar menções: ", error)
@@ -69,7 +69,7 @@ export async function GetLinks(campaignID: string, documentID: string): Promise<
 
 export async function Search(campaignID: string, q: string): Promise<DocumentSummary[]> {
     try {
-        const resp = await apiClient.get(`/campaigns/${campaignID}/search`, { params: { q } })
+        const resp = await apiClient.get(`/api/campaigns/${campaignID}/search`, { params: { q } })
         return resp.data
     } catch (error) {
         console.error("Consulta não encontrada: ", error)

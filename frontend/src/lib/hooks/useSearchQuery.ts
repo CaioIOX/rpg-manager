@@ -5,5 +5,6 @@ export default function useSearchQuery(campaigId: string, q: string) {
   return useQuery({
     queryKey: ["search"],
     queryFn: () => Search(campaigId, q),
+    enabled: !!q,
   });
 }
