@@ -22,6 +22,7 @@ export default function CampaignLayout({
           flex: 1,
           overflow: "auto",
           bgcolor: "background.default",
+          position: "relative",
         }}
       >
         {children}

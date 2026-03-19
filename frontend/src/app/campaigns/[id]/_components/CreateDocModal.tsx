@@ -7,6 +7,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -48,8 +49,8 @@ export default function CreateDocModal({
       {
         campaignId: campaignId,
         title: data.title,
-        content: content,
-        folderId: folderId,
+        content: {},
+        folderId: "",
       },
       {
         onSuccess: () => {
@@ -69,22 +70,42 @@ export default function CreateDocModal({
         paper: {
           sx: {
             bgcolor: "background.paper",
-            borderRadius: "20px",
-            minWidth: { xs: "90%", sm: "400px" },
-            border: "1px solid",
-            borderColor: "rgba(212, 175, 55, 0.2)",
+            borderRadius: "24px",
+            minWidth: { xs: "90%", sm: "440px" },
+            border: "1px solid rgba(212, 175, 55, 0.12)",
+            boxShadow:
+              "0 24px 48px rgba(0, 0, 0, 0.5), 0 0 80px rgba(212, 175, 55, 0.04)",
           },
         },
       }}
     >
       <DialogTitle
         sx={{
-          color: "primary.main",
-          fontFamily: '"Merriweather", "Georgia", serif',
-          fontWeight: "bold",
+          pb: 1,
+          pt: 3,
+          px: 3,
         }}
       >
-        Forjar Nova Campanha
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
+        >
+          Novo Documento
+        </Typography>
+        <Typography
+          variant="h5"
+          sx={{
+            fontFamily: '"Merriweather", "Georgia", serif',
+            fontWeight: 700,
+            background:
+              "linear-gradient(135deg, #D4AF37 0%, #E8CC6E 100%)",
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Criar Documento
+        </Typography>
       </DialogTitle>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -92,49 +113,61 @@ export default function CreateDocModal({
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 3,
-            mt: 1,
+            gap: 2.5,
+            px: 3,
+            pt: 2,
           }}
         >
           <TextField
-            label="Nome da campanha"
+            label="Título do documento"
             placeholder="Aventura dos amigos"
             fullWidth
             variant="outlined"
-            {...register("name")}
-            error={!!errors.name}
-            helperText={errors.name?.message}
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
-          />
-          <TextField
-            label="Descrição"
-            placeholder="Era uma vez alguns amigos que..."
-            multiline
-            rows={4}
-            fullWidth
-            variant="outlined"
-            {...register("description")}
-            error={!!errors.description}
-            helperText={errors.description?.message}
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
-          />
-          <DialogActions
+            {...register("title")}
+            error={!!errors.title}
+            helperText={errors.title?.message}
             sx={{
-              p: 0,
-              pt: 0,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "14px",
+                bgcolor: "rgba(13, 17, 23, 0.4)",
+              },
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
+          <Button
+            onClick={handleCloseModal}
+            variant="text"
+            sx={{
+              color: "text.secondary",
+              borderRadius: "12px",
+              px: 2.5,
+              "&:hover": {
+                bgcolor: "rgba(255, 255, 255, 0.04)",
+              },
             }}
           >
-            <Button
-              type="submit"
-              variant={"contained"}
-              color="primary"
-              sx={{ borderRadius: "20px" }}
-              disabled={docMutation.isPending}
-            >
-              Criar campanha
-            </Button>
-          </DialogActions>
-        </DialogContent>
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={docMutation.isPending}
+            sx={{
+              borderRadius: "12px",
+              px: 3,
+              background:
+                "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
+              "&:hover": {
+                background:
+                  "linear-gradient(135deg, #E8CC6E 0%, #D4AF37 100%)",
+              },
+            }}
+          >
+            Criar Documento
+          </Button>
+        </DialogActions>
       </form>
     </Dialog>
   );

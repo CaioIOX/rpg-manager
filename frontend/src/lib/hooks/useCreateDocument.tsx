@@ -6,14 +6,14 @@ export default function useCreateDocument() {
     mutationFn: ({
       campaignId,
       title,
-      
+      content,
       folderId,
     }: {
       campaignId: string;
       title: string;
       content: Record<string, unknown>;
       folderId?: string;
-    }) => Create(campaignId, title, folderId),
+    }) => Create(campaignId, title, content, folderId),
     onSuccess: (message) => {
       console.log(message);
     },

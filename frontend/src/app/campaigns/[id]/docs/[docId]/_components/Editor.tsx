@@ -9,6 +9,7 @@ import { useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
+import Box from "@mui/material/Box";
 
 interface EditorProps {
   title?: string;
@@ -62,5 +63,24 @@ export default function Editor({ title, folderId }: EditorProps) {
     return null;
   }
 
-  return <EditorContent editor={editor} />;
+  return (
+    <Box
+      sx={{
+        maxWidth: "800px",
+        mx: "auto",
+        my: 4,
+        bgcolor: "rgba(22, 27, 34, 0.5)",
+        borderRadius: "20px",
+        border: "1px solid rgba(212, 175, 55, 0.06)",
+        minHeight: "70vh",
+        overflow: "hidden",
+        transition: "border-color 0.3s ease",
+        "&:focus-within": {
+          borderColor: "rgba(212, 175, 55, 0.15)",
+        },
+      }}
+    >
+      <EditorContent editor={editor} />
+    </Box>
+  );
 }

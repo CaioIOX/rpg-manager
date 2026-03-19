@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import Link from "@mui/material/Link";
 
 const registerSchema = z.object({
   email: z.email("Email inválido").min(1, "Email obrigatório"),
@@ -48,69 +49,205 @@ export default function RegisterPage() {
 
   return (
     <Box
-      component={"form"}
-      onSubmit={handleSubmit(onSubmit)}
       sx={{
+        width: "100%",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        gap: 3,
-        maxWidth: "400px",
-        mx: "auto",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        overflow: "hidden",
+        bgcolor: "background.default",
       }}
     >
-      <TextField
-        label="Username"
-        variant="outlined"
-        fullWidth
-        {...register("username")}
-        error={!!errors.username}
-        helperText={errors.username?.message}
+      {/* Background decorative elements */}
+      <Box
         sx={{
-          "& .MuiOutlinedInput-root": { borderRadius: "20px" },
+          position: "absolute",
+          width: "500px",
+          height: "500px",
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(142, 36, 170, 0.06) 0%, transparent 70%)",
+          top: "-150px",
+          left: "-100px",
+          pointerEvents: "none",
         }}
       />
-      <TextField
-        label="Email"
-        placeholder="exemplo@gmail.com"
-        variant="outlined"
-        fullWidth
+      <Box
         sx={{
-          "& .MuiOutlinedInput-root": { borderRadius: "20px" },
-        }}
-        {...register("email")}
-        error={!!errors.email}
-        helperText={errors.email?.message}
-      />
-      <TextField
-        label="Senha"
-        type="password"
-        placeholder="*****"
-        variant="outlined"
-        fullWidth
-        {...register("password")}
-        error={!!errors.password}
-        helperText={errors.password?.message}
-        sx={{
-          "& .MuiOutlinedInput-root": { borderRadius: "20px" },
+          position: "absolute",
+          width: "400px",
+          height: "400px",
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%)",
+          bottom: "-100px",
+          right: "-80px",
+          pointerEvents: "none",
         }}
       />
 
-      {registerMutation.isError && (
-        <Typography color="error" variant="body2" textAlign="center">
-          {registerMutation.error instanceof Error
-            ? registerMutation.error.message
-            : "Erro ao realizar cadastro"}
-        </Typography>
-      )}
-      <Button
-        variant="contained"
-        type="submit"
-        size="large"
-        loading={registerMutation.isPending}
-        sx={{ borderRadius: "20px", textTransform: "none" }}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          textAlign: "center",
+          animation: "fadeInUp 0.6s ease-out",
+        }}
       >
-        Cadastrar
-      </Button>
+        <Typography
+          variant="h3"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 900,
+            background:
+              "linear-gradient(135deg, #D4AF37 0%, #E8CC6E 50%, #D4AF37 100%)",
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            mb: 1,
+          }}
+        >
+          Criar Conta
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+            mb: 5,
+            maxWidth: "380px",
+            mx: "auto",
+            lineHeight: 1.6,
+          }}
+        >
+          Junte-se à aventura. Crie sua conta e comece a gerenciar suas
+          campanhas.
+        </Typography>
+
+        {/* Register Card */}
+        <Box
+          sx={{
+            maxWidth: "440px",
+            mx: "auto",
+            p: 4,
+            borderRadius: "24px",
+            bgcolor: "rgba(22, 27, 34, 0.8)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid rgba(212, 175, 55, 0.12)",
+            boxShadow:
+              "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 60px rgba(212, 175, 55, 0.04)",
+          }}
+        >
+          <Box
+            component={"form"}
+            onSubmit={handleSubmit(onSubmit)}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2.5,
+            }}
+          >
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              {...register("username")}
+              error={!!errors.username}
+              helperText={errors.username?.message}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "16px",
+                  bgcolor: "rgba(13, 17, 23, 0.5)",
+                },
+              }}
+            />
+            <TextField
+              label="Email"
+              placeholder="exemplo@gmail.com"
+              variant="outlined"
+              fullWidth
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "16px",
+                  bgcolor: "rgba(13, 17, 23, 0.5)",
+                },
+              }}
+              {...register("email")}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+            <TextField
+              label="Senha"
+              type="password"
+              placeholder="••••••••"
+              variant="outlined"
+              fullWidth
+              {...register("password")}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "16px",
+                  bgcolor: "rgba(13, 17, 23, 0.5)",
+                },
+              }}
+            />
+
+            {registerMutation.isError && (
+              <Typography color="error" variant="body2" textAlign="center">
+                {registerMutation.error instanceof Error
+                  ? registerMutation.error.message
+                  : "Erro ao realizar cadastro"}
+              </Typography>
+            )}
+            <Button
+              variant="contained"
+              type="submit"
+              size="large"
+              loading={registerMutation.isPending}
+              sx={{
+                borderRadius: "16px",
+                py: 1.5,
+                fontSize: "1rem",
+                background:
+                  "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg, #E8CC6E 0%, #D4AF37 100%)",
+                },
+              }}
+            >
+              Cadastrar
+            </Button>
+
+            <Typography
+              variant="body2"
+              sx={{ color: "text.secondary", mt: 0.5 }}
+            >
+              Já tem uma conta?{" "}
+              <Link
+                href="/"
+                sx={{
+                  color: "primary.main",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  transition: "color 0.2s",
+                  "&:hover": {
+                    color: "primary.light",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                Fazer login
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 }

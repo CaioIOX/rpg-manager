@@ -19,6 +19,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import SettingsIcon from "@mui/icons-material/Settings";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import useSearchQuery from "@/lib/hooks/useSearchQuery";
 import useTemplates from "@/lib/hooks/useTemplates";
 import useFolders from "@/lib/hooks/useFolders";
@@ -35,10 +36,7 @@ export default function SideBar() {
   const documents = useDocuments(campaignId);
   const folders = useFolders(campaignId);
 
-  console.log(templates.data, documents.data);
-
   const [searchQuery, setSearchQuery] = useState("");
-
 
   const searchResults = useSearchQuery(campaignId, searchQuery);
 
@@ -49,13 +47,22 @@ export default function SideBar() {
         minWidth: "300px",
         bgcolor: "background.paper",
         borderRight: "1px solid",
-        borderColor: "divider",
+        borderColor: "rgba(212, 175, 55, 0.08)",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
       }}
     >
-      <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
+      {/* Header */}
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: "1px solid",
+          borderColor: "rgba(212, 175, 55, 0.08)",
+          background:
+            "linear-gradient(180deg, rgba(212, 175, 55, 0.04) 0%, transparent 100%)",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -71,37 +78,62 @@ export default function SideBar() {
               alignItems: "center",
               gap: 1,
               cursor: "pointer",
+              px: 0.5,
+              py: 0.5,
+              borderRadius: "10px",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                bgcolor: "rgba(255, 255, 255, 0.04)",
+                "& .back-arrow": {
+                  transform: "translateX(-2px)",
+                },
+              },
             }}
           >
-            <IconButton aria-label="Voltar" size="small">
-              <ArrowBackIcon />
+            <IconButton
+              aria-label="Voltar"
+              size="small"
+              className="back-arrow"
+              sx={{
+                color: "text.secondary",
+                transition: "all 0.2s ease",
+                "&:hover": { bgcolor: "transparent" },
+              }}
+            >
+              <ArrowBackIcon fontSize="small" />
             </IconButton>
             <Typography
-              variant="subtitle1"
+              variant="subtitle2"
               sx={{
                 fontFamily: '"Merriweather", "Georgia", serif',
                 color: "primary.main",
-                fontWeight: "bold",
+                fontWeight: 700,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                maxWidth: "180px",
+                maxWidth: "160px",
               }}
             >
               {campaign.data?.name}
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Tooltip title={"Adicionar Membro"}>
-              <IconButton
-                aria-label="Membros"
-                size="small"
-                onClick={() => console.log("members modal open")}
-              >
-                <PersonIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
+          <Tooltip title="Adicionar Membro" arrow>
+            <IconButton
+              aria-label="Membros"
+              size="small"
+              onClick={() => console.log("members modal open")}
+              sx={{
+                color: "text.secondary",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  color: "primary.main",
+                  bgcolor: "rgba(212, 175, 55, 0.08)",
+                },
+              }}
+            >
+              <PersonIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
         <TextField
           placeholder="Buscar documentos..."
@@ -114,80 +146,134 @@ export default function SideBar() {
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon />
+                  <SearchIcon
+                    sx={{ fontSize: "1.1rem", color: "text.secondary" }}
+                  />
                 </InputAdornment>
               ),
             },
           }}
           sx={{
             "& .MuiOutlinedInput-root": {
-              bgcolor: "background.default",
-              fontSize: "0.875rem",
+              bgcolor: "rgba(13, 17, 23, 0.5)",
+              fontSize: "0.85rem",
               borderRadius: "12px",
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "rgba(255, 255, 255, 0.06)",
+              },
             },
           }}
         />
       </Box>
 
-      <Stack direction={"row"} spacing={1} sx={{ p: 1 }}>
-        <Button
-          size="small"
-          variant="text"
-          color="inherit"
-          startIcon={<AddIcon />}
-          onClick={() => console.log("docmodal open")}
-          sx={{ flex: 1, fontSize: "o.75rem" }}
-        >
-          Doc
-        </Button>
-        <Button
-          size="small"
-          variant="text"
-          color="inherit"
-          startIcon={<FolderIcon />}
-          onClick={() => console.log("modalOpen")}
-          sx={{ flex: 1, fontSize: "o.75rem" }}
-        >
-          Pasta
-        </Button>
-        <Button
-          size="small"
-          variant="text"
-          color="inherit"
-          startIcon={<SettingsIcon />}
-          onClick={() => console.log("templateModal.onOpen")}
-          sx={{ flex: 1, fontSize: "0.75rem" }}
-        >
-          Template
-        </Button>
+      {/* Action buttons */}
+      <Stack
+        direction={"row"}
+        spacing={0.5}
+        sx={{
+          p: 1.5,
+          borderBottom: "1px solid",
+          borderColor: "rgba(212, 175, 55, 0.06)",
+        }}
+      >
+        {[
+          {
+            icon: <AddIcon sx={{ fontSize: "1rem" }} />,
+            label: "Doc",
+            onClick: () => console.log("docmodal open"),
+          },
+          {
+            icon: <FolderIcon sx={{ fontSize: "1rem" }} />,
+            label: "Pasta",
+            onClick: () => console.log("modalOpen"),
+          },
+          {
+            icon: <SettingsIcon sx={{ fontSize: "1rem" }} />,
+            label: "Template",
+            onClick: () => console.log("templateModal.onOpen"),
+          },
+        ].map((action) => (
+          <Button
+            key={action.label}
+            size="small"
+            variant="text"
+            color="inherit"
+            startIcon={action.icon}
+            onClick={action.onClick}
+            sx={{
+              flex: 1,
+              fontSize: "0.72rem",
+              color: "text.secondary",
+              borderRadius: "10px",
+              py: 0.8,
+              transition: "all 0.2s ease",
+              "&:hover": {
+                bgcolor: "rgba(212, 175, 55, 0.06)",
+                color: "primary.main",
+              },
+            }}
+          >
+            {action.label}
+          </Button>
+        ))}
       </Stack>
 
-      <Divider sx={{ borderColor: "divider" }} />
-
-      <Box sx={{ flex: 1, overflow: "auto", p: 1 }}>
+      {/* File list */}
+      <Box sx={{ flex: 1, overflow: "auto", p: 1.5 }}>
         {searchQuery.length >= 2 && searchResults.data ? (
-          <Stack direction={"column"} spacing={1}>
+          <Stack direction={"column"} spacing={0.5}>
             <Typography
               variant="caption"
-              sx={{ color: "text.secondary", px: 1, pb: 0.5 }}
+              sx={{
+                color: "text.secondary",
+                px: 1,
+                pb: 0.5,
+                textTransform: "uppercase",
+                fontWeight: 700,
+                fontSize: "0.65rem",
+                letterSpacing: "0.08em",
+              }}
             >
               Resultados da busca
             </Typography>
             {searchResults.data.length === 0 ? (
               <Typography
-                variant="caption"
+                variant="body2"
                 sx={{
                   color: "text.secondary",
                   textAlign: "center",
                   py: 4,
                   display: "block",
+                  fontSize: "0.85rem",
                 }}
               >
-                Nenhum Resultado
+                Nenhum resultado encontrado
               </Typography>
             ) : (
               searchResults.data.map((doc, index) => (
-                <Typography key={index}>teste</Typography>
+                <Box
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: "10px",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    "&:hover": {
+                      bgcolor: "rgba(212, 175, 55, 0.06)",
+                    },
+                  }}
+                >
+                  <DescriptionOutlinedIcon
+                    sx={{ fontSize: "1rem", color: "text.secondary" }}
+                  />
+                  <Typography variant="body2" sx={{ color: "text.primary" }}>
+                    teste
+                  </Typography>
+                </Box>
               ))
             )}
           </Stack>
@@ -200,11 +286,12 @@ export default function SideBar() {
                   sx={{
                     color: "text.secondary",
                     px: 1,
-                    pb: 0.5,
+                    pb: 1,
                     display: "block",
                     textTransform: "uppercase",
-                    fontWeight: "bold",
-                    letterSpacing: "0.05em",
+                    fontWeight: 700,
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.08em",
                   }}
                 >
                   Templates
@@ -215,18 +302,32 @@ export default function SideBar() {
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 1,
-                      px: 1,
-                      py: 0.5,
-                      fontSize: "0.75rem",
+                      gap: 1.5,
+                      px: 1.5,
+                      py: 0.8,
+                      borderRadius: "10px",
+                      fontSize: "0.85rem",
                       color: "text.secondary",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      "&:hover": {
+                        bgcolor: "rgba(142, 36, 170, 0.06)",
+                        color: "text.primary",
+                      },
                     }}
                   >
-                    <span>{template.Icon}</span>
-                    <span>{template.Name}</span>
+                    <Box sx={{ fontSize: "0.9rem", lineHeight: 1 }}>
+                      {template.icon}
+                    </Box>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontSize: "0.85rem", fontWeight: 500 }}
+                    >
+                      {template.name}
+                    </Typography>
                   </Box>
                 ))}
-                <Divider sx={{ borderColor: "divider", my: 1 }} />
+                <Divider sx={{ mt: 1.5 }} />
               </Box>
             )}
 
@@ -235,17 +336,53 @@ export default function SideBar() {
               sx={{
                 color: "text.secondary",
                 px: 1,
-                pb: 0.5,
+                pb: 1,
                 display: "block",
                 textTransform: "uppercase",
-                fontWeight: "bold",
-                letterSpacing: "0.05em",
+                fontWeight: 700,
+                fontSize: "0.65rem",
+                letterSpacing: "0.08em",
               }}
             >
               Arquivos
             </Typography>
             {documents.data?.map((doc) => (
-              <Typography key={doc.id}>{doc.Title}</Typography>
+              <Box
+                key={doc.id}
+                onClick={() =>
+                  router.push(`/campaigns/${campaignId}/docs/${doc.id}`)
+                }
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  px: 1.5,
+                  py: 0.8,
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(212, 175, 55, 0.06)",
+                  },
+                }}
+              >
+                <DescriptionOutlinedIcon
+                  sx={{ fontSize: "1rem", color: "text.secondary" }}
+                />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.primary",
+                    fontSize: "0.85rem",
+                    fontWeight: 500,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {doc.title}
+                </Typography>
+              </Box>
             ))}
           </Stack>
         )}
