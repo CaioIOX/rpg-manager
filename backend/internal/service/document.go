@@ -34,7 +34,12 @@ func (s *DocumentService) GetByID(ctx context.Context, id, campaignID, loggedUse
 		return nil, errors.New("Erro ao recuperar documento.")
 	}
 
-	return document, err
+	// Spoiler check: only creator or campaign owner can see spoiler docs
+	if document.IsSpoiler && document.CreatedBy != loggedUser && userRole != "owner" {
+		return nil, customErrors.ErrUnauthorized
+	}
+
+	return document, nil
 }
 
 func (s *DocumentService) GetByCampaign(ctx context.Context, campaignID, loggedUser string) ([]model.DocumentSummary, error) {
@@ -52,7 +57,16 @@ func (s *DocumentService) GetByCampaign(ctx context.Context, campaignID, loggedU
 		return []model.DocumentSummary{}, errors.New("Erro ao buscar documentos.")
 	}
 
-	return documents, nil
+	// Filter spoiler docs: only show to creator or campaign owner
+	filtered := make([]model.DocumentSummary, 0, len(documents))
+	for _, doc := range documents {
+		if doc.IsSpoiler && doc.CreatedBy != loggedUser && userRole != "owner" {
+			continue
+		}
+		filtered = append(filtered, doc)
+	}
+
+	return filtered, nil
 }
 
 func (s *DocumentService) GetByFolder(ctx context.Context, campaignID, folderID, loggedUser string) ([]model.DocumentSummary, error) {
@@ -70,7 +84,16 @@ func (s *DocumentService) GetByFolder(ctx context.Context, campaignID, folderID,
 		return []model.DocumentSummary{}, errors.New("Erro ao buscar documentos.")
 	}
 
-	return documents, nil
+	// Filter spoiler docs
+	filtered := make([]model.DocumentSummary, 0, len(documents))
+	for _, doc := range documents {
+		if doc.IsSpoiler && doc.CreatedBy != loggedUser && userRole != "owner" {
+			continue
+		}
+		filtered = append(filtered, doc)
+	}
+
+	return filtered, nil
 }
 
 func (s *DocumentService) Create(ctx context.Context, newDocument dto.CreateDocumentRequest, campaignID, loggedUser string) error {
@@ -83,6 +106,11 @@ func (s *DocumentService) Create(ctx context.Context, newDocument dto.CreateDocu
 		return customErrors.ErrUnauthorized
 	}
 
+	isSpoiler := false
+	if newDocument.IsSpoiler != nil {
+		isSpoiler = *newDocument.IsSpoiler
+	}
+
 	document := &model.Document{
 		Title:      newDocument.Title,
 		FolderID:   newDocument.FolderID,
@@ -90,6 +118,7 @@ func (s *DocumentService) Create(ctx context.Context, newDocument dto.CreateDocu
 		CampaignID: campaignID,
 		CreatedBy:  loggedUser,
 		Content:    newDocument.Content,
+		IsSpoiler:  isSpoiler,
 	}
 
 	if err := s.documentRepo.Create(ctx, document); err != nil {
@@ -219,7 +248,16 @@ func (s *DocumentService) SearchByTitle(ctx context.Context, query, campaignID, 
 		return []model.DocumentSummary{}, errors.New("Erro ao recuperar documentos.")
 	}
 
-	return documents, nil
+	// Filter spoiler docs from search results
+	filtered := make([]model.DocumentSummary, 0, len(documents))
+	for _, doc := range documents {
+		if doc.IsSpoiler && doc.CreatedBy != loggedUser && userRole != "owner" {
+			continue
+		}
+		filtered = append(filtered, doc)
+	}
+
+	return filtered, nil
 }
 
 func (s *DocumentService) UpdateYjsState(ctx context.Context, state []byte, campaignID, documentID, loggedUser string) error {

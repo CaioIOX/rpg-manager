@@ -1,8 +1,6 @@
 "use client";
 
-import useCreateDocument from "@/lib/hooks/useCreateDocument";
-import useFolders from "@/lib/hooks/useFolders";
-import useTemplates from "@/lib/hooks/useTemplates";
+import useAddMember from "@/lib/hooks/useAddMember";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -11,78 +9,54 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 
-interface DocFormData {
-  title: string;
-  folderId: string;
-  templateId: string;
-  isSpoiler: boolean;
+interface FormData {
+  email: string;
+  role: string;
 }
 
-interface CreateDocModalProps {
+interface AddMemberModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
-  onSuccessCallback?: () => void;
-  defaultFolderId?: string;
 }
 
-export default function CreateDocModal({
+export default function AddMemberModal({
   isModalOpen,
   setIsModalOpen,
-  onSuccessCallback,
-  defaultFolderId,
-}: CreateDocModalProps) {
-  const docMutation = useCreateDocument();
+}: AddMemberModalProps) {
+  const memberMutation = useAddMember();
   const params = useParams();
   const campaignId = params.id as string;
   const queryClient = useQueryClient();
-  const { data: folders } = useFolders(campaignId);
-  const { data: templates } = useTemplates(campaignId);
 
   const {
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
-  } = useForm<DocFormData>({
-    defaultValues: {
-      folderId: defaultFolderId || "",
-      templateId: "",
-      isSpoiler: false,
-    },
-  });
-
-  const isSpoiler = watch("isSpoiler");
+  } = useForm<FormData>({ defaultValues: { role: "editor" } });
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     reset();
   };
 
-  const onSubmit = async (data: DocFormData) => {
-    docMutation.mutate(
+  const onSubmit = async (data: FormData) => {
+    memberMutation.mutate(
       {
         campaignId,
-        title: data.title,
-        folderId: data.folderId || undefined,
-        templateId: data.templateId || undefined,
-        isSpoiler: data.isSpoiler,
+        email: data.email,
+        role: data.role,
       },
       {
         onSuccess: () => {
           handleCloseModal();
           queryClient.invalidateQueries({
-            queryKey: ["documents", campaignId],
+            queryKey: ["campaign", campaignId],
           });
-          if (onSuccessCallback) {
-            onSuccessCallback();
-          }
         },
       },
     );
@@ -110,7 +84,7 @@ export default function CreateDocModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          Novo Documento
+          Gerenciar Equipe
         </Typography>
         <Typography
           variant="h5"
@@ -123,7 +97,7 @@ export default function CreateDocModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          Criar Documento
+          Adicionar Membro
         </Typography>
       </DialogTitle>
 
@@ -138,19 +112,20 @@ export default function CreateDocModal({
           }}
         >
           <TextField
-            label="Título do documento"
-            placeholder="Aventura dos amigos"
+            label="Email do jogador"
+            placeholder="jogador@email.com"
             fullWidth
             variant="outlined"
-            {...register("title", {
-              required: "O título é obrigatório",
-              minLength: {
-                value: 3,
-                message: "O título precisa ter pelo menos 3 caracteres",
+            type="email"
+            {...register("email", {
+              required: "O email é obrigatório",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Email inválido",
               },
             })}
-            error={!!errors.title}
-            helperText={errors.title?.message}
+            error={!!errors.email}
+            helperText={errors.email?.message}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "14px",
@@ -160,12 +135,12 @@ export default function CreateDocModal({
           />
 
           <TextField
-            label="Pasta (opcional)"
+            label="Papel na campanha"
             select
             fullWidth
             variant="outlined"
-            defaultValue={defaultFolderId || ""}
-            {...register("folderId")}
+            defaultValue="editor"
+            {...register("role")}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "14px",
@@ -173,55 +148,9 @@ export default function CreateDocModal({
               },
             }}
           >
-            <MenuItem value="">Nenhuma (raiz)</MenuItem>
-            {folders?.map((folder) => (
-              <MenuItem key={folder.id} value={folder.id}>
-                📁 {folder.name}
-              </MenuItem>
-            ))}
+            <MenuItem value="editor">Editor — Pode criar e editar</MenuItem>
+            <MenuItem value="viewer">Visualizador — Apenas leitura</MenuItem>
           </TextField>
-
-          <TextField
-            label="Template (opcional)"
-            select
-            fullWidth
-            variant="outlined"
-            defaultValue=""
-            {...register("templateId")}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "14px",
-                bgcolor: "rgba(13, 17, 23, 0.4)",
-              },
-            }}
-          >
-            <MenuItem value="">Nenhum</MenuItem>
-            {templates?.map((template) => (
-              <MenuItem key={template.id} value={template.id}>
-                {template.icon} {template.name}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <FormControlLabel
-            control={
-              <Switch
-                {...register("isSpoiler")}
-                checked={isSpoiler}
-                sx={{
-                  "& .Mui-checked": { color: "#F85149" },
-                  "& .Mui-checked + .MuiSwitch-track": {
-                    bgcolor: "rgba(248, 81, 73, 0.5)",
-                  },
-                }}
-              />
-            }
-            label={
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                🔒 Spoiler — Apenas você e o dono da campanha podem ver
-              </Typography>
-            }
-          />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
           <Button
@@ -242,7 +171,7 @@ export default function CreateDocModal({
             type="submit"
             variant="contained"
             color="primary"
-            disabled={docMutation.isPending}
+            disabled={memberMutation.isPending}
             sx={{
               borderRadius: "12px",
               px: 3,
@@ -254,7 +183,7 @@ export default function CreateDocModal({
               },
             }}
           >
-            Criar Documento
+            Adicionar
           </Button>
         </DialogActions>
       </form>

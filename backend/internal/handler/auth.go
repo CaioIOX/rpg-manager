@@ -83,11 +83,11 @@ func (h *AuthHandler) Me(c *fiber.Ctx) error {
 
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
-		Name: "token",
-		Value: "",
-		Expires: time.Now().Add(-time.Hour),
+		Name:     "token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
 		HTTPOnly: true,
-		Path: "/",
+		Path:     "/",
 	}
 
 	c.Cookie(&cookie)

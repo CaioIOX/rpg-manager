@@ -3,7 +3,7 @@ import { List } from "../api/documents";
 
 export default function useDocuments(campaignId: string) {
   return useQuery({
-    queryKey: ["documents"],
+    queryKey: ["documents", campaignId],
     queryFn: () => List(campaignId),
   });
 }

@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { List } from "../api/documents";
+import { List } from "../api/folders";
 
 export default function useFolders(campaignId: string) {
   return useQuery({
-    queryKey: ["templates"],
+    queryKey: ["folders", campaignId],
     queryFn: () => List(campaignId),
   });
 }

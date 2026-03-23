@@ -3,7 +3,7 @@ import { List } from "../api/templates";
 
 export default function useTemplates(campaignId: string) {
   return useQuery({
-    queryKey: ["templates"],
+    queryKey: ["templates", campaignId],
     queryFn: () => List(campaignId),
   });
 }

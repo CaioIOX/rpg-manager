@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
@@ -26,6 +27,7 @@ func (h *FolderHandler) List(c *fiber.Ctx) error {
 	folders, err := h.folderService.GetByCampaign(c.Context(), campaignID, loggedUser)
 
 	if err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Pastas não encontradas.")
 		return c.Status(400).JSON(fiber.Map{"error": "Pastas não encontradas."})
 	}
 
@@ -40,8 +42,10 @@ func (h *FolderHandler) Get(c *fiber.Ctx) error {
 	folder, err := h.folderService.GetByID(c.Context(), campaignID, folderID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, "Você não é membro dessa campanha!")
 			return c.Status(401).JSON(fiber.Map{"error": "Você não é membro dessa campanha!"})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Pasta não encontrada.")
 		return c.Status(400).JSON(fiber.Map{"error": "Pasta não encontrada."})
 	}
 
@@ -55,10 +59,12 @@ func (h *FolderHandler) Create(c *fiber.Ctx) error {
 
 	input := dto.CreateFolderRequest{}
 	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Requisição inválida.")
 		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida."})
 	}
 
 	if err := h.validate.Struct(input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -66,8 +72,10 @@ func (h *FolderHandler) Create(c *fiber.Ctx) error {
 
 	if newFolder != nil {
 		if errors.Is(newFolder, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, err)
 			return c.Status(401).JSON(fiber.Map{"error": newFolder.Error()})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar criar pasta.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar criar pasta."})
 	}
 
@@ -82,18 +90,22 @@ func (h *FolderHandler) Update(c *fiber.Ctx) error {
 	input := dto.UpdateFolderRequest{}
 
 	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"erros": "Requisição inválida!"})
 	}
 
 	if err := h.validate.Struct(input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	folder, err := h.folderService.Update(c.Context(), input, folderID, campaignID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, err)
 			return c.Status(401).JSON(fiber.Map{"error": err.Error()})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tenatr atualziar pasta.")
 		return c.Status(400).JSON(fiber.Map{"errors": "Erro ao tenatr atualziar pasta."})
 	}
 
@@ -107,8 +119,10 @@ func (h *FolderHandler) Delete(c *fiber.Ctx) error {
 
 	if err := h.folderService.Delete(c.Context(), folderID, campaignID, loggedUser); err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, err)
 			return c.Status(401).JSON(fiber.Map{"error": err.Error()})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar apagar pasta.")
 		return c.Status(400).JSON(fiber.Map{"errors": "Erro ao tentar apagar pasta."})
 	}
 

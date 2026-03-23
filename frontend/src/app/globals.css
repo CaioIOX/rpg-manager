@@ -197,12 +197,37 @@ a {
   color: #E8CC6E;
 }
 
+.tiptap u {
+  text-decoration-color: rgba(212, 175, 55, 0.6);
+  text-underline-offset: 3px;
+}
+
+.tiptap s {
+  text-decoration-color: rgba(248, 81, 73, 0.5);
+}
+
+.tiptap mark {
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 2px;
+  padding: 0.1em 0.2em;
+}
+
 .tiptap .is-empty::before {
   content: attr(data-placeholder);
   float: left;
-  color: rgba(139, 148, 158, 0.5);
+  color: rgba(139, 148, 158, 0.4);
   pointer-events: none;
   height: 0;
+  font-style: italic;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: rgba(139, 148, 158, 0.4);
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
 }
 
 :focus-visible {

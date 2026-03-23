@@ -5,6 +5,7 @@ export interface TypeDocument {
     templateID?: string,
     title: string,
     content: Record<string, unknown>,
+    isSpoiler: boolean,
     createdBy: string,
     createdAt: Date,
     updatedAt: Date,
@@ -15,6 +16,8 @@ export interface DocumentSummary {
     title: string,
     folderID?: string,
     templateID?: string,
+    isSpoiler: boolean,
+    createdBy: string,
     updatedAt: Date
 }
 

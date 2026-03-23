@@ -37,11 +37,13 @@ export async function Create(
   title: string,
   content?: Record<string, unknown>,
   folderID?: string,
+  templateID?: string,
+  isSpoiler?: boolean,
 ): Promise<MessageResponse> {
   try {
     const resp = await apiClient.post(
       `/api/campaigns/${campaignID}/documents`,
-      { title, content, folderID },
+      { title, content, folder_id: folderID || null, template_id: templateID || null, is_spoiler: isSpoiler ?? false },
     );
     return resp.data;
   } catch (error) {
@@ -56,11 +58,12 @@ export async function Update(
   title?: string,
   folderID?: string,
   content?: Record<string, unknown>,
+  isSpoiler?: boolean,
 ): Promise<TypeDocument> {
   try {
     const resp = await apiClient.put(
       `/api/campaigns/${campaignID}/documents/${documentID}`,
-      { title, folderID, content },
+      { title, folder_id: folderID, content, is_spoiler: isSpoiler },
     );
     return resp.data;
   } catch (error) {

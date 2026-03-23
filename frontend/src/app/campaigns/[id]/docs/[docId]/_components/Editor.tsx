@@ -5,12 +5,16 @@ import { WebsocketProvider } from "y-websocket";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Collaboration from "@tiptap/extension-collaboration";
 import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import TextStyle from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
 import Box from "@mui/material/Box";
-import ToolbarComponent from "./Toolbar";
+import EditorToolbar from "./Toolbar";
 
 interface EditorProps {
   title?: string;
@@ -54,6 +58,12 @@ export default function Editor({ title, folderId }: EditorProps) {
     extensions: [
       StarterKit.configure({ history: false }),
       Collaboration.configure({ document: ydoc }),
+      Underline,
+      TextStyle,
+      Color,
+      Placeholder.configure({
+        placeholder: "Comece a escrever sua aventura...",
+      }),
     ],
     onUpdate: ({ editor }) => {
       debouncedSave(editor.getJSON());
@@ -81,9 +91,8 @@ export default function Editor({ title, folderId }: EditorProps) {
         },
       }}
     >
-      <EditorContent editor={editor}>
-        <ToolbarComponent />
-      </EditorContent>
+      <EditorToolbar editor={editor} />
+      <EditorContent editor={editor} />
     </Box>
   );
 }
