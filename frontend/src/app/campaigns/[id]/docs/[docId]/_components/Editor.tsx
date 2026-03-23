@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
 import Box from "@mui/material/Box";
+import ToolbarComponent from "./Toolbar";
 
 interface EditorProps {
   title?: string;
@@ -80,7 +81,9 @@ export default function Editor({ title, folderId }: EditorProps) {
         },
       }}
     >
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor}>
+        <ToolbarComponent />
+      </EditorContent>
     </Box>
   );
 }
