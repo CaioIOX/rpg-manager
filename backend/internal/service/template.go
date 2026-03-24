@@ -39,7 +39,7 @@ func (s *TemplateService) Create(ctx context.Context, newTmpl dto.CreateTemplate
 	}
 
 	if err := s.templateRepo.Create(ctx, template); err != nil {
-		return errors.New("Erro ao tentar criat template.")
+		return errors.New("Erro ao tentar criar template.")
 	}
 
 	return nil

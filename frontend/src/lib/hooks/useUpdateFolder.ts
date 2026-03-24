@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Update } from "../api/folders";
+import { toast } from "sonner";
 
 export default function useUpdateFolder() {
   return useMutation({
@@ -18,9 +19,11 @@ export default function useUpdateFolder() {
     }) => Update(campaignId, folderId, name, position, parentId),
     onSuccess: (message) => {
       console.log(message);
+      toast.success("Pasta atualizada com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Falha ao atualizar pasta: ", error);
+      toast.error(error.response?.data?.error || "Ocorreu um erro ao atualizar a pasta.");
     },
   });
 }

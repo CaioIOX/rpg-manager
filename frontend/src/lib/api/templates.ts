@@ -27,7 +27,7 @@ export async function GetByID(campaignID: string, templateID: string): Promise<T
 export async function Create(campaignID: string, name: string, schema: Record<string, unknown>, defaultContent?: Record<string, unknown>, description?: string, icon?: string): Promise<MessageResponse> {
     console.log(name, schema, defaultContent, description, icon)
     try {
-        const resp = await apiClient.post(`/api/campaigns/${campaignID}/templates`, { name, schema, defaultContent, description, icon })
+        const resp = await apiClient.post(`/api/campaigns/${campaignID}/templates`, { name, schema, default_content: defaultContent, description, icon })
         return resp.data
     } catch (error) {
         console.error("Falha ao criar a template: ", error)
@@ -37,7 +37,7 @@ export async function Create(campaignID: string, name: string, schema: Record<st
 
 export async function Update(campaignID: string, templateID: string, name?: string, schema?: Record<string, unknown>, defaultContent?: Record<string, unknown>, description?: string, icon?: string): Promise<Template> {
     try {
-        const resp = await apiClient.put(`/api/campaigns/${campaignID}/templates/${templateID}`, { name, schema, defaultContent, description, icon })
+        const resp = await apiClient.put(`/api/campaigns/${campaignID}/templates/${templateID}`, { name, schema, default_content: defaultContent, description, icon })
         return resp.data
     } catch (error) {
         console.error("Falha ao atualizar template: ", error)

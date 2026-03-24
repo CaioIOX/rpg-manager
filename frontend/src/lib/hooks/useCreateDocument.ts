@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Create } from "../api/documents";
+import { toast } from "sonner";
 
 export default function useCreateDocument() {
   return useMutation({
@@ -18,8 +19,12 @@ export default function useCreateDocument() {
       templateId?: string;
       isSpoiler?: boolean;
     }) => Create(campaignId, title, content, folderId, templateId, isSpoiler),
-    onError: (error) => {
+    onSuccess: () => {
+      toast.success("Documento criado com sucesso!");
+    },
+    onError: (error: any) => {
       console.error("Falha ao criar documento: ", error);
+      toast.error(error.response?.data?.error || "Ocorreu um erro ao criar o documento.");
     },
   });
 }

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Delete } from "../api/folders";
+import { toast } from "sonner";
 
 export default function useDeleteFolder() {
   return useMutation({
@@ -7,9 +8,11 @@ export default function useDeleteFolder() {
       Delete(campaignId, folderId),
     onSuccess: (message) => {
       console.log(message);
+      toast.success("Pasta removida com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Falha ao apagar pasta: ", error);
+      toast.error(error.response?.data?.error || "Ocorreu um erro ao apagar a pasta.");
     },
   });
 }

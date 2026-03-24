@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Update } from "../api/documents";
+import { toast } from "sonner";
 
 export default function useUpdateDocument() {
   const queryClient = useQueryClient();
@@ -35,8 +36,9 @@ export default function useUpdateDocument() {
       queryClient.invalidateQueries({ queryKey: ["documents", variables.campaignId] });
       queryClient.invalidateQueries({ queryKey: ["document", variables.documentId] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Falha ao atualizar documento: ", error);
+      toast.error(error.response?.data?.error || "Ocorreu um erro ao salvar o documento.");
     },
   });
 }

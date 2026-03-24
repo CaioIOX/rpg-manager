@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Update } from "../api/templates";
+import { toast } from "sonner";
 
 export default function useUpdateTemplate() {
   return useMutation({
@@ -31,9 +32,11 @@ export default function useUpdateTemplate() {
       ),
     onSuccess: (message) => {
       console.log(message);
+      toast.success("Template atualizado com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Falha ao atualizar template: ", error);
+      toast.error(error.response?.data?.error || "Ocorreu um erro ao atualizar o template.");
     },
   });
 }
