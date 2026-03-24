@@ -76,8 +76,13 @@ func main() {
 	templateHandler := handler.NewTemplateHandler(templateService, validate)
 	wsH := ws.NewHandler(documentRepo)
 
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if allowedOrigins == "" {
+		allowedOrigins = "http://localhost:3000"
+	}
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000",
+		AllowOrigins:     allowedOrigins,
 		AllowMethods:     "GET, POST, HEAD, PUT, DELETE",
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: true,
@@ -87,6 +92,7 @@ func main() {
 	auth := app.Group("/api/auth")
 	auth.Post("/register", authHandler.Register)
 	auth.Post("/login", authHandler.Login)
+	auth.Post("/google", authHandler.GoogleLogin)
 
 	api := app.Group("/api", middleware.AuthRequired)
 

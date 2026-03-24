@@ -1,6 +1,8 @@
 "use client";
 
 import useRegisterMutation from "@/lib/hooks/useRegisterMutation";
+import { useGoogleLoginMutation } from "@/lib/hooks/useGoogleLoginMutation";
+import { GoogleLogin } from "@react-oauth/google";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
@@ -31,6 +33,7 @@ export default function RegisterPage() {
   });
 
   const registerMutation = useRegisterMutation();
+  const googleLoginMutation = useGoogleLoginMutation();
 
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(
@@ -151,6 +154,30 @@ export default function RegisterPage() {
               gap: 2.5,
             }}
           >
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>
+               <GoogleLogin
+                 onSuccess={(credentialResponse) => {
+                   if (credentialResponse.credential) {
+                     googleLoginMutation.mutate(credentialResponse.credential, {
+                       onSuccess: () => {
+                         router.push("/campaigns");
+                       }
+                     });
+                   }
+                 }}
+                 onError={() => {
+                   console.error('Falha no Login com o Google');
+                 }}
+                 theme="filled_black"
+                 shape="pill"
+                 text="signup_with"
+               />
+            </Box>
+
+            <Typography variant="body2" sx={{ color: "text.secondary", textAlign: "center", mt: -1, mb: -1 }}>
+               ou cadastre-se com email
+            </Typography>
+
             <TextField
               label="Username"
               variant="outlined"

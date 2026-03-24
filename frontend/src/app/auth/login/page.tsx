@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { useLoginMutation } from "@/lib/hooks/useLoginMutation";
+import { useGoogleLoginMutation } from "@/lib/hooks/useGoogleLoginMutation";
+import { GoogleLogin } from "@react-oauth/google";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
@@ -28,6 +30,7 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const loginMutation = useLoginMutation();
+  const googleLoginMutation = useGoogleLoginMutation();
 
   const onSubmit = (data: LoginFormData) => {
     loginMutation.mutate(
@@ -52,6 +55,30 @@ export default function LoginPage() {
         mx: "auto",
       }}
     >
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+            if (credentialResponse.credential) {
+              googleLoginMutation.mutate(credentialResponse.credential, {
+                onSuccess: () => {
+                  router.push("/campaigns");
+                }
+              });
+            }
+          }}
+          onError={() => {
+            console.error('Falha no Login com o Google');
+          }}
+          theme="filled_black"
+          shape="pill"
+          text="continue_with"
+        />
+      </Box>
+
+      <Typography variant="body2" sx={{ color: "text.secondary", textAlign: "center", mt: -1, mb: -1 }}>
+        ou com email
+      </Typography>
+
       <TextField
         label="Email"
         placeholder="exemplo@gmail.com"

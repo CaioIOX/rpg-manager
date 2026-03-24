@@ -14,7 +14,6 @@ import useDocuments from "@/lib/hooks/useDocuments";
 import useTemplates from "@/lib/hooks/useTemplates";
 import DescriptionIcon from "@mui/icons-material/Description";
 import SettingsIcon from "@mui/icons-material/Settings";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 export default function CampaignDashboard() {
   const params = useParams();

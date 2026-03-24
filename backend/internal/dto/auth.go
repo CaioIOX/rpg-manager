@@ -11,3 +11,6 @@ type LoginInput struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type GoogleLoginInput struct {
+	Credential string `json:"credential" validate:"required"`
+}

@@ -11,6 +11,8 @@ import (
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/api/idtoken"
+	"os"
 )
 
 type AuthService struct {
@@ -79,4 +81,52 @@ func (s *AuthService) Login(ctx context.Context, req dto.LoginInput) (string, er
 
 func (s *AuthService) GetUser(ctx context.Context, id string) (*model.User, error) {
 	return s.userRepo.GetByID(ctx, id)
+}
+
+func (s *AuthService) GoogleLogin(ctx context.Context, token string) (string, error) {
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	if clientID == "" {
+		return "", errors.New("autenticação do Google não configurada no servidor")
+	}
+
+	payload, err := idtoken.Validate(ctx, token, clientID)
+	if err != nil {
+		return "", errors.New("token do Google inválido")
+	}
+
+	email, ok := payload.Claims["email"].(string)
+	if !ok || email == "" {
+		return "", errors.New("email do Google não encontrado")
+	}
+
+	name, _ := payload.Claims["name"].(string)
+	if name == "" {
+		name = "User"
+	}
+
+	user, err := s.userRepo.GetByEmail(ctx, email)
+	if err != nil || user == nil {
+		hash, _ := bcrypt.GenerateFromPassword([]byte("google_oauth_"+email), bcrypt.DefaultCost)
+		user = &model.User{
+			Username:     name,
+			Email:        email,
+			PasswordHash: string(hash),
+		}
+		if errCreate := s.userRepo.Create(ctx, user); errCreate != nil {
+			return "", errors.New("erro ao criar usuário via Google")
+		}
+	}
+
+	claims := jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+	}
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := jwtToken.SignedString([]byte(s.jwtSecret))
+	if err != nil {
+		return "", errors.New("algo deu errado, por favor tente novamente!")
+	}
+
+	return signed, nil
 }

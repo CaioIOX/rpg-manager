@@ -71,6 +71,31 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "Login realizado com sucesso!"})
 }
 
+func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
+	input := dto.GoogleLoginInput{}
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida!"})
+	}
+
+	if err := h.validate.Struct(input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	resp, err := h.authService.GoogleLogin(c.Context(), input.Credential)
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Value:    resp,
+		HTTPOnly: true,
+		SameSite: "strict",
+	})
+
+	return c.JSON(fiber.Map{"message": "Login realizado com sucesso!"})
+}
+
 func (h *AuthHandler) Me(c *fiber.Ctx) error {
 	loggedUser := c.Locals("user_id").(string)
 

@@ -60,7 +60,7 @@ export default function Editor({
   useEffect(() => {
     if (!docId) return;
 
-    const wsBaseUrl = "ws://localhost:8080";
+    const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
 
     const provider = new WebsocketProvider(wsBaseUrl, `ws/doc/${docId}`, ydoc);
 
