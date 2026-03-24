@@ -131,6 +131,7 @@ export default function CreateCampaignModal({
           {initialData ? "Editar Aventura" : "Nova Aventura"}
         </Typography>
         <Typography
+          component="span"
           variant="h5"
           sx={{
             fontFamily: '"Merriweather", "Georgia", serif',

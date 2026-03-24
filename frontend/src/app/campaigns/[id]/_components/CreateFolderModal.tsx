@@ -12,6 +12,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
@@ -60,6 +61,15 @@ export default function CreateFolderModal({
     setIsModalOpen(false);
     reset();
   };
+
+  useEffect(() => {
+    if (initialData && isModalOpen) {
+      reset({
+        name: initialData.name,
+        parentId: initialData.parent_id || "",
+      });
+    }
+  }, [initialData, isModalOpen, reset]);
 
   const onSubmit = async (data: FormData) => {
     if (initialData) {
@@ -119,6 +129,7 @@ export default function CreateFolderModal({
           {initialData ? "Editar Pasta" : "Nova Pasta"}
         </Typography>
         <Typography
+          component="span"
           variant="h5"
           sx={{
             fontFamily: '"Merriweather", "Georgia", serif',

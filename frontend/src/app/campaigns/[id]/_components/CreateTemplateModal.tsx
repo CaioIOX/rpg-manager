@@ -210,6 +210,7 @@ export default function CreateTemplateModal({
           {initialData ? "Editar Template" : "Novo Template"}
         </Typography>
         <Typography
+          component="span"
           variant="h5"
           sx={{
             fontFamily: '"Merriweather", "Georgia", serif',

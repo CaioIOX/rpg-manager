@@ -15,6 +15,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
@@ -75,6 +76,17 @@ export default function CreateDocModal({
     setIsModalOpen(false);
     reset();
   };
+
+  useEffect(() => {
+    if (initialData && isModalOpen) {
+      reset({
+        title: initialData.title,
+        folderId: initialData.folderID || defaultFolderId || "",
+        templateId: "", // Cannot change template after creation
+        isSpoiler: initialData.isSpoiler || false,
+      });
+    }
+  }, [initialData, isModalOpen, defaultFolderId, reset]);
 
   const onSubmit = async (data: DocFormData) => {
     if (initialData) {
@@ -147,6 +159,7 @@ export default function CreateDocModal({
           {initialData ? "Editar Documento" : "Novo Documento"}
         </Typography>
         <Typography
+          component="span"
           variant="h5"
           sx={{
             fontFamily: '"Merriweather", "Georgia", serif',

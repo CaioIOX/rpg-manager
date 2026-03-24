@@ -66,6 +66,12 @@ export default function Editor({
     });
   }, 1000);
 
+  useEffect(() => {
+    return () => {
+      debouncedSave.flush();
+    };
+  }, [debouncedSave]);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -87,25 +93,21 @@ export default function Editor({
 
   useEffect(() => {
     if (editor && initialContent && !hasInitialized) {
-      console.log("Attempting to load initial content... Is editor empty?", editor.isEmpty);
+      console.log("Loading initial content from JSON DB because Custom Yjs server doesn't persist full state.");
       
       const loadContent = () => {
-        // Remove tipTap properties we don't need or want to avoid proseMirror crashes
         const contentToLoad = {
           type: initialContent.type || "doc",
           content: initialContent.content || [],
         };
         
         console.log("Loading content:", contentToLoad);
-        editor.commands.setContent(contentToLoad as any);
+        if (editor.isEmpty) {
+          editor.commands.setContent(contentToLoad as any);
+        }
       };
 
-      if (editor.isEmpty) {
-        // Execute immediately if Yjs has settled
-        setTimeout(loadContent, 50);
-      } else {
-        console.log("Editor is not empty. Current JSON:", editor.getJSON());
-      }
+      setTimeout(loadContent, 100);
       setHasInitialized(true);
     }
   }, [editor, initialContent, hasInitialized]);

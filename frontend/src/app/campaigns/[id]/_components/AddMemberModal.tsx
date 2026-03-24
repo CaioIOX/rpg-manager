@@ -94,6 +94,7 @@ export default function AddMemberModal({
           Gerenciar Equipe
         </Typography>
         <Typography
+          component="span"
           variant="h5"
           sx={{
             fontFamily: '"Merriweather", "Georgia", serif',
