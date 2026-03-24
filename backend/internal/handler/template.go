@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
@@ -25,10 +26,12 @@ func (h *TemplateHandler) Create(c *fiber.Ctx) error {
 
 	input := dto.CreateTemplateRequest{}
 	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Requisição inválida.")
 		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida."})
 	}
 
 	if err := h.validate.Struct(input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -36,8 +39,10 @@ func (h *TemplateHandler) Create(c *fiber.Ctx) error {
 
 	if newTemplate != nil {
 		if errors.Is(newTemplate, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar criar um template.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar criar um template."})
 	}
 
@@ -51,8 +56,10 @@ func (h *TemplateHandler) List(c *fiber.Ctx) error {
 	tmpl, err := h.templateService.GetByCampaign(c.Context(), campaignID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar listar os templates.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar listar os templates."})
 	}
 
@@ -67,8 +74,10 @@ func (h *TemplateHandler) Get(c *fiber.Ctx) error {
 	tmpl, err := h.templateService.GetByID(c.Context(), templateID, campaignID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar acessar o template.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar acessar o template."})
 	}
 
@@ -82,18 +91,22 @@ func (h *TemplateHandler) Update(c *fiber.Ctx) error {
 
 	input := dto.UpdateTemplateRequest{}
 	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	if err := h.validate.Struct(input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	tmpl, err := h.templateService.Update(c.Context(), input, templateID, campaignID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar atualizar o template.")
 		return c.Status(400).JSON(fiber.Map{"Error": "Erro ao tentar atualizar o template."})
 	}
 
@@ -107,8 +120,10 @@ func (h *TemplateHandler) Delete(c *fiber.Ctx) error {
 
 	if err := h.templateService.Delete(c.Context(), templateID, campaignID, loggedUser); err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar apagar o template.")
 		return c.Status(400).JSON(fiber.Map{"Error": "Erro ao tentar apagar o template."})
 	}
 

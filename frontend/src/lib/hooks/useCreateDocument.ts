@@ -8,17 +8,18 @@ export default function useCreateDocument() {
       title,
       content,
       folderId,
+      templateId,
+      isSpoiler,
     }: {
       campaignId: string;
       title: string;
-      content: Record<string, unknown>;
+      content?: Record<string, unknown>;
       folderId?: string;
-    }) => Create(campaignId, title, content, folderId),
-    onSuccess: (message) => {
-      console.log(message);
-    },
+      templateId?: string;
+      isSpoiler?: boolean;
+    }) => Create(campaignId, title, content, folderId, templateId, isSpoiler),
     onError: (error) => {
-      console.error("Falha ao criar campanha: ", error);
+      console.error("Falha ao criar documento: ", error);
     },
   });
 }

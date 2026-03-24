@@ -8,7 +8,7 @@ export default function useCreateCampaign() {
       description,
     }: {
       name: string;
-      description: string;
+      description?: string;
     }) => Create(name, description),
     onSuccess: (message) => {
       console.log(message);
