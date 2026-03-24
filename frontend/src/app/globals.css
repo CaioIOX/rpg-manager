@@ -234,3 +234,18 @@ a {
   outline: 2px solid rgba(212, 175, 55, 0.5);
   outline-offset: 2px;
 }
+
+.tiptap .mention {
+  background-color: rgba(186, 104, 200, 0.2);
+  color: #ce93d8;
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-decoration-break: clone;
+  transition: all 0.2s ease;
+}
+
+.tiptap .mention:hover {
+  background-color: rgba(186, 104, 200, 0.4);
+}

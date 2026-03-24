@@ -127,3 +127,20 @@ export async function Search(
     throw error;
   }
 }
+
+export async function SyncLinks(
+  campaignID: string,
+  documentID: string,
+  links: { target_doc_id: string; mention_text: string }[],
+): Promise<MessageResponse> {
+  try {
+    const resp = await apiClient.post(
+      `/api/campaigns/${campaignID}/documents/${documentID}/links`,
+      { links },
+    );
+    return resp.data;
+  } catch (error) {
+    console.error("Falha ao sincronizar as menções: ", error);
+    throw error;
+  }
+}

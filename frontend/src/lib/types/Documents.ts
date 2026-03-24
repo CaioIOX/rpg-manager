@@ -23,8 +23,8 @@ export interface DocumentSummary {
 
 export interface DocumentLink {
     id: string,
-    SourceDocID: string,
-    targetDocID: string,
-    mentionText: string,
-    createdAt: Date,
+    source_doc_id: string,
+    target_doc_id: string,
+    mention_text: string,
+    created_at: Date,
 }

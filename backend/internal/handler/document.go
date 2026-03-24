@@ -6,6 +6,7 @@ import (
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
+	"github.com/CaioIOX/rpg-manager/backend/internal/model"
 	"github.com/CaioIOX/rpg-manager/backend/internal/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -166,4 +167,34 @@ func (h *DocumentHandler) Search(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(docs)
+}
+
+func (h *DocumentHandler) SyncLinks(c *fiber.Ctx) error {
+	loggedUser := c.Locals("user_id").(string)
+	docID := c.Params("document_id")
+	campaignID := c.Params("campaign_id")
+
+	var input struct {
+		Links []model.DocumentLink `json:"links"`
+	}
+
+	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Requisição inválida.")
+		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida."})
+	}
+
+	if err := h.documentService.DeleteLinksFrom(c.Context(), campaignID, docID, loggedUser); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao apagar menções antigas")
+		return c.Status(400).JSON(fiber.Map{"error": "Falha ao apagar menções antigas"})
+	}
+
+	for _, link := range input.Links {
+		link.SourceDocID = docID
+		if err := h.documentService.CreateLink(c.Context(), link, campaignID, loggedUser); err != nil {
+			log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao criar nova menção")
+			return c.Status(400).JSON(fiber.Map{"error": "Falha ao criar nova menção"})
+		}
+	}
+
+	return c.Status(201).JSON(fiber.Map{"message": "Menções sincronizadas com sucesso!"})
 }

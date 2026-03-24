@@ -64,21 +64,24 @@ export default function SideBar() {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
-  // Edit states
   const [folderToEdit, setFolderToEdit] = useState<Folder | undefined>();
   const [templateToEdit, setTemplateToEdit] = useState<Template | undefined>();
   const [docToEdit, setDocToEdit] = useState<DocumentSummary | undefined>();
 
-  // Delete states
   const [folderToDelete, setFolderToDelete] = useState<Folder | undefined>();
-  const [templateToDelete, setTemplateToDelete] = useState<Template | undefined>();
+  const [templateToDelete, setTemplateToDelete] = useState<
+    Template | undefined
+  >();
   const [docToDelete, setDocToDelete] = useState<DocumentSummary | undefined>();
 
-  // Template Menu
-  const [templateMenuAnchor, setTemplateMenuAnchor] = useState<null | HTMLElement>(null);
+  const [templateMenuAnchor, setTemplateMenuAnchor] =
+    useState<null | HTMLElement>(null);
   const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
 
-  const handleTemplateMenuOpen = (event: MouseEvent<HTMLElement>, templateId: string) => {
+  const handleTemplateMenuOpen = (
+    event: MouseEvent<HTMLElement>,
+    templateId: string,
+  ) => {
     event.stopPropagation();
     setTemplateMenuAnchor(event.currentTarget);
     setActiveTemplateId(templateId);
@@ -99,11 +102,9 @@ export default function SideBar() {
 
   const searchResults = useSearchQuery(campaignId, searchQuery);
 
-  // Folders without a parent (root-level)
   const rootFolders = folders.data?.filter((f) => !f.parent_id) ?? [];
-  // Documents without a folder (root-level)
-  const rootDocuments =
-    documents.data?.filter((d) => !d.folder_id) ?? [];
+
+  const rootDocuments = documents.data?.filter((d) => !d.folder_id) ?? [];
 
   return (
     <>
@@ -168,6 +169,26 @@ export default function SideBar() {
               >
                 <ArrowBackIcon fontSize="small" />
               </IconButton>
+            </Box>
+            <Box
+              onClick={() => router.push(`/campaigns/${campaignId}`)}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                cursor: "pointer",
+                px: 0.5,
+                py: 0.5,
+                borderRadius: "10px",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  bgcolor: "rgba(255, 255, 255, 0.04)",
+                  "& .back-arrow": {
+                    transform: "translateX(-2px)",
+                  },
+                },
+              }}
+            >
               <Typography
                 variant="subtitle2"
                 sx={{
@@ -370,18 +391,26 @@ export default function SideBar() {
                       >
                         {template.name}
                       </Typography>
-                      
+
                       <IconButton
                         size="small"
                         onClick={(e) => handleTemplateMenuOpen(e, template.id)}
-                        sx={{ ml: "auto", p: 0.2, opacity: activeTemplateId === template.id ? 1 : 0, transition: "opacity 0.2s", 
-                              "&:hover": { opacity: 1, bgcolor: "rgba(142, 36, 170, 0.1)" } }}
+                        sx={{
+                          ml: "auto",
+                          p: 0.2,
+                          opacity: activeTemplateId === template.id ? 1 : 0,
+                          transition: "opacity 0.2s",
+                          "&:hover": {
+                            opacity: 1,
+                            bgcolor: "rgba(142, 36, 170, 0.1)",
+                          },
+                        }}
                       >
                         <MoreVertIcon sx={{ fontSize: "1rem" }} />
                       </IconButton>
                     </Box>
                   ))}
-                  
+
                   <Menu
                     anchorEl={templateMenuAnchor}
                     open={Boolean(templateMenuAnchor)}
@@ -395,18 +424,26 @@ export default function SideBar() {
                       },
                     }}
                   >
-                    <MuiMenuItem onClick={() => {
-                      const t = templates.data?.find(x => x.id === activeTemplateId);
-                      if (t) {
-                        setTemplateToEdit(t);
-                        setIsTemplateModalOpen(true);
-                      }
-                      handleTemplateMenuClose();
-                    }} sx={{ fontSize: "0.85rem" }}>
+                    <MuiMenuItem
+                      onClick={() => {
+                        const t = templates.data?.find(
+                          (x) => x.id === activeTemplateId,
+                        );
+                        if (t) {
+                          setTemplateToEdit(t);
+                          setIsTemplateModalOpen(true);
+                        }
+                        handleTemplateMenuClose();
+                      }}
+                      sx={{ fontSize: "0.85rem" }}
+                    >
                       Editar
                     </MuiMenuItem>
-                    <MuiMenuItem onClick={() => {
-                        const t = templates.data?.find(x => x.id === activeTemplateId);
+                    <MuiMenuItem
+                      onClick={() => {
+                        const t = templates.data?.find(
+                          (x) => x.id === activeTemplateId,
+                        );
                         if (t) setTemplateToDelete(t);
                         handleTemplateMenuClose();
                       }}
@@ -415,7 +452,7 @@ export default function SideBar() {
                       Apagar
                     </MuiMenuItem>
                   </Menu>
-                  
+
                   <Divider sx={{ mt: 1.5 }} />
                 </Box>
               )}
@@ -453,9 +490,9 @@ export default function SideBar() {
 
               {/* Root-level documents (no folder) */}
               {rootDocuments.map((doc) => (
-                <DocumentItem 
-                  key={doc.id} 
-                  document={doc} 
+                <DocumentItem
+                  key={doc.id}
+                  document={doc}
                   onEdit={() => handleEditDoc(doc)}
                   onDelete={() => setDocToDelete(doc)}
                 />
@@ -489,17 +526,26 @@ export default function SideBar() {
 
       <CreateDocModal
         isModalOpen={isDocModalOpen}
-        setIsModalOpen={(open) => { setIsDocModalOpen(open); if (!open) setDocToEdit(undefined); }}
+        setIsModalOpen={(open) => {
+          setIsDocModalOpen(open);
+          if (!open) setDocToEdit(undefined);
+        }}
         initialData={docToEdit}
       />
       <CreateFolderModal
         isModalOpen={isFolderModalOpen}
-        setIsModalOpen={(open) => { setIsFolderModalOpen(open); if (!open) setFolderToEdit(undefined); }}
+        setIsModalOpen={(open) => {
+          setIsFolderModalOpen(open);
+          if (!open) setFolderToEdit(undefined);
+        }}
         initialData={folderToEdit}
       />
       <CreateTemplateModal
         isModalOpen={isTemplateModalOpen}
-        setIsModalOpen={(open) => { setIsTemplateModalOpen(open); if (!open) setTemplateToEdit(undefined); }}
+        setIsModalOpen={(open) => {
+          setIsTemplateModalOpen(open);
+          if (!open) setTemplateToEdit(undefined);
+        }}
         initialData={templateToEdit}
       />
       <AddMemberModal
@@ -518,7 +564,14 @@ export default function SideBar() {
           if (folderToDelete) {
             deleteFolder.mutate(
               { campaignId, folderId: folderToDelete.id },
-              { onSuccess: () => { setFolderToDelete(undefined); queryClient.invalidateQueries({ queryKey: ["folders", campaignId] }); } }
+              {
+                onSuccess: () => {
+                  setFolderToDelete(undefined);
+                  queryClient.invalidateQueries({
+                    queryKey: ["folders", campaignId],
+                  });
+                },
+              },
             );
           }
         }}
@@ -533,7 +586,14 @@ export default function SideBar() {
           if (templateToDelete) {
             deleteTemplate.mutate(
               { campaignId, templateId: templateToDelete.id },
-              { onSuccess: () => { setTemplateToDelete(undefined); queryClient.invalidateQueries({ queryKey: ["templates", campaignId] }); } }
+              {
+                onSuccess: () => {
+                  setTemplateToDelete(undefined);
+                  queryClient.invalidateQueries({
+                    queryKey: ["templates", campaignId],
+                  });
+                },
+              },
             );
           }
         }}
@@ -548,7 +608,14 @@ export default function SideBar() {
           if (docToDelete) {
             deleteDocument.mutate(
               { campaignId, documentId: docToDelete.id },
-              { onSuccess: () => { setDocToDelete(undefined); queryClient.invalidateQueries({ queryKey: ["documents", campaignId] }); } }
+              {
+                onSuccess: () => {
+                  setDocToDelete(undefined);
+                  queryClient.invalidateQueries({
+                    queryKey: ["documents", campaignId],
+                  });
+                },
+              },
             );
           }
         }}

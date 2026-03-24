@@ -115,6 +115,7 @@ func main() {
 	api.Delete("/campaigns/:campaign_id/documents/:document_id", documentHandler.Delete)
 	api.Get("/campaigns/:campaign_id/search", documentHandler.Search)
 	api.Get("/campaigns/:campaign_id/documents/:document_id/links", documentHandler.GetLinks)
+	api.Post("/campaigns/:campaign_id/documents/:document_id/links", documentHandler.SyncLinks)
 
 	// Templates
 	api.Get("/campaigns/:campaign_id/templates", templateHandler.List)
