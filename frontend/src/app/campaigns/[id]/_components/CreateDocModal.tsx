@@ -63,9 +63,9 @@ export default function CreateDocModal({
   } = useForm<DocFormData>({
     defaultValues: {
       title: initialData?.title || "",
-      folderId: initialData?.folderID || defaultFolderId || "",
-      templateId: "", // Cannot change template after creation
-      isSpoiler: initialData?.isSpoiler || false,
+      folderId: initialData?.folder_id || defaultFolderId || "",
+      templateId: initialData?.template_id || "", // Cannot change template after creation
+      isSpoiler: initialData?.is_spoiler || false,
     },
     resolver: zodResolver(docSchema),
   });
@@ -81,9 +81,9 @@ export default function CreateDocModal({
     if (initialData && isModalOpen) {
       reset({
         title: initialData.title,
-        folderId: initialData.folderID || defaultFolderId || "",
-        templateId: "", // Cannot change template after creation
-        isSpoiler: initialData.isSpoiler || false,
+        folderId: initialData.folder_id || defaultFolderId || "",
+        templateId: initialData.template_id || "", // Cannot change template after creation
+        isSpoiler: initialData.is_spoiler || false,
       });
     }
   }, [initialData, isModalOpen, defaultFolderId, reset]);

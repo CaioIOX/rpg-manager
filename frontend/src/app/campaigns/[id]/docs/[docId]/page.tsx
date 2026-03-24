@@ -19,7 +19,7 @@ export default function DocPage() {
   const getDocument = useGetDocument(campaignId, docId);
   const updateDocument = useUpdateDocument();
 
-  const templateId = getDocument.data?.templateID;
+  const templateId = getDocument.data?.template_id;
   const template = useGetTemplate(campaignId, templateId);
 
   const debouncedSaveTemplateData = useDebouncedCallback(

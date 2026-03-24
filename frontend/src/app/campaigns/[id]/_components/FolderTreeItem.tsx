@@ -57,7 +57,7 @@ export default function FolderTreeItem({
   };
 
   const childFolders = allFolders.filter((f) => f.parent_id === folder.id);
-  const folderDocs = documents.filter((d) => d.folderID === folder.id);
+  const folderDocs = documents.filter((d) => d.folder_id === folder.id);
   const hasChildren = childFolders.length > 0 || folderDocs.length > 0;
 
   return (

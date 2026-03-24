@@ -87,7 +87,7 @@ export default function DocumentItem({ document, onEdit, onDelete }: DocumentIte
       >
         {document.title}
       </Typography>
-      {document.isSpoiler && (
+      {document.is_spoiler && (
         <LockOutlinedIcon
           sx={{
             fontSize: "0.85rem",

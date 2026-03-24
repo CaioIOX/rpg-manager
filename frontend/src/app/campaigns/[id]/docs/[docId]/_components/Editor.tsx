@@ -41,7 +41,6 @@ export default function Editor({
     if (!docId) return;
 
     const wsBaseUrl = "ws://localhost:8080";
-    console.log("Attempting to connect WebSocket to:", wsBaseUrl, `ws/doc/${docId}`);
 
     const provider = new WebsocketProvider(wsBaseUrl, `ws/doc/${docId}`, ydoc);
 
@@ -89,18 +88,18 @@ export default function Editor({
     },
   });
 
-  console.log("hasInitialized:", hasInitialized, "editor.isEmpty:", editor?.isEmpty);
-
   useEffect(() => {
     if (editor && initialContent && !hasInitialized) {
-      console.log("Loading initial content from JSON DB because Custom Yjs server doesn't persist full state.");
-      
+      console.log(
+        "Loading initial content from JSON DB because Custom Yjs server doesn't persist full state.",
+      );
+
       const loadContent = () => {
         const contentToLoad = {
           type: initialContent.type || "doc",
           content: initialContent.content || [],
         };
-        
+
         console.log("Loading content:", contentToLoad);
         if (editor.isEmpty) {
           editor.commands.setContent(contentToLoad as any);

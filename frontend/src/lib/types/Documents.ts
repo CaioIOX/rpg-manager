@@ -1,24 +1,24 @@
 export interface TypeDocument {
     id: string,
-    campaignID: string,
+    campaign_id: string,
     folder_id?: string,
-    templateID?: string,
+    template_id?: string,
     title: string,
     content: Record<string, unknown>,
-    isSpoiler: boolean,
-    createdBy: string,
-    createdAt: Date,
-    updatedAt: Date,
+    is_spoiler: boolean,
+    created_by: string,
+    created_at: Date,
+    updated_at: Date,
 }
 
 export interface DocumentSummary {
     id: string,
     title: string,
-    folderID?: string,
-    templateID?: string,
-    isSpoiler: boolean,
-    createdBy: string,
-    updatedAt: Date
+    folder_id?: string,
+    template_id?: string,
+    is_spoiler: boolean,
+    created_by: string,
+    updated_at: Date
 }
 
 export interface DocumentLink {

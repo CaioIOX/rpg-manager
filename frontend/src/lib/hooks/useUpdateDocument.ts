@@ -22,7 +22,6 @@ export default function useUpdateDocument() {
     onSuccess: (message, variables) => {
       console.log(message);
       
-      // Update cache synchronously to ensure Editor gets the latest data when remounting
       queryClient.setQueryData(["document", variables.documentId], (oldData: any) => {
         if (!oldData) return oldData;
         return {
@@ -33,6 +32,7 @@ export default function useUpdateDocument() {
         };
       });
       
+      queryClient.invalidateQueries({ queryKey: ["documents", variables.campaignId] });
       queryClient.invalidateQueries({ queryKey: ["document", variables.documentId] });
     },
     onError: (error) => {

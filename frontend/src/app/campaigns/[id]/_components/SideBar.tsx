@@ -103,7 +103,7 @@ export default function SideBar() {
   const rootFolders = folders.data?.filter((f) => !f.parent_id) ?? [];
   // Documents without a folder (root-level)
   const rootDocuments =
-    documents.data?.filter((d) => !d.folderID) ?? [];
+    documents.data?.filter((d) => !d.folder_id) ?? [];
 
   return (
     <>
