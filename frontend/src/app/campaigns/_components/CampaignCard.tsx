@@ -9,15 +9,37 @@ import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { useState, MouseEvent } from "react";
 
 interface CampaignCardProps {
   campaign: Campaign;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export default function CampaignCard({ campaign }: CampaignCardProps) {
+export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCardProps) {
   const router = useRouter();
+
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = (event?: MouseEvent<HTMLElement>) => {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    setMenuAnchor(null);
+  };
 
   return (
     <Grid size={{ xs: 12, sm: 6, md: 4 }} key={campaign.id}>
@@ -67,21 +89,35 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
             }}
           >
             <Box
+            sx={{
+              p: 1.5,
+              borderRadius: "16px",
+              bgcolor: "rgba(212, 175, 55, 0.1)",
+              color: "#D4AF37",
+              mb: 2,
+            }}
+          >
+            <AutoStoriesIcon sx={{ fontSize: 24 }} />
+          </Box>
+          
+          {(onEdit || onDelete) && (
+            <IconButton
+              size="small"
+              onClick={handleMenuOpen}
               sx={{
-                p: 1,
-                borderRadius: "12px",
-                bgcolor: "rgba(212, 175, 55, 0.08)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                color: "text.secondary",
+                ml: "auto",
+                mt: -1,
+                mr: -1,
+                "&:hover": { color: "primary.main", bgcolor: "rgba(212, 175, 55, 0.1)" },
               }}
             >
-              <AutoStoriesIcon
-                sx={{ color: "primary.main", fontSize: "1.3rem" }}
-              />
-            </Box>
-          </Box>
-          <Typography
+              <MoreVertIcon />
+            </IconButton>
+          )}
+        </Box>
+
+        <Typography
             variant="h6"
             component={"h2"}
             sx={{
@@ -108,34 +144,56 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
           </Typography>
         </CardContent>
 
-        <CardActions sx={{ px: 3, pb: 2.5, pt: 0 }}>
-          <Button
-            size="small"
-            color="primary"
-            fullWidth
-            endIcon={<ArrowForwardIcon sx={{ fontSize: "1rem !important" }} />}
-            sx={{
-              borderRadius: "12px",
-              py: 1,
-              fontWeight: 600,
-              color: "primary.main",
-              bgcolor: "rgba(212, 175, 55, 0.06)",
-              border: "1px solid rgba(212, 175, 55, 0.12)",
-              transition: "all 0.25s ease",
-              "&:hover": {
-                bgcolor: "rgba(212, 175, 55, 0.12)",
-                borderColor: "rgba(212, 175, 55, 0.25)",
-              },
-            }}
+        <CardActions
+        sx={{
+          justifyContent: "space-between",
+          px: 3,
+          pb: 3,
+          pt: 0,
+        }}
+      >
+        <Typography variant="caption" sx={{ color: "text.disabled" }}>
+          Criado em {new Date(campaign.created_at).toLocaleDateString("pt-BR")}
+        </Typography>
+      </CardActions>
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => handleMenuClose()}
+        onClick={(e) => e.stopPropagation()}
+        sx={{
+          "& .MuiPaper-root": {
+            bgcolor: "background.paper",
+            border: "1px solid rgba(212, 175, 55, 0.12)",
+            boxShadow: "0 8px 16px rgba(0,0,0,0.5)",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        {onEdit && (
+          <MenuItem
             onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/campaigns/${campaign.id}`);
+              handleMenuClose(e);
+              onEdit();
             }}
+            sx={{ fontSize: "0.85rem" }}
           >
-            Entrar na Campanha
-          </Button>
-        </CardActions>
-      </Card>
-    </Grid>
+            Editar
+          </MenuItem>
+        )}
+        {onDelete && (
+          <MenuItem
+            onClick={(e) => {
+              handleMenuClose(e);
+              onDelete();
+            }}
+            sx={{ fontSize: "0.85rem", color: "error.main" }}
+          >
+            Apagar
+          </MenuItem>
+        )}
+      </Menu>
+    </Card>
+  </Grid>
   );
 }

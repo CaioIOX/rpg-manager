@@ -1,9 +1,9 @@
 export interface Folder {
     id: string,
-    campaignID: string,
-    parentID?: string,
+    campaign_id: string,
+    parent_id?: string,
     name: string,
     position: number,
-    createdAt: Date,
-    updatedAt: Date
+    created_at: Date,
+    updated_at: Date
 }

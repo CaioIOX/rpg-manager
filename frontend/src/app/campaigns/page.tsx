@@ -7,7 +7,7 @@ import {
   Grid,
   Skeleton,
   Typography,
-  Stack,
+
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { Campaign } from "@/lib/types/Campaign";
@@ -18,13 +18,24 @@ import CreateCampaignModal from "./_components/CreateCampaignModal";
 import { useQueryClient } from "@tanstack/react-query";
 import AddIcon from "@mui/icons-material/Add";
 import ExploreIcon from "@mui/icons-material/Explore";
+import useDeleteCampaign from "@/lib/hooks/useDeleteCampaign";
+import ConfirmDeleteModal from "./_components/ConfirmDeleteModal";
 
 export default function CampaignPage() {
   const campaigns = useCampaigns();
   const queryClient = useQueryClient();
+  const deleteCampaign = useDeleteCampaign();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [campaignToEdit, setCampaignToEdit] = useState<Campaign | undefined>();
+  const [campaignToDelete, setCampaignToDelete] = useState<Campaign | undefined>();
 
   const handleOpenModal = () => setIsModalOpen(true);
+
+  const handleEdit = (c: Campaign) => {
+    setCampaignToEdit(c);
+    setIsModalOpen(true);
+  };
 
   return (
     <Box
@@ -148,16 +159,38 @@ export default function CampaignPage() {
           )}
           {!campaigns.isPending &&
             campaigns.data?.map((campaign: Campaign) => (
-              <CampaignCard key={campaign.id} campaign={campaign} />
+              <CampaignCard 
+                key={campaign.id} 
+                campaign={campaign} 
+                onEdit={() => handleEdit(campaign)}
+                onDelete={() => setCampaignToDelete(campaign)}
+              />
             ))}
         </Grid>
       </Container>
 
       <CreateCampaignModal
         isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
+        setIsModalOpen={(open) => { setIsModalOpen(open); if (!open) setCampaignToEdit(undefined); }}
+        initialData={campaignToEdit}
         onSuccessCallback={() => {
           queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+        }}
+      />
+
+      <ConfirmDeleteModal
+        isModalOpen={!!campaignToDelete}
+        setIsModalOpen={() => setCampaignToDelete(undefined)}
+        title="Apagar Campanha"
+        description={`Tem certeza que deseja apagar a campanha "${campaignToDelete?.name}"? Esta ação não pode ser desfeita e todas as pastas e documentos serão removidos.`}
+        isLoading={deleteCampaign.isPending}
+        onConfirm={() => {
+          if (campaignToDelete) {
+            deleteCampaign.mutate(
+              { campaignId: campaignToDelete.id },
+              { onSuccess: () => { setCampaignToDelete(undefined); queryClient.invalidateQueries({ queryKey: ["campaigns"] }); } }
+            );
+          }
         }}
       />
     </Box>

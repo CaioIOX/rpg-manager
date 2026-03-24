@@ -9,13 +9,15 @@ export default function useUpdateDocument() {
       title,
       folderID,
       content,
+      isSpoiler,
     }: {
       campaignId: string;
       documentId: string;
       title?: string;
       folderID?: string;
       content?: Record<string, unknown>;
-    }) => Update(campaignId, documentId, title, folderID, content),
+      isSpoiler?: boolean;
+    }) => Update(campaignId, documentId, title, folderID, content, isSpoiler),
     onSuccess: (message) => {
       console.log(message);
     },

@@ -72,7 +72,7 @@ func (h *FolderHandler) Create(c *fiber.Ctx) error {
 
 	if newFolder != nil {
 		if errors.Is(newFolder, customErrors.ErrUnauthorized) {
-			log.Printf("Erro na requisição [Status %d]: %v", 401, err)
+			log.Printf("Erro na requisição [Status %d]: %v", 401, newFolder)
 			return c.Status(401).JSON(fiber.Map{"error": newFolder.Error()})
 		}
 		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar criar pasta.")

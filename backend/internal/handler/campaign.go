@@ -67,7 +67,7 @@ func (h *CampaignHandler) Create(c *fiber.Ctx) error {
 
 	if newCampaign != nil {
 		if errors.Is(newCampaign, customErrors.ErrUnauthorized) {
-			log.Printf("Erro na requisição [Status %d]: %v", 401, err)
+			log.Printf("Erro na requisição [Status %d]: %v", 401, newCampaign)
 			return c.Status(401).JSON(fiber.Map{"error": newCampaign.Error()})
 		}
 		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar criar campanha.")
@@ -95,7 +95,7 @@ func (h *CampaignHandler) AddMember(c *fiber.Ctx) error {
 	newMember := h.campaignService.AddMember(c.Context(), input, id, loggedUser)
 	if newMember != nil {
 		if errors.Is(newMember, customErrors.ErrUnauthorized) {
-			log.Printf("Erro na requisição [Status %d]: %v", 401, err)
+			log.Printf("Erro na requisição [Status %d]: %v", 401, newMember)
 			return c.Status(401).JSON(fiber.Map{"error": newMember.Error()})
 		}
 		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar adicionar membro.")

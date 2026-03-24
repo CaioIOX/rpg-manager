@@ -9,6 +9,8 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Menu,
+  MenuItem as MuiMenuItem,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { useParams, useRouter } from "next/navigation";
@@ -20,17 +22,26 @@ import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import useSearchQuery from "@/lib/hooks/useSearchQuery";
 import useTemplates from "@/lib/hooks/useTemplates";
 import useFolders from "@/lib/hooks/useFolders";
 import useDocuments from "@/lib/hooks/useDocuments";
-import { useState } from "react";
+import useDeleteFolder from "@/lib/hooks/useDeleteFolder";
+import useDeleteTemplate from "@/lib/hooks/useDeleteTemplate";
+import useDeleteDocument from "@/lib/hooks/useDeleteDocument";
+import { useState, MouseEvent } from "react";
 import CreateDocModal from "./CreateDocModal";
 import CreateFolderModal from "./CreateFolderModal";
 import CreateTemplateModal from "./CreateTemplateModal";
 import AddMemberModal from "./AddMemberModal";
 import FolderTreeItem from "./FolderTreeItem";
 import DocumentItem from "./DocumentItem";
+import ConfirmDeleteModal from "../../_components/ConfirmDeleteModal";
+import { Folder } from "@/lib/types/Folder";
+import { Template } from "@/lib/types/Template";
+import { DocumentSummary } from "@/lib/types/Documents";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SideBar() {
   const params = useParams();
@@ -42,16 +53,54 @@ export default function SideBar() {
   const documents = useDocuments(campaignId);
   const folders = useFolders(campaignId);
 
+  const deleteFolder = useDeleteFolder();
+  const deleteTemplate = useDeleteTemplate();
+  const deleteDocument = useDeleteDocument();
+  const queryClient = useQueryClient();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
+  // Edit states
+  const [folderToEdit, setFolderToEdit] = useState<Folder | undefined>();
+  const [templateToEdit, setTemplateToEdit] = useState<Template | undefined>();
+  const [docToEdit, setDocToEdit] = useState<DocumentSummary | undefined>();
+
+  // Delete states
+  const [folderToDelete, setFolderToDelete] = useState<Folder | undefined>();
+  const [templateToDelete, setTemplateToDelete] = useState<Template | undefined>();
+  const [docToDelete, setDocToDelete] = useState<DocumentSummary | undefined>();
+
+  // Template Menu
+  const [templateMenuAnchor, setTemplateMenuAnchor] = useState<null | HTMLElement>(null);
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
+
+  const handleTemplateMenuOpen = (event: MouseEvent<HTMLElement>, templateId: string) => {
+    event.stopPropagation();
+    setTemplateMenuAnchor(event.currentTarget);
+    setActiveTemplateId(templateId);
+  };
+  const handleTemplateMenuClose = () => {
+    setTemplateMenuAnchor(null);
+    setActiveTemplateId(null);
+  };
+
+  const handleEditFolder = (f: Folder) => {
+    setFolderToEdit(f);
+    setIsFolderModalOpen(true);
+  };
+  const handleEditDoc = (d: DocumentSummary) => {
+    setDocToEdit(d);
+    setIsDocModalOpen(true);
+  };
+
   const searchResults = useSearchQuery(campaignId, searchQuery);
 
   // Folders without a parent (root-level)
-  const rootFolders = folders.data?.filter((f) => !f.parentID) ?? [];
+  const rootFolders = folders.data?.filter((f) => !f.parent_id) ?? [];
   // Documents without a folder (root-level)
   const rootDocuments =
     documents.data?.filter((d) => !d.folderID) ?? [];
@@ -321,8 +370,52 @@ export default function SideBar() {
                       >
                         {template.name}
                       </Typography>
+                      
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleTemplateMenuOpen(e, template.id)}
+                        sx={{ ml: "auto", p: 0.2, opacity: activeTemplateId === template.id ? 1 : 0, transition: "opacity 0.2s", 
+                              "&:hover": { opacity: 1, bgcolor: "rgba(142, 36, 170, 0.1)" } }}
+                      >
+                        <MoreVertIcon sx={{ fontSize: "1rem" }} />
+                      </IconButton>
                     </Box>
                   ))}
+                  
+                  <Menu
+                    anchorEl={templateMenuAnchor}
+                    open={Boolean(templateMenuAnchor)}
+                    onClose={handleTemplateMenuClose}
+                    sx={{
+                      "& .MuiPaper-root": {
+                        bgcolor: "background.paper",
+                        border: "1px solid rgba(142, 36, 170, 0.12)",
+                        boxShadow: "0 8px 16px rgba(0,0,0,0.5)",
+                        borderRadius: "8px",
+                      },
+                    }}
+                  >
+                    <MuiMenuItem onClick={() => {
+                      const t = templates.data?.find(x => x.id === activeTemplateId);
+                      if (t) {
+                        setTemplateToEdit(t);
+                        setIsTemplateModalOpen(true);
+                      }
+                      handleTemplateMenuClose();
+                    }} sx={{ fontSize: "0.85rem" }}>
+                      Editar
+                    </MuiMenuItem>
+                    <MuiMenuItem onClick={() => {
+                        const t = templates.data?.find(x => x.id === activeTemplateId);
+                        if (t) setTemplateToDelete(t);
+                        handleTemplateMenuClose();
+                      }}
+                      sx={{ fontSize: "0.85rem", color: "error.main" }}
+                    >
+                      Apagar
+                    </MuiMenuItem>
+                  </Menu>
+                  
                   <Divider sx={{ mt: 1.5 }} />
                 </Box>
               )}
@@ -351,12 +444,21 @@ export default function SideBar() {
                   folder={folder}
                   allFolders={folders.data ?? []}
                   documents={documents.data ?? []}
+                  onEditFolder={handleEditFolder}
+                  onDeleteFolder={setFolderToDelete}
+                  onEditDoc={handleEditDoc}
+                  onDeleteDoc={setDocToDelete}
                 />
               ))}
 
               {/* Root-level documents (no folder) */}
               {rootDocuments.map((doc) => (
-                <DocumentItem key={doc.id} document={doc} />
+                <DocumentItem 
+                  key={doc.id} 
+                  document={doc} 
+                  onEdit={() => handleEditDoc(doc)}
+                  onDelete={() => setDocToDelete(doc)}
+                />
               ))}
 
               {/* Empty state */}
@@ -385,22 +487,71 @@ export default function SideBar() {
         </Box>
       </Box>
 
-      {/* Modals */}
       <CreateDocModal
         isModalOpen={isDocModalOpen}
-        setIsModalOpen={setIsDocModalOpen}
+        setIsModalOpen={(open) => { setIsDocModalOpen(open); if (!open) setDocToEdit(undefined); }}
+        initialData={docToEdit}
       />
       <CreateFolderModal
         isModalOpen={isFolderModalOpen}
-        setIsModalOpen={setIsFolderModalOpen}
+        setIsModalOpen={(open) => { setIsFolderModalOpen(open); if (!open) setFolderToEdit(undefined); }}
+        initialData={folderToEdit}
       />
       <CreateTemplateModal
         isModalOpen={isTemplateModalOpen}
-        setIsModalOpen={setIsTemplateModalOpen}
+        setIsModalOpen={(open) => { setIsTemplateModalOpen(open); if (!open) setTemplateToEdit(undefined); }}
+        initialData={templateToEdit}
       />
       <AddMemberModal
         isModalOpen={isMemberModalOpen}
         setIsModalOpen={setIsMemberModalOpen}
+      />
+
+      {/* Delete Modals */}
+      <ConfirmDeleteModal
+        isModalOpen={!!folderToDelete}
+        setIsModalOpen={() => setFolderToDelete(undefined)}
+        title="Apagar Pasta"
+        description={`Tem certeza que deseja apagar a pasta "${folderToDelete?.name}"? Os documentos poderão ser perdidos.`}
+        isLoading={deleteFolder.isPending}
+        onConfirm={() => {
+          if (folderToDelete) {
+            deleteFolder.mutate(
+              { campaignId, folderId: folderToDelete.id },
+              { onSuccess: () => { setFolderToDelete(undefined); queryClient.invalidateQueries({ queryKey: ["folders", campaignId] }); } }
+            );
+          }
+        }}
+      />
+      <ConfirmDeleteModal
+        isModalOpen={!!templateToDelete}
+        setIsModalOpen={() => setTemplateToDelete(undefined)}
+        title="Apagar Template"
+        description={`Tem certeza que deseja apagar o template "${templateToDelete?.name}"? Documentos que usam este template continuarão existindo, mas os campos especiais não.`}
+        isLoading={deleteTemplate.isPending}
+        onConfirm={() => {
+          if (templateToDelete) {
+            deleteTemplate.mutate(
+              { campaignId, templateId: templateToDelete.id },
+              { onSuccess: () => { setTemplateToDelete(undefined); queryClient.invalidateQueries({ queryKey: ["templates", campaignId] }); } }
+            );
+          }
+        }}
+      />
+      <ConfirmDeleteModal
+        isModalOpen={!!docToDelete}
+        setIsModalOpen={() => setDocToDelete(undefined)}
+        title="Apagar Documento"
+        description={`Tem certeza que deseja apagar o documento "${docToDelete?.title}"?`}
+        isLoading={deleteDocument.isPending}
+        onConfirm={() => {
+          if (docToDelete) {
+            deleteDocument.mutate(
+              { campaignId, documentId: docToDelete.id },
+              { onSuccess: () => { setDocToDelete(undefined); queryClient.invalidateQueries({ queryKey: ["documents", campaignId] }); } }
+            );
+          }
+        }}
       />
     </>
   );

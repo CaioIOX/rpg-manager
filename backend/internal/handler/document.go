@@ -104,7 +104,7 @@ func (h *DocumentHandler) Update(c *fiber.Ctx) error {
 		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar atualziar documento.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar atualziar documento."})
 	}
-
+log.Println(doc)
 	return c.JSON(doc)
 }
 

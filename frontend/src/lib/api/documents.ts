@@ -1,4 +1,8 @@
-import { TypeDocument, DocumentLink, DocumentSummary } from "../types/Documents";
+import {
+  TypeDocument,
+  DocumentLink,
+  DocumentSummary,
+} from "../types/Documents";
 import { MessageResponse } from "../types/GeneralTypes";
 import { apiClient } from "./client";
 
@@ -43,7 +47,13 @@ export async function Create(
   try {
     const resp = await apiClient.post(
       `/api/campaigns/${campaignID}/documents`,
-      { title, content, folder_id: folderID || null, template_id: templateID || null, is_spoiler: isSpoiler ?? false },
+      {
+        title,
+        content: content || {},
+        folder_id: folderID || null,
+        template_id: templateID || null,
+        is_spoiler: isSpoiler ?? false,
+      },
     );
     return resp.data;
   } catch (error) {
@@ -60,6 +70,7 @@ export async function Update(
   content?: Record<string, unknown>,
   isSpoiler?: boolean,
 ): Promise<TypeDocument> {
+  console.log(title, folderID, content, isSpoiler);
   try {
     const resp = await apiClient.put(
       `/api/campaigns/${campaignID}/documents/${documentID}`,

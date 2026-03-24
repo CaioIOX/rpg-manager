@@ -1,6 +1,7 @@
 "use client";
 
 import useCreateTemplate from "@/lib/hooks/useCreateTemplate";
+import useUpdateTemplate from "@/lib/hooks/useUpdateTemplate";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -22,22 +23,31 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Template } from "@/lib/types/Template";
+import { useEffect } from "react";
+
 interface SchemaField {
   name: string;
   type: string;
   label: string;
   required: boolean;
+  options?: string[];
 }
 
-interface FormData {
-  name: string;
-  description: string;
-  icon: string;
-}
+const templateSchema = z.object({
+  name: z.string().min(1, "O nome é obrigatório"),
+  description: z.string().optional(),
+  icon: z.string(),
+});
+
+type FormData = z.infer<typeof templateSchema>;
 
 interface CreateTemplateModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
+  initialData?: Template;
 }
 
 const FIELD_TYPES = [
@@ -47,13 +57,26 @@ const FIELD_TYPES = [
   { value: "select", label: "Seleção" },
 ];
 
-const ICON_OPTIONS = ["📄", "⚔️", "🛡️", "👤", "🏰", "🗺️", "💎", "🐉", "📜", "🧙"];
+const ICON_OPTIONS = [
+  "📄",
+  "⚔️",
+  "🛡️",
+  "👤",
+  "🏰",
+  "🗺️",
+  "💎",
+  "🐉",
+  "📜",
+  "🧙",
+];
 
 export default function CreateTemplateModal({
   isModalOpen,
   setIsModalOpen,
+  initialData,
 }: CreateTemplateModalProps) {
   const templateMutation = useCreateTemplate();
+  const templateUpdateMutation = useUpdateTemplate();
   const params = useParams();
   const campaignId = params.id as string;
   const queryClient = useQueryClient();
@@ -65,25 +88,53 @@ export default function CreateTemplateModal({
     label: "",
     required: false,
   });
+  const [newFieldOptions, setNewFieldOptions] = useState("");
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
-  } = useForm<FormData>({ defaultValues: { icon: "📄" } });
+  } = useForm<FormData>({ 
+    defaultValues: {
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      icon: initialData?.icon || "📄",
+    },
+    resolver: zodResolver(templateSchema),
+  });
+
+  useEffect(() => {
+    if (initialData && isModalOpen) {
+      setFields((initialData.schema as unknown as SchemaField[]) || []);
+      reset({
+        name: initialData.name,
+        description: initialData.description,
+        icon: initialData.icon,
+      });
+    } else if (!isModalOpen) {
+      setFields([]);
+      reset({ name: "", description: "", icon: "📄" });
+    }
+  }, [initialData, isModalOpen, reset]);
+
+  const selectedIcon = watch("icon");
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    reset();
-    setFields([]);
     setNewField({ name: "", type: "text", label: "", required: false });
   };
 
   const addField = () => {
     if (!newField.name || !newField.label) return;
-    setFields([...fields, { ...newField }]);
+    const addedField: SchemaField = { ...newField };
+    if (newField.type === "select" && newFieldOptions.trim() !== "") {
+      addedField.options = newFieldOptions.split(",").map((o) => o.trim()).filter((o) => o !== "");
+    }
+    setFields([...fields, addedField]);
     setNewField({ name: "", type: "text", label: "", required: false });
+    setNewFieldOptions("");
   };
 
   const removeField = (index: number) => {
@@ -91,23 +142,46 @@ export default function CreateTemplateModal({
   };
 
   const onSubmit = async (data: FormData) => {
-    templateMutation.mutate(
-      {
-        campaignId,
-        name: data.name,
-        description: data.description,
-        icon: data.icon,
-        schema: fields as unknown as Record<string, unknown>,
-      },
-      {
-        onSuccess: () => {
-          handleCloseModal();
-          queryClient.invalidateQueries({
-            queryKey: ["templates", campaignId],
-          });
+    if (initialData) {
+      templateUpdateMutation.mutate(
+        {
+          campaignId,
+          templateId: initialData.id,
+          name: data.name,
+          description: data.description,
+          icon: data.icon,
+          schema: fields as unknown as Record<string, unknown>,
+          defaultContent: {},
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            queryClient.invalidateQueries({
+              queryKey: ["templates", campaignId],
+            });
+          },
+        },
+      );
+    } else {
+      templateMutation.mutate(
+        {
+          campaignId,
+          name: data.name,
+          description: data.description,
+          icon: data.icon,
+          schema: fields as unknown as Record<string, unknown>,
+          defaultContent: {},
+        },
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            queryClient.invalidateQueries({
+              queryKey: ["templates", campaignId],
+            });
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -133,7 +207,7 @@ export default function CreateTemplateModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          Novo Template
+          {initialData ? "Editar Template" : "Novo Template"}
         </Typography>
         <Typography
           variant="h5"
@@ -146,7 +220,7 @@ export default function CreateTemplateModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          Criar Template
+          {initialData ? "Configurar Template" : "Criar Template"}
         </Typography>
       </DialogTitle>
 
@@ -213,31 +287,43 @@ export default function CreateTemplateModal({
               Ícone
             </Typography>
             <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-              {ICON_OPTIONS.map((icon) => (
-                <Box key={icon}>
-                  <input
-                    type="radio"
-                    id={`icon-${icon}`}
-                    value={icon}
-                    {...register("icon")}
-                    style={{ display: "none" }}
-                  />
-                  <label htmlFor={`icon-${icon}`}>
-                    <Chip
-                      label={icon}
-                      clickable
-                      sx={{
-                        fontSize: "1.2rem",
-                        cursor: "pointer",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        "&:hover": {
-                          borderColor: "rgba(142, 36, 170, 0.4)",
-                        },
-                      }}
+              {ICON_OPTIONS.map((icon) => {
+                const isSelected = selectedIcon === icon;
+
+                return (
+                  <Box key={icon}>
+                    <input
+                      type="radio"
+                      id={`icon-${icon}`}
+                      value={icon}
+                      {...register("icon")}
+                      style={{ display: "none" }}
                     />
-                  </label>
-                </Box>
-              ))}
+                    <label htmlFor={`icon-${icon}`}>
+                      <Chip
+                        label={icon}
+                        clickable
+                        sx={{
+                          fontSize: "1.2rem",
+                          cursor: "pointer",
+                          border: isSelected
+                            ? "2px solid #BA68C8"
+                            : "1px solid rgba(255,255,255,0.08)",
+                          bgcolor: isSelected
+                            ? "rgba(186, 104, 200, 0.15)"
+                            : "transparent",
+                          "&:hover": {
+                            borderColor: "rgba(142, 36, 170, 0.4)",
+                            bgcolor: isSelected
+                              ? "rgba(186, 104, 200, 0.25)"
+                              : "rgba(255,255,255,0.05)",
+                          },
+                        }}
+                      />
+                    </label>
+                  </Box>
+                );
+              })}
             </Stack>
           </Box>
 
@@ -277,13 +363,11 @@ export default function CreateTemplateModal({
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {field.label}
                     </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "text.secondary" }}
-                    >
+                    <Typography>
                       {field.name} •{" "}
                       {FIELD_TYPES.find((t) => t.value === field.type)?.label}
                       {field.required && " • Obrigatório"}
+                      {field.type === "select" && field.options && ` • Opções: ${field.options.join(", ")}`}
                     </Typography>
                   </Box>
                   <IconButton
@@ -387,14 +471,17 @@ export default function CreateTemplateModal({
                       />
                     }
                     label={
-                      <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ fontSize: "0.75rem" }}
+                      >
                         Obrigatório
                       </Typography>
                     }
                   />
                   <IconButton
                     onClick={addField}
-                    disabled={!newField.name || !newField.label}
+                    disabled={!newField.name || !newField.label || (newField.type === "select" && newFieldOptions.trim() === "")}
                     sx={{
                       color: "#BA68C8",
                       border: "1px solid rgba(142, 36, 170, 0.3)",
@@ -407,6 +494,23 @@ export default function CreateTemplateModal({
                   </IconButton>
                 </Stack>
               </Stack>
+              {newField.type === "select" && (
+                <TextField
+                  label="Opções (separadas por vírgula)"
+                  placeholder="ex: Opção 1, Opção 2, Opção 3"
+                  size="small"
+                  fullWidth
+                  value={newFieldOptions}
+                  onChange={(e) => setNewFieldOptions(e.target.value)}
+                  sx={{
+                    mt: 1.5,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "10px",
+                      bgcolor: "rgba(13, 17, 23, 0.4)",
+                    },
+                  }}
+                />
+              )}
             </Box>
           </Box>
         </DialogContent>
@@ -427,19 +531,17 @@ export default function CreateTemplateModal({
           <Button
             type="submit"
             variant="contained"
-            disabled={templateMutation.isPending || fields.length === 0}
+            disabled={templateMutation.isPending || templateUpdateMutation.isPending || fields.length === 0}
             sx={{
               borderRadius: "12px",
               px: 3,
-              background:
-                "linear-gradient(135deg, #BA68C8 0%, #8E24AA 100%)",
+              background: "linear-gradient(135deg, #BA68C8 0%, #8E24AA 100%)",
               "&:hover": {
-                background:
-                  "linear-gradient(135deg, #CE93D8 0%, #BA68C8 100%)",
+                background: "linear-gradient(135deg, #CE93D8 0%, #BA68C8 100%)",
               },
             }}
           >
-            Criar Template
+            {initialData ? "Salvar Template" : "Criar Template"}
           </Button>
         </DialogActions>
       </form>

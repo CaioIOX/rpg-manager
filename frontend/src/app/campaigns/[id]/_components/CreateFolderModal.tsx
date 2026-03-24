@@ -1,6 +1,7 @@
 "use client";
 
 import useCreateFolder from "@/lib/hooks/useCreateFolder";
+import useUpdateFolder from "@/lib/hooks/useUpdateFolder";
 import useFolders from "@/lib/hooks/useFolders";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -13,22 +14,30 @@ import MenuItem from "@mui/material/MenuItem";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Folder } from "@/lib/types/Folder";
 
-interface FormData {
-  name: string;
-  parentId: string;
-}
+const folderSchema = z.object({
+  name: z.string().min(1, "O nome da pasta é obrigatório"),
+  parentId: z.string().optional(),
+});
+
+type FormData = z.infer<typeof folderSchema>;
 
 interface CreateFolderModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
+  initialData?: Folder;
 }
 
 export default function CreateFolderModal({
   isModalOpen,
   setIsModalOpen,
+  initialData,
 }: CreateFolderModalProps) {
   const folderMutation = useCreateFolder();
+  const folderUpdateMutation = useUpdateFolder();
   const params = useParams();
   const campaignId = params.id as string;
   const queryClient = useQueryClient();
@@ -39,7 +48,13 @@ export default function CreateFolderModal({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    defaultValues: {
+      name: initialData?.name || "",
+      parentId: initialData?.parent_id || "",
+    },
+    resolver: zodResolver(folderSchema),
+  });
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -47,19 +62,36 @@ export default function CreateFolderModal({
   };
 
   const onSubmit = async (data: FormData) => {
-    folderMutation.mutate(
-      {
-        campaignId,
-        name: data.name,
-        parentId: data.parentId || undefined,
-      },
-      {
-        onSuccess: () => {
-          handleCloseModal();
-          queryClient.invalidateQueries({ queryKey: ["folders", campaignId] });
+    if (initialData) {
+      folderUpdateMutation.mutate(
+        {
+          campaignId,
+          folderId: initialData.id,
+          name: data.name,
+          parentId: data.parentId || undefined,
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            queryClient.invalidateQueries({ queryKey: ["folders", campaignId] });
+          },
+        },
+      );
+    } else {
+      folderMutation.mutate(
+        {
+          campaignId,
+          name: data.name,
+          parentId: data.parentId || undefined,
+        },
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            queryClient.invalidateQueries({ queryKey: ["folders", campaignId] });
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -84,7 +116,7 @@ export default function CreateFolderModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          Nova Pasta
+          {initialData ? "Editar Pasta" : "Nova Pasta"}
         </Typography>
         <Typography
           variant="h5"
@@ -97,7 +129,7 @@ export default function CreateFolderModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          Criar Pasta
+          {initialData ? "Editar Pasta" : "Criar Pasta"}
         </Typography>
       </DialogTitle>
 
@@ -171,7 +203,7 @@ export default function CreateFolderModal({
             type="submit"
             variant="contained"
             color="primary"
-            disabled={folderMutation.isPending}
+            disabled={folderMutation.isPending || folderUpdateMutation.isPending}
             sx={{
               borderRadius: "12px",
               px: 3,
@@ -183,7 +215,7 @@ export default function CreateFolderModal({
               },
             }}
           >
-            Criar Pasta
+            {initialData ? "Salvar Alterações" : "Criar Pasta"}
           </Button>
         </DialogActions>
       </form>

@@ -59,8 +59,7 @@ export default function DocPage() {
                 mx: "auto",
                 mb: 0,
                 px: 2,
-                background:
-                  "linear-gradient(135deg, #E6E6E6 0%, #8B949E 100%)",
+                background: "linear-gradient(135deg, #E6E6E6 0%, #8B949E 100%)",
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -70,7 +69,6 @@ export default function DocPage() {
             </Typography>
           )}
 
-          {/* Template fields */}
           {template.data && (
             <TemplateFields
               template={template.data}
@@ -85,6 +83,9 @@ export default function DocPage() {
           <Editor
             title={getDocument.data?.title}
             folderId={getDocument.data?.folder_id}
+            initialContent={
+              getDocument.data?.content as Record<string, unknown>
+            }
           />
         </>
       )}

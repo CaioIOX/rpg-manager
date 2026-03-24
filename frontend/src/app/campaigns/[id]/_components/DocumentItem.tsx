@@ -4,22 +4,45 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { useParams, useRouter } from "next/navigation";
+import { useState, MouseEvent } from "react";
 import { DocumentSummary } from "@/lib/types/Documents";
 
 interface DocumentItemProps {
   document: DocumentSummary;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export default function DocumentItem({ document }: DocumentItemProps) {
+export default function DocumentItem({ document, onEdit, onDelete }: DocumentItemProps) {
   const router = useRouter();
   const params = useParams();
   const campaignId = params.id as string;
   const docId = params.docId as string;
   const isActive = docId === document.id;
 
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = (event?: MouseEvent<HTMLElement>) => {
+    if (event) event.stopPropagation();
+    setMenuAnchor(null);
+  };
+
   return (
     <Box
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("documentId", document.id);
+      }}
       onClick={() => router.push(`/campaigns/${campaignId}/docs/${document.id}`)}
       sx={{
         display: "flex",
@@ -37,6 +60,9 @@ export default function DocumentItem({ document }: DocumentItemProps) {
           bgcolor: isActive
             ? "rgba(212, 175, 55, 0.12)"
             : "rgba(212, 175, 55, 0.06)",
+          "& .doc-actions": {
+            opacity: 1,
+          },
         },
       }}
     >
@@ -71,6 +97,60 @@ export default function DocumentItem({ document }: DocumentItemProps) {
           }}
         />
       )}
+      {(onEdit || onDelete) && (
+        <IconButton
+          className="doc-actions"
+          size="small"
+          onClick={handleMenuOpen}
+          sx={{
+            ml: "auto",
+            p: 0.2,
+            opacity: menuAnchor ? 1 : 0,
+            transition: "opacity 0.2s",
+            color: "text.secondary",
+            "&:hover": { opacity: 1, bgcolor: "rgba(212, 175, 55, 0.1)", color: "primary.main" },
+          }}
+        >
+          <MoreVertIcon sx={{ fontSize: "1rem" }} />
+        </IconButton>
+      )}
+
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => handleMenuClose()}
+        sx={{
+          "& .MuiPaper-root": {
+            bgcolor: "background.paper",
+            border: "1px solid rgba(212, 175, 55, 0.12)",
+            boxShadow: "0 8px 16px rgba(0,0,0,0.5)",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        {onEdit && (
+          <MenuItem
+            onClick={(e) => {
+              handleMenuClose(e);
+              onEdit();
+            }}
+            sx={{ fontSize: "0.85rem" }}
+          >
+            Editar
+          </MenuItem>
+        )}
+        {onDelete && (
+          <MenuItem
+            onClick={(e) => {
+              handleMenuClose(e);
+              onDelete();
+            }}
+            sx={{ fontSize: "0.85rem", color: "error.main" }}
+          >
+            Apagar
+          </MenuItem>
+        )}
+      </Menu>
     </Box>
   );
 }

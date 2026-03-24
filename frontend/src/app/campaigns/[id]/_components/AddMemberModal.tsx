@@ -12,11 +12,15 @@ import MenuItem from "@mui/material/MenuItem";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface FormData {
-  email: string;
-  role: string;
-}
+const memberSchema = z.object({
+  email: z.string().min(1, "O email é obrigatório").email("Email inválido"),
+  role: z.string().min(1, "O papel é obrigatório"),
+});
+
+type FormData = z.infer<typeof memberSchema>;
 
 interface AddMemberModalProps {
   isModalOpen: boolean;
@@ -37,7 +41,10 @@ export default function AddMemberModal({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>({ defaultValues: { role: "editor" } });
+  } = useForm<FormData>({
+    defaultValues: { role: "editor" },
+    resolver: zodResolver(memberSchema),
+  });
 
   const handleCloseModal = () => {
     setIsModalOpen(false);

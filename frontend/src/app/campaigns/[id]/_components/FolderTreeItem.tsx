@@ -11,12 +11,22 @@ import { useState } from "react";
 import { Folder } from "@/lib/types/Folder";
 import { DocumentSummary } from "@/lib/types/Documents";
 import DocumentItem from "./DocumentItem";
+import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { MouseEvent } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FolderTreeItemProps {
   folder: Folder;
   allFolders: Folder[];
   documents: DocumentSummary[];
   depth?: number;
+  onEditFolder?: (f: Folder) => void;
+  onDeleteFolder?: (f: Folder) => void;
+  onEditDoc?: (d: DocumentSummary) => void;
+  onDeleteDoc?: (d: DocumentSummary) => void;
 }
 
 export default function FolderTreeItem({
@@ -24,10 +34,29 @@ export default function FolderTreeItem({
   allFolders,
   documents,
   depth = 0,
+  onEditFolder,
+  onDeleteFolder,
+  onEditDoc,
+  onDeleteDoc,
 }: FolderTreeItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const updateDocument = useUpdateDocument();
+  const queryClient = useQueryClient();
+  
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
-  const childFolders = allFolders.filter((f) => f.parentID === folder.id);
+  const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = (event?: MouseEvent<HTMLElement>) => {
+    if (event) event.stopPropagation();
+    setMenuAnchor(null);
+  };
+
+  const childFolders = allFolders.filter((f) => f.parent_id === folder.id);
   const folderDocs = documents.filter((d) => d.folderID === folder.id);
   const hasChildren = childFolders.length > 0 || folderDocs.length > 0;
 
@@ -35,6 +64,30 @@ export default function FolderTreeItem({
     <Box sx={{ pl: depth > 0 ? 1.5 : 0 }}>
       {/* Folder header */}
       <Box
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+          const docId = e.dataTransfer.getData("documentId");
+          if (docId) {
+            updateDocument.mutate({
+              campaignId: folder.campaign_id,
+              documentId: docId,
+              folderID: folder.id,
+            }, {
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["documents", folder.campaign_id] });
+              }
+            });
+          }
+        }}
         onClick={() => setIsExpanded(!isExpanded)}
         sx={{
           display: "flex",
@@ -45,8 +98,13 @@ export default function FolderTreeItem({
           borderRadius: "10px",
           cursor: "pointer",
           transition: "all 0.15s ease",
+          bgcolor: isDragOver ? "rgba(212, 175, 55, 0.15)" : "transparent",
+          border: isDragOver ? "1px dashed rgba(212, 175, 55, 0.5)" : "1px dashed transparent",
           "&:hover": {
             bgcolor: "rgba(212, 175, 55, 0.06)",
+            "& .folder-actions": {
+              opacity: 1,
+            },
           },
         }}
       >
@@ -102,15 +160,70 @@ export default function FolderTreeItem({
         >
           {folderDocs.length}
         </Typography>
+
+        {(onEditFolder || onDeleteFolder) && (
+          <IconButton
+            className="folder-actions"
+            size="small"
+            onClick={handleMenuOpen}
+            sx={{
+              ml: 1,
+              p: 0.2,
+              opacity: menuAnchor ? 1 : 0,
+              transition: "opacity 0.2s",
+              color: "text.secondary",
+              "&:hover": { opacity: 1, bgcolor: "rgba(212, 175, 55, 0.1)", color: "primary.main" },
+            }}
+          >
+            <MoreVertIcon sx={{ fontSize: "1rem" }} />
+          </IconButton>
+        )}
+
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={() => handleMenuClose()}
+          sx={{
+            "& .MuiPaper-root": {
+              bgcolor: "background.paper",
+              border: "1px solid rgba(212, 175, 55, 0.12)",
+              boxShadow: "0 8px 16px rgba(0,0,0,0.5)",
+              borderRadius: "8px",
+            },
+          }}
+        >
+          {onEditFolder && (
+            <MenuItem
+              onClick={(e) => {
+                handleMenuClose(e);
+                onEditFolder(folder);
+              }}
+              sx={{ fontSize: "0.85rem" }}
+            >
+              Editar
+            </MenuItem>
+          )}
+          {onDeleteFolder && (
+            <MenuItem
+              onClick={(e) => {
+                handleMenuClose(e);
+                onDeleteFolder(folder);
+              }}
+              sx={{ fontSize: "0.85rem", color: "error.main" }}
+            >
+              Apagar
+            </MenuItem>
+          )}
+        </Menu>
       </Box>
 
       {/* Children */}
       {isExpanded && (
         <Box
           sx={{
-            ml: 1,
-            pl: 1,
-            borderLeft: "1px solid rgba(212, 175, 55, 0.08)",
+            ml: 2.2,
+            pl: 1.2,
+            borderLeft: "2px solid rgba(212, 175, 55, 0.15)",
             animation: "fadeIn 0.2s ease-out",
           }}
         >
@@ -122,12 +235,21 @@ export default function FolderTreeItem({
               allFolders={allFolders}
               documents={documents}
               depth={depth + 1}
+              onEditFolder={onEditFolder}
+              onDeleteFolder={onDeleteFolder}
+              onEditDoc={onEditDoc}
+              onDeleteDoc={onDeleteDoc}
             />
           ))}
 
           {/* Documents in this folder */}
           {folderDocs.map((doc) => (
-            <DocumentItem key={doc.id} document={doc} />
+            <DocumentItem 
+              key={doc.id} 
+              document={doc} 
+              onEdit={() => onEditDoc?.(doc)}
+              onDelete={() => onDeleteDoc?.(doc)}
+            />
           ))}
 
           {/* Empty folder message */}

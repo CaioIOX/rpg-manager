@@ -1,6 +1,7 @@
 "use client";
 
 import useCreateDocument from "@/lib/hooks/useCreateDocument";
+import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
 import useFolders from "@/lib/hooks/useFolders";
 import useTemplates from "@/lib/hooks/useTemplates";
 import Button from "@mui/material/Button";
@@ -16,19 +17,25 @@ import Switch from "@mui/material/Switch";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DocumentSummary } from "@/lib/types/Documents";
 
-interface DocFormData {
-  title: string;
-  folderId: string;
-  templateId: string;
-  isSpoiler: boolean;
-}
+const docSchema = z.object({
+  title: z.string().min(1, "O título é obrigatório"),
+  folderId: z.string().optional(),
+  templateId: z.string().optional(),
+  isSpoiler: z.boolean(),
+});
+
+type DocFormData = z.infer<typeof docSchema>;
 
 interface CreateDocModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   onSuccessCallback?: () => void;
   defaultFolderId?: string;
+  initialData?: DocumentSummary;
 }
 
 export default function CreateDocModal({
@@ -36,8 +43,10 @@ export default function CreateDocModal({
   setIsModalOpen,
   onSuccessCallback,
   defaultFolderId,
+  initialData,
 }: CreateDocModalProps) {
   const docMutation = useCreateDocument();
+  const docUpdateMutation = useUpdateDocument();
   const params = useParams();
   const campaignId = params.id as string;
   const queryClient = useQueryClient();
@@ -52,10 +61,12 @@ export default function CreateDocModal({
     formState: { errors },
   } = useForm<DocFormData>({
     defaultValues: {
-      folderId: defaultFolderId || "",
-      templateId: "",
-      isSpoiler: false,
+      title: initialData?.title || "",
+      folderId: initialData?.folderID || defaultFolderId || "",
+      templateId: "", // Cannot change template after creation
+      isSpoiler: initialData?.isSpoiler || false,
     },
+    resolver: zodResolver(docSchema),
   });
 
   const isSpoiler = watch("isSpoiler");
@@ -66,26 +77,49 @@ export default function CreateDocModal({
   };
 
   const onSubmit = async (data: DocFormData) => {
-    docMutation.mutate(
-      {
-        campaignId,
-        title: data.title,
-        folderId: data.folderId || undefined,
-        templateId: data.templateId || undefined,
-        isSpoiler: data.isSpoiler,
-      },
-      {
-        onSuccess: () => {
-          handleCloseModal();
-          queryClient.invalidateQueries({
-            queryKey: ["documents", campaignId],
-          });
-          if (onSuccessCallback) {
-            onSuccessCallback();
-          }
+    if (initialData) {
+      docUpdateMutation.mutate(
+        {
+          campaignId,
+          documentId: initialData.id,
+          title: data.title,
+          folderID: data.folderId || undefined,
+          isSpoiler: data.isSpoiler,
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            queryClient.invalidateQueries({
+              queryKey: ["documents", campaignId],
+            });
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+        },
+      );
+    } else {
+      docMutation.mutate(
+        {
+          campaignId,
+          title: data.title,
+          folderId: data.folderId || undefined,
+          templateId: data.templateId || undefined,
+          isSpoiler: data.isSpoiler,
+        },
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            queryClient.invalidateQueries({
+              queryKey: ["documents", campaignId],
+            });
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -110,7 +144,7 @@ export default function CreateDocModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          Novo Documento
+          {initialData ? "Editar Documento" : "Novo Documento"}
         </Typography>
         <Typography
           variant="h5"
@@ -123,7 +157,7 @@ export default function CreateDocModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          Criar Documento
+          {initialData ? "Editar Documento" : "Criar Documento"}
         </Typography>
       </DialogTitle>
 
@@ -242,7 +276,7 @@ export default function CreateDocModal({
             type="submit"
             variant="contained"
             color="primary"
-            disabled={docMutation.isPending}
+            disabled={docMutation.isPending || docUpdateMutation.isPending}
             sx={{
               borderRadius: "12px",
               px: 3,
@@ -254,7 +288,7 @@ export default function CreateDocModal({
               },
             }}
           >
-            Criar Documento
+            {initialData ? "Salvar Alterações" : "Criar Documento"}
           </Button>
         </DialogActions>
       </form>

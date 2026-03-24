@@ -1,6 +1,7 @@
 "use client";
 
 import useCreateCampaign from "@/lib/hooks/useCreateCampaign";
+import useUpdateCampaign from "@/lib/hooks/useUpdateCampaign";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -9,11 +10,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useForm } from "react-hook-form";
-import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Campaign } from "@/lib/types/Campaign";
+import { useEffect } from "react";
 
 const campaignSchema = z.object({
   name: z.string().min(3, "O nome precisa ter pelo menos 3 caracteres"),
-  description: z.string(),
+  description: z.string().optional(),
 });
 
 type CampaignFormData = z.infer<typeof campaignSchema>;
@@ -22,20 +26,40 @@ interface CreateCampaignModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   onSuccessCallback?: () => void;
+  initialData?: Campaign;
 }
 
 export default function CreateCampaignModal({
   isModalOpen,
   setIsModalOpen,
   onSuccessCallback,
+  initialData,
 }: CreateCampaignModalProps) {
   const campaignMutation = useCreateCampaign();
+  const campaignUpdateMutation = useUpdateCampaign();
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CampaignFormData>();
+  } = useForm<CampaignFormData>({
+    defaultValues: {
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+    },
+    resolver: zodResolver(campaignSchema),
+  });
+
+  useEffect(() => {
+    if (initialData && isModalOpen) {
+      reset({
+        name: initialData.name,
+        description: initialData.description || "",
+      });
+    } else if (!isModalOpen) {
+      reset({ name: "", description: "" });
+    }
+  }, [initialData, isModalOpen, reset]);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -43,20 +67,38 @@ export default function CreateCampaignModal({
   };
 
   const onSubmit = async (data: CampaignFormData) => {
-    campaignMutation.mutate(
-      {
-        name: data.name,
-        description: data.description,
-      },
-      {
-        onSuccess: () => {
-          handleCloseModal();
-          if (onSuccessCallback) {
-            onSuccessCallback();
-          }
+    if (initialData) {
+      campaignUpdateMutation.mutate(
+        {
+          campaignId: initialData.id,
+          name: data.name,
+          description: data.description,
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+        },
+      );
+    } else {
+      campaignMutation.mutate(
+        {
+          name: data.name,
+          description: data.description,
+        },
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+        },
+      );
+    }
   };
   return (
     <Dialog
@@ -86,7 +128,7 @@ export default function CreateCampaignModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          Nova Aventura
+          {initialData ? "Editar Aventura" : "Nova Aventura"}
         </Typography>
         <Typography
           variant="h5"
@@ -100,7 +142,7 @@ export default function CreateCampaignModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          Forjar Nova Campanha
+          {initialData ? "Reescrever Campanha" : "Forjar Nova Campanha"}
         </Typography>
       </DialogTitle>
 
@@ -165,8 +207,7 @@ export default function CreateCampaignModal({
           <Button
             type="submit"
             variant="contained"
-            color="primary"
-            disabled={campaignMutation.isPending}
+            disabled={campaignMutation.isPending || campaignUpdateMutation.isPending}
             sx={{
               borderRadius: "12px",
               px: 3,
@@ -178,7 +219,7 @@ export default function CreateCampaignModal({
               },
             }}
           >
-            Criar Campanha
+            {initialData ? "Salvar Alterações" : "Criar Campanha"}
           </Button>
         </DialogActions>
       </form>
