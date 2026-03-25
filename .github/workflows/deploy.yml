@@ -7,7 +7,8 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,9 +19,10 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }} # Opcional, se sua chave tiver senha
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           script: |
-            cd /path/to/your/rpg-manager # Ajuste para o caminho na sua VPS
+            # ATENÇÃO: Substitua pelo caminho real na sua VPS, ex: ~/rpg-manager
+            cd ~/rpg-manager 
             git pull origin main
             # Opcional: injetar variáveis de ambiente se necessário
             # echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
