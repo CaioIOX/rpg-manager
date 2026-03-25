@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/api/idtoken"
+	"log"
 	"os"
 )
 
@@ -91,6 +92,7 @@ func (s *AuthService) GoogleLogin(ctx context.Context, token string) (string, er
 
 	payload, err := idtoken.Validate(ctx, token, clientID)
 	if err != nil {
+		log.Printf("[GOOGLE AUTH ERROR] Validation failed: %v", err)
 		return "", errors.New("token do Google inválido")
 	}
 
@@ -113,8 +115,11 @@ func (s *AuthService) GoogleLogin(ctx context.Context, token string) (string, er
 			PasswordHash: string(hash),
 		}
 		if errCreate := s.userRepo.Create(ctx, user); errCreate != nil {
+			log.Printf("[GOOGLE AUTH ERROR] Failed to create user: %v", errCreate)
 			return "", errors.New("erro ao criar usuário via Google")
 		}
+		// Refresh user to get the ID if scan didn't return it
+		user, _ = s.userRepo.GetByEmail(ctx, email)
 	}
 
 	claims := jwt.MapClaims{
@@ -125,6 +130,7 @@ func (s *AuthService) GoogleLogin(ctx context.Context, token string) (string, er
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := jwtToken.SignedString([]byte(s.jwtSecret))
 	if err != nil {
+		log.Printf("[GOOGLE AUTH ERROR] JWT signing failed: %v", err)
 		return "", errors.New("algo deu errado, por favor tente novamente!")
 	}
 
