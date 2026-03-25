@@ -35,7 +35,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.U
 func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
 	user := &model.User{}
 
-	query := `SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE usernam = $1`
+	query := `SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE username = $1`
 	err := r.db.QueryRow(ctx, query, username).Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
