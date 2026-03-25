@@ -1,6 +1,6 @@
 module github.com/CaioIOX/rpg-manager/backend
 
-go 1.25.7
+go 1.24.0
 
 require github.com/gofiber/websocket/v2 v2.2.1
 
