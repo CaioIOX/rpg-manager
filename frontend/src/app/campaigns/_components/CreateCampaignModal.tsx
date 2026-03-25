@@ -1,18 +1,23 @@
 "use client";
 
 import useCreateCampaign from "@/lib/hooks/useCreateCampaign";
+import useUpdateCampaign from "@/lib/hooks/useUpdateCampaign";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useForm } from "react-hook-form";
-import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Campaign } from "@/lib/types/Campaign";
+import { useEffect } from "react";
 
 const campaignSchema = z.object({
   name: z.string().min(3, "O nome precisa ter pelo menos 3 caracteres"),
-  description: z.string(),
+  description: z.string().optional(),
 });
 
 type CampaignFormData = z.infer<typeof campaignSchema>;
@@ -21,20 +26,40 @@ interface CreateCampaignModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   onSuccessCallback?: () => void;
+  initialData?: Campaign;
 }
 
 export default function CreateCampaignModal({
   isModalOpen,
   setIsModalOpen,
   onSuccessCallback,
+  initialData,
 }: CreateCampaignModalProps) {
   const campaignMutation = useCreateCampaign();
+  const campaignUpdateMutation = useUpdateCampaign();
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CampaignFormData>();
+  } = useForm<CampaignFormData>({
+    defaultValues: {
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+    },
+    resolver: zodResolver(campaignSchema),
+  });
+
+  useEffect(() => {
+    if (initialData && isModalOpen) {
+      reset({
+        name: initialData.name,
+        description: initialData.description || "",
+      });
+    } else if (!isModalOpen) {
+      reset({ name: "", description: "" });
+    }
+  }, [initialData, isModalOpen, reset]);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -42,20 +67,38 @@ export default function CreateCampaignModal({
   };
 
   const onSubmit = async (data: CampaignFormData) => {
-    campaignMutation.mutate(
-      {
-        name: data.name,
-        description: data.description,
-      },
-      {
-        onSuccess: () => {
-          handleCloseModal();
-          if (onSuccessCallback) {
-            onSuccessCallback();
-          }
+    if (initialData) {
+      campaignUpdateMutation.mutate(
+        {
+          campaignId: initialData.id,
+          name: data.name,
+          description: data.description,
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+        },
+      );
+    } else {
+      campaignMutation.mutate(
+        {
+          name: data.name,
+          description: data.description,
+        },
+        {
+          onSuccess: () => {
+            handleCloseModal();
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+        },
+      );
+    }
   };
   return (
     <Dialog
@@ -65,22 +108,43 @@ export default function CreateCampaignModal({
         paper: {
           sx: {
             bgcolor: "background.paper",
-            borderRadius: "20px",
-            minWidth: { xs: "90%", sm: "400px" },
-            border: "1px solid",
-            borderColor: "rgba(212, 175, 55, 0.2)",
+            borderRadius: "24px",
+            minWidth: { xs: "90%", sm: "440px" },
+            border: "1px solid rgba(212, 175, 55, 0.12)",
+            boxShadow:
+              "0 24px 48px rgba(0, 0, 0, 0.5), 0 0 80px rgba(212, 175, 55, 0.04)",
           },
         },
       }}
     >
       <DialogTitle
         sx={{
-          color: "primary.main",
-          fontFamily: '"Merriweather", "Georgia", serif',
-          fontWeight: "bold",
+          pb: 1,
+          pt: 3,
+          px: 3,
         }}
       >
-        Forjar Nova Campanha
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
+        >
+          {initialData ? "Editar Aventura" : "Nova Aventura"}
+        </Typography>
+        <Typography
+          component="span"
+          variant="h5"
+          sx={{
+            fontFamily: '"Merriweather", "Georgia", serif',
+            fontWeight: 700,
+            background:
+              "linear-gradient(135deg, #D4AF37 0%, #E8CC6E 100%)",
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          {initialData ? "Reescrever Campanha" : "Forjar Nova Campanha"}
+        </Typography>
       </DialogTitle>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -88,8 +152,9 @@ export default function CreateCampaignModal({
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 3,
-            mt: 1,
+            gap: 2.5,
+            px: 3,
+            pt: 2,
           }}
         >
           <TextField
@@ -100,7 +165,12 @@ export default function CreateCampaignModal({
             {...register("name")}
             error={!!errors.name}
             helperText={errors.name?.message}
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "14px",
+                bgcolor: "rgba(13, 17, 23, 0.4)",
+              },
+            }}
           />
           <TextField
             label="Descrição"
@@ -112,25 +182,47 @@ export default function CreateCampaignModal({
             {...register("description")}
             error={!!errors.description}
             helperText={errors.description?.message}
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
-          />
-          <DialogActions
             sx={{
-              p: 0,
-              pt: 0,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "14px",
+                bgcolor: "rgba(13, 17, 23, 0.4)",
+              },
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
+          <Button
+            onClick={handleCloseModal}
+            variant="text"
+            sx={{
+              color: "text.secondary",
+              borderRadius: "12px",
+              px: 2.5,
+              "&:hover": {
+                bgcolor: "rgba(255, 255, 255, 0.04)",
+              },
             }}
           >
-            <Button
-              type="submit"
-              variant={"contained"}
-              color="primary"
-              sx={{ borderRadius: "20px" }}
-              disabled={campaignMutation.isPending}
-            >
-              Criar campanha
-            </Button>
-          </DialogActions>
-        </DialogContent>
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={campaignMutation.isPending || campaignUpdateMutation.isPending}
+            sx={{
+              borderRadius: "12px",
+              px: 3,
+              background:
+                "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
+              "&:hover": {
+                background:
+                  "linear-gradient(135deg, #E8CC6E 0%, #D4AF37 100%)",
+              },
+            }}
+          >
+            {initialData ? "Salvar Alterações" : "Criar Campanha"}
+          </Button>
+        </DialogActions>
       </form>
     </Dialog>
   );

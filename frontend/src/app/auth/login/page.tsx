@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { useLoginMutation } from "@/lib/hooks/useLoginMutation";
+import { useGoogleLoginMutation } from "@/lib/hooks/useGoogleLoginMutation";
+import { GoogleLogin } from "@react-oauth/google";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
@@ -28,6 +30,7 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const loginMutation = useLoginMutation();
+  const googleLoginMutation = useGoogleLoginMutation();
 
   const onSubmit = (data: LoginFormData) => {
     loginMutation.mutate(
@@ -47,18 +50,45 @@ export default function LoginPage() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 3,
+        gap: 2.5,
         maxWidth: "400px",
         mx: "auto",
       }}
     >
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+            if (credentialResponse.credential) {
+              googleLoginMutation.mutate(credentialResponse.credential, {
+                onSuccess: () => {
+                  router.push("/campaigns");
+                }
+              });
+            }
+          }}
+          onError={() => {
+            console.error('Falha no Login com o Google');
+          }}
+          theme="filled_black"
+          shape="pill"
+          text="continue_with"
+        />
+      </Box>
+
+      <Typography variant="body2" sx={{ color: "text.secondary", textAlign: "center", mt: -1, mb: -1 }}>
+        ou com email
+      </Typography>
+
       <TextField
         label="Email"
         placeholder="exemplo@gmail.com"
         variant="outlined"
         fullWidth
         sx={{
-          "& .MuiOutlinedInput-root": { borderRadius: "20px" },
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "16px",
+            bgcolor: "rgba(13, 17, 23, 0.5)",
+          },
         }}
         {...register("email")}
         error={!!errors.email}
@@ -67,14 +97,17 @@ export default function LoginPage() {
       <TextField
         label="Senha"
         type="password"
-        placeholder="******"
+        placeholder="••••••••"
         variant="outlined"
         fullWidth
         {...register("password")}
         error={!!errors.password}
         helperText={errors.password?.message}
         sx={{
-          "& .MuiOutlinedInput-root": { borderRadius: "20px" },
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "16px",
+            bgcolor: "rgba(13, 17, 23, 0.5)",
+          },
         }}
       />
 
@@ -90,14 +123,34 @@ export default function LoginPage() {
         type="submit"
         size="large"
         loading={loginMutation.isPending}
-        sx={{ borderRadius: "20px", textTransform: "none" }}
+        sx={{
+          borderRadius: "16px",
+          py: 1.5,
+          fontSize: "1rem",
+          background: "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
+          "&:hover": {
+            background: "linear-gradient(135deg, #E8CC6E 0%, #D4AF37 100%)",
+          },
+        }}
       >
         Entrar
       </Button>
 
-      <Typography variant="body2" gutterBottom>
+      <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
         Não tem uma conta?{" "}
-        <Link color="#0000ff" underline="hover" href="/auth/register">
+        <Link
+          href="/auth/register"
+          sx={{
+            color: "primary.main",
+            fontWeight: 600,
+            textDecoration: "none",
+            transition: "color 0.2s",
+            "&:hover": {
+              color: "primary.light",
+              textDecoration: "underline",
+            },
+          }}
+        >
           Cadastre-se
         </Link>
       </Typography>

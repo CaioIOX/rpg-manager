@@ -24,7 +24,7 @@ export async function GetByID(campaignID: string, folderID: string): Promise<Fol
 
 export async function Create(campaignID: string, name: string, parentID?: string): Promise<MessageResponse> {
     try {
-        const resp = await apiClient.post(`/api/campaigns/${campaignID}/folders`, { name, parentID })
+        const resp = await apiClient.post(`/api/campaigns/${campaignID}/folders`, { name, parent_id: parentID })
         return resp.data
     } catch (error) {
         console.error("Falha ao criar a pasta: ", error)
@@ -32,9 +32,9 @@ export async function Create(campaignID: string, name: string, parentID?: string
     }
 }
 
-export async function Update(campaignID: string, name: string, position?: number, parentID?: string): Promise<Folder> {
+export async function Update(campaignID: string, folderID: string, name: string, position?: number, parentID?: string): Promise<Folder> {
     try {
-        const resp = await apiClient.put(`/api/campaigns/${campaignID}/folders`, { name, position, parentID })
+        const resp = await apiClient.put(`/api/campaigns/${campaignID}/folders/${folderID}`, { name, position, parent_id: parentID })
         return resp.data
     } catch (error) {
         console.error("Falha ao atualizar pasta: ", error)
@@ -42,9 +42,9 @@ export async function Update(campaignID: string, name: string, position?: number
     }
 }
 
-export async function Delete(campaignID: string): Promise<MessageResponse> {
+export async function Delete(campaignID: string, folderID: string): Promise<MessageResponse> {
     try {
-        const resp = await apiClient.delete(`/api/campaigns/${campaignID}/folders`)
+        const resp = await apiClient.delete(`/api/campaigns/${campaignID}/folders/${folderID}`)
         return resp.data
     } catch (error) {
         console.error("Falha ao apagar pasta: ", error)

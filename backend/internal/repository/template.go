@@ -24,14 +24,14 @@ func (r *TemplateRepository) Create(ctx context.Context, tmpl *model.Template) e
 		RETURNING id, created_at, updated_at`
 	schema := tmpl.Schema
 
-	if schema == nil {
-		schema = json.RawMessage{}
+	if len(schema) == 0 {
+		schema = json.RawMessage("[]")
 	}
 
 	defaultContent := tmpl.DefaultContent
 
-	if defaultContent == nil {
-		defaultContent = json.RawMessage{}
+	if len(defaultContent) == 0 {
+		defaultContent = json.RawMessage("{}")
 	}
 
 	return r.db.QueryRow(ctx, query, tmpl.CampaignID, tmpl.Name, tmpl.Description, tmpl.Icon, schema, defaultContent).

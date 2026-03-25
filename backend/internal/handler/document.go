@@ -2,9 +2,11 @@ package handler
 
 import (
 	"errors"
+	"log"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
+	"github.com/CaioIOX/rpg-manager/backend/internal/model"
 	"github.com/CaioIOX/rpg-manager/backend/internal/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -25,10 +27,12 @@ func (h *DocumentHandler) Create(c *fiber.Ctx) error {
 
 	input := dto.CreateDocumentRequest{}
 	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Requisição inválida.")
 		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida."})
 	}
 
 	if err := h.validate.Struct(input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"eror": err.Error()})
 	}
 
@@ -36,8 +40,10 @@ func (h *DocumentHandler) Create(c *fiber.Ctx) error {
 
 	if newDocs != nil {
 		if errors.Is(newDocs, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar criar um documento.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar criar um documento."})
 	}
 
@@ -50,6 +56,7 @@ func (h *DocumentHandler) List(c *fiber.Ctx) error {
 
 	docs, err := h.documentService.GetByCampaign(c.Context(), campaignID, loggedUser)
 	if err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 500, "Falha ao listar os documentos.")
 		return c.Status(500).JSON(fiber.Map{"error": "Falha ao listar os documentos."})
 	}
 	return c.JSON(docs)
@@ -63,8 +70,10 @@ func (h *DocumentHandler) Get(c *fiber.Ctx) error {
 	doc, err := h.documentService.GetByID(c.Context(), docID, campaignID, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Documento não encontardo.")
 		return c.Status(400).JSON(fiber.Map{"error": "Documento não encontardo."})
 	}
 
@@ -78,21 +87,25 @@ func (h *DocumentHandler) Update(c *fiber.Ctx) error {
 
 	input := dto.UpdateDocumentRequest{}
 	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	if err := h.validate.Struct(input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err)
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	doc, err := h.documentService.Update(c.Context(), input, campaignID, docId, loggedUser)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, customErrors.ErrUnauthorized)
 			return c.Status(401).JSON(fiber.Map{"error": customErrors.ErrUnauthorized})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar atualziar documento.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar atualziar documento."})
 	}
-
+log.Println(doc)
 	return c.JSON(doc)
 }
 
@@ -103,8 +116,10 @@ func (h *DocumentHandler) Delete(c *fiber.Ctx) error {
 
 	if err := h.documentService.Delete(c.Context(), docID, campaignID, loggedUser); err != nil {
 		if errors.Is(err, customErrors.ErrUnauthorized) {
+			log.Printf("Erro na requisição [Status %d]: %v", 401, err)
 			return c.Status(401).JSON(fiber.Map{"error": err.Error()})
 		}
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar apagar documento.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar apagar documento."})
 	}
 
@@ -119,11 +134,13 @@ func (h *DocumentHandler) GetLinks(c *fiber.Ctx) error {
 
 	linksFrom, err := h.documentService.GetLinksFrom(c.Context(), docID, campaignID, loggedUser)
 	if err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao recuperar menções")
 		return c.Status(400).JSON(fiber.Map{"error": "Falha ao recuperar menções"})
 	}
 
 	linksTo, err := h.documentService.GetLinksTo(c.Context(), docID, campaignID, loggedUser)
 	if err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao recuperar menções")
 		return c.Status(400).JSON(fiber.Map{"error": "Falha ao recuperar menções"})
 	}
 
@@ -139,13 +156,45 @@ func (h *DocumentHandler) Search(c *fiber.Ctx) error {
 	query := c.Query("q")
 
 	if query == "" {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Consulta não encontrada.")
 		return c.Status(400).JSON(fiber.Map{"error": "Consulta não encontrada."})
 	}
 
 	docs, err := h.documentService.SearchByTitle(c.Context(), query, campaignID, loggedUser)
 	if err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 500, "Consulta não encontrada.")
 		return c.Status(500).JSON(fiber.Map{"error": "Consulta não encontrada."})
 	}
 
 	return c.JSON(docs)
+}
+
+func (h *DocumentHandler) SyncLinks(c *fiber.Ctx) error {
+	loggedUser := c.Locals("user_id").(string)
+	docID := c.Params("document_id")
+	campaignID := c.Params("campaign_id")
+
+	var input struct {
+		Links []model.DocumentLink `json:"links"`
+	}
+
+	if err := c.BodyParser(&input); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Requisição inválida.")
+		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida."})
+	}
+
+	if err := h.documentService.DeleteLinksFrom(c.Context(), campaignID, docID, loggedUser); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao apagar menções antigas")
+		return c.Status(400).JSON(fiber.Map{"error": "Falha ao apagar menções antigas"})
+	}
+
+	for _, link := range input.Links {
+		link.SourceDocID = docID
+		if err := h.documentService.CreateLink(c.Context(), link, campaignID, loggedUser); err != nil {
+			log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao criar nova menção")
+			return c.Status(400).JSON(fiber.Map{"error": "Falha ao criar nova menção"})
+		}
+	}
+
+	return c.Status(201).JSON(fiber.Map{"message": "Menções sincronizadas com sucesso!"})
 }

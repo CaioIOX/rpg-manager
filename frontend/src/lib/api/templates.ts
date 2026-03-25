@@ -5,7 +5,8 @@ import { apiClient } from "./client"
 
 export async function List(campaignID: string): Promise<Template[]> {
     try {
-        const resp = await apiClient.get(`/campaigns/${campaignID}/templates`)
+    
+        const resp = await apiClient.get(`/api/campaigns/${campaignID}/templates`)
         return resp.data
     } catch (error) {
         console.error("Falha ao listar templates: ", error)
@@ -15,7 +16,7 @@ export async function List(campaignID: string): Promise<Template[]> {
 
 export async function GetByID(campaignID: string, templateID: string): Promise<Template> {
     try {
-        const resp = await apiClient.get(`/campaigns/${campaignID}/templates/${templateID}`)
+        const resp = await apiClient.get(`/api/campaigns/${campaignID}/templates/${templateID}`)
         return resp.data
     } catch (error) {
         console.error("Falha ao recuperar informações do template: ", error)
@@ -24,8 +25,9 @@ export async function GetByID(campaignID: string, templateID: string): Promise<T
 }
 
 export async function Create(campaignID: string, name: string, schema: Record<string, unknown>, defaultContent?: Record<string, unknown>, description?: string, icon?: string): Promise<MessageResponse> {
+    console.log(name, schema, defaultContent, description, icon)
     try {
-        const resp = await apiClient.post(`/campaigns/${campaignID}/templates`, { name, schema, defaultContent, description, icon })
+        const resp = await apiClient.post(`/api/campaigns/${campaignID}/templates`, { name, schema, default_content: defaultContent, description, icon })
         return resp.data
     } catch (error) {
         console.error("Falha ao criar a template: ", error)
@@ -35,7 +37,7 @@ export async function Create(campaignID: string, name: string, schema: Record<st
 
 export async function Update(campaignID: string, templateID: string, name?: string, schema?: Record<string, unknown>, defaultContent?: Record<string, unknown>, description?: string, icon?: string): Promise<Template> {
     try {
-        const resp = await apiClient.put(`/campaigns/${campaignID}/templates/${templateID}`, { name, schema, defaultContent, description, icon })
+        const resp = await apiClient.put(`/api/campaigns/${campaignID}/templates/${templateID}`, { name, schema, default_content: defaultContent, description, icon })
         return resp.data
     } catch (error) {
         console.error("Falha ao atualizar template: ", error)
@@ -45,7 +47,7 @@ export async function Update(campaignID: string, templateID: string, name?: stri
 
 export async function Delete(campaignID: string, templateID: string): Promise<MessageResponse> {
     try {
-        const resp = await apiClient.delete(`/campaigns/${campaignID}/templates/${templateID}`)
+        const resp = await apiClient.delete(`/api/campaigns/${campaignID}/templates/${templateID}`)
         return resp.data
     } catch (error) {
         console.error("Falha ao apagar template: ", error)

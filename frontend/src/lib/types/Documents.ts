@@ -1,27 +1,30 @@
-export interface DocumentType {
+export interface TypeDocument {
     id: string,
-    CampaignID: string,
-    FolderID?: string,
-    TemplateID?: string,
-    Title: string,
-    Content: Record<string, unknown>,
-    CreatedBy: string,
-    CreatedAt: Date,
-    UpdatedAt: Date,
+    campaign_id: string,
+    folder_id?: string,
+    template_id?: string,
+    title: string,
+    content: Record<string, unknown>,
+    is_spoiler: boolean,
+    created_by: string,
+    created_at: Date,
+    updated_at: Date,
 }
 
 export interface DocumentSummary {
     id: string,
-    Title: string,
-    FolderID?: string,
-    TemplateID?: string,
-    UpdatedAt: Date
+    title: string,
+    folder_id?: string,
+    template_id?: string,
+    is_spoiler: boolean,
+    created_by: string,
+    updated_at: Date
 }
 
 export interface DocumentLink {
     id: string,
-    SourceDocID: string,
-    TargetDocID: string,
-    MentionText: string,
-    CreatedAt: Date,
+    source_doc_id: string,
+    target_doc_id: string,
+    mention_text: string,
+    created_at: Date,
 }

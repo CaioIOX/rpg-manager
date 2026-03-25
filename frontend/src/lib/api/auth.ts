@@ -15,6 +15,16 @@ export async function Login(
   }
 }
 
+export async function GoogleAuth(credential: string): Promise<MessageResponse> {
+  try {
+    const resp = await apiClient.post("/api/auth/google", { credential });
+    return resp.data;
+  } catch (error) {
+    console.error("Falha ao se autenticar com o Google: ", error);
+    throw error;
+  }
+}
+
 export async function Register(
   username: string,
   email: string,

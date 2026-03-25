@@ -91,7 +91,6 @@ func (s *CampaignService) AddMember(ctx context.Context, dto dto.AddMemberReques
 	}
 
 	return nil
-
 }
 
 func (s *CampaignService) Update(ctx context.Context, id string, campaign dto.UpdateCampaignRequest, loggedUser string) (*model.Campaign, error) {
