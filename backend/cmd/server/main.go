@@ -24,13 +24,19 @@ import (
 )
 
 func main() {
-	godotenv.Load()
-
-	app := fiber.New()
-	app.Use(logger.New())
-	app.Use(recover.New())
+	godotenv.Load() // Local .env
+	godotenv.Load("../../.env") // Try root .env if running from cmd/server
 
 	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		// Fallback para desenvolvimento local caso DATABASE_URL não esteja definida
+		dbPass := os.Getenv("DB_PASSWORD")
+		if dbPass == "" {
+			dbPass = "rpg123" // Default do docker-compose.yml
+		}
+		dbURL = "postgres://rpg:" + dbPass + "@localhost:5432/rpg_manager?sslmode=disable"
+		log.Printf("DATABASE_URL not set, using local default: %s", dbURL)
+	}
 
 	db, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
@@ -44,6 +50,9 @@ func main() {
 	log.Println("Connected to PostgreSQL")
 
 	mURL := os.Getenv("MIGRATION_URL")
+	if mURL == "" {
+		mURL = dbURL
+	}
 
 	m, err := migrate.New("file://migrations", mURL)
 	if err != nil {
