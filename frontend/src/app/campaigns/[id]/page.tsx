@@ -1,19 +1,19 @@
 "use client";
 
+import DescriptionIcon from "@mui/icons-material/Description";
+import SettingsIcon from "@mui/icons-material/Settings";
 import {
   Box,
   Card,
   CardContent,
   CircularProgress,
   Grid,
-  Typography,
   Stack,
+  Typography,
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import useDocuments from "@/lib/hooks/useDocuments";
 import useTemplates from "@/lib/hooks/useTemplates";
-import DescriptionIcon from "@mui/icons-material/Description";
-import SettingsIcon from "@mui/icons-material/Settings";
 
 export default function CampaignDashboard() {
   const params = useParams();
@@ -33,7 +33,8 @@ export default function CampaignDashboard() {
       value: totalDocuments,
       isLoading: isLoadingDocs,
       icon: <DescriptionIcon />,
-      gradient: "linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%)",
+      gradient:
+        "linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%)",
       iconColor: "#D4AF37",
       borderColor: "rgba(212, 175, 55, 0.15)",
     },
@@ -42,15 +43,16 @@ export default function CampaignDashboard() {
       value: totalTemplates,
       isLoading: isLoadingTemplates,
       icon: <SettingsIcon />,
-      gradient: "linear-gradient(135deg, rgba(142, 36, 170, 0.15) 0%, rgba(142, 36, 170, 0.05) 100%)",
+      gradient:
+        "linear-gradient(135deg, rgba(142, 36, 170, 0.15) 0%, rgba(142, 36, 170, 0.05) 100%)",
       iconColor: "#BA68C8",
       borderColor: "rgba(142, 36, 170, 0.15)",
     },
   ];
 
   return (
-    <Box sx={{ p: { xs: 3, md: 5 } }}>
-      <Box sx={{ mb: 4, animation: "fadeInUp 0.5s ease-out" }}>
+    <Box sx={{ p: { xs: 2, sm: 3, md: 5 } }}>
+      <Box sx={{ mb: { xs: 3, md: 4 }, animation: "fadeInUp 0.5s ease-out" }}>
         <Typography
           variant="h4"
           sx={{
@@ -60,21 +62,22 @@ export default function CampaignDashboard() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             mb: 0.5,
+            fontSize: { xs: "1.8rem", sm: "2.125rem" },
           }}
         >
-          Visão Geral
+          Visao Geral
         </Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           Acompanhe o progresso da sua campanha
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={{ xs: 2, md: 3 }}>
         {statCards.map((card, index) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+          <Grid size={{ xs: 12, sm: 6 }} key={index}>
             <Card
               sx={{
-                borderRadius: "20px",
+                borderRadius: { xs: "18px", md: "20px" },
                 border: "1px solid",
                 borderColor: card.borderColor,
                 background: card.gradient,
@@ -82,7 +85,7 @@ export default function CampaignDashboard() {
                 transition: "all 0.3s ease",
               }}
             >
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: { xs: 2.25, md: 3 } }}>
                 <Stack
                   direction="row"
                   alignItems="center"
@@ -92,7 +95,7 @@ export default function CampaignDashboard() {
                   <Box
                     sx={{
                       display: "flex",
-                      p: 1.5,
+                      p: { xs: 1.2, md: 1.5 },
                       borderRadius: "14px",
                       bgcolor: "rgba(255,255,255,0.05)",
                       color: card.iconColor,
@@ -125,6 +128,7 @@ export default function CampaignDashboard() {
                       fontFamily: '"Inter", sans-serif',
                       color: "text.primary",
                       lineHeight: 1,
+                      fontSize: { xs: "2.25rem", md: "3.75rem" },
                     }}
                   >
                     {card.value}

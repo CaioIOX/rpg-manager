@@ -36,7 +36,7 @@ export default function DocPage() {
   );
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, animation: "fadeIn 0.4s ease-out" }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 4 }, animation: "fadeIn 0.4s ease-out" }}>
       {getDocument.isPending ? (
         <Box
           sx={{
@@ -58,11 +58,12 @@ export default function DocPage() {
                 maxWidth: "800px",
                 mx: "auto",
                 mb: 0,
-                px: 2,
+                px: { xs: 0.5, sm: 1, md: 2 },
                 background: "linear-gradient(135deg, #E6E6E6 0%, #8B949E 100%)",
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
+                fontSize: { xs: "1.75rem", sm: "2rem", md: "2.125rem" },
               }}
             >
               {getDocument.data.title}

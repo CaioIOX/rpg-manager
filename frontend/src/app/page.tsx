@@ -14,6 +14,8 @@ export default function Home() {
         justifyContent: "center",
         position: "relative",
         overflow: "hidden",
+        px: { xs: 2, sm: 3 },
+        py: { xs: 4, md: 6 },
         bgcolor: "background.default",
       }}
     >
@@ -66,6 +68,8 @@ export default function Home() {
           zIndex: 1,
           textAlign: "center",
           animation: "fadeInUp 0.6s ease-out",
+          width: "100%",
+          maxWidth: "520px",
         }}
       >
         <Typography
@@ -79,6 +83,7 @@ export default function Home() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             mb: 1,
+            fontSize: { xs: "2.25rem", sm: "3rem" },
           }}
         >
           CodexLore
@@ -88,7 +93,7 @@ export default function Home() {
           variant="body1"
           sx={{
             color: "text.secondary",
-            mb: 5,
+            mb: { xs: 3, md: 5 },
             maxWidth: "400px",
             mx: "auto",
             lineHeight: 1.6,
@@ -101,10 +106,11 @@ export default function Home() {
         {/* Login Card */}
         <Box
           sx={{
+            width: "100%",
             maxWidth: "440px",
             mx: "auto",
-            p: 4,
-            borderRadius: "24px",
+            p: { xs: 2.5, sm: 4 },
+            borderRadius: { xs: "20px", md: "24px" },
             bgcolor: "rgba(22, 27, 34, 0.8)",
             backdropFilter: "blur(20px)",
             border: "1px solid rgba(212, 175, 55, 0.12)",

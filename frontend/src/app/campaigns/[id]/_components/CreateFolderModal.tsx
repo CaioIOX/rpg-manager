@@ -112,8 +112,9 @@ export default function CreateFolderModal({
         paper: {
           sx: {
             bgcolor: "background.paper",
-            borderRadius: "24px",
-            minWidth: { xs: "90%", sm: "440px" },
+            borderRadius: { xs: "20px", md: "24px" },
+            width: { xs: "calc(100% - 24px)", sm: "440px" },
+            maxWidth: "440px",
             border: "1px solid rgba(212, 175, 55, 0.12)",
             boxShadow:
               "0 24px 48px rgba(0, 0, 0, 0.5), 0 0 80px rgba(212, 175, 55, 0.04)",
@@ -150,7 +151,7 @@ export default function CreateFolderModal({
             display: "flex",
             flexDirection: "column",
             gap: 2.5,
-            px: 3,
+            px: { xs: 2, sm: 3 },
             pt: 2,
           }}
         >
@@ -195,7 +196,15 @@ export default function CreateFolderModal({
             ))}
           </TextField>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
+        <DialogActions
+          sx={{
+            px: { xs: 2, sm: 3 },
+            pb: { xs: 2, sm: 3 },
+            pt: 1,
+            gap: 1,
+            flexDirection: { xs: "column-reverse", sm: "row" },
+          }}
+        >
           <Button
             onClick={handleCloseModal}
             variant="text"
@@ -203,6 +212,7 @@ export default function CreateFolderModal({
               color: "text.secondary",
               borderRadius: "12px",
               px: 2.5,
+              width: { xs: "100%", sm: "auto" },
               "&:hover": {
                 bgcolor: "rgba(255, 255, 255, 0.04)",
               },
@@ -218,6 +228,7 @@ export default function CreateFolderModal({
             sx={{
               borderRadius: "12px",
               px: 3,
+              width: { xs: "100%", sm: "auto" },
               background:
                 "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
               "&:hover": {

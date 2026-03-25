@@ -51,6 +51,7 @@ export default function LoginPage() {
         display: "flex",
         flexDirection: "column",
         gap: 2.5,
+        width: "100%",
         maxWidth: "400px",
         mx: "auto",
       }}
@@ -125,7 +126,7 @@ export default function LoginPage() {
         loading={loginMutation.isPending}
         sx={{
           borderRadius: "16px",
-          py: 1.5,
+          py: { xs: 1.35, md: 1.5 },
           fontSize: "1rem",
           background: "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
           "&:hover": {

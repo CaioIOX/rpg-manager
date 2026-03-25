@@ -194,7 +194,9 @@ export default function CreateTemplateModal({
         paper: {
           sx: {
             bgcolor: "background.paper",
-            borderRadius: "24px",
+            borderRadius: { xs: "20px", md: "24px" },
+            width: { xs: "calc(100% - 24px)", sm: "600px" },
+            maxWidth: "600px",
             border: "1px solid rgba(212, 175, 55, 0.12)",
             boxShadow:
               "0 24px 48px rgba(0, 0, 0, 0.5), 0 0 80px rgba(212, 175, 55, 0.04)",
@@ -231,9 +233,9 @@ export default function CreateTemplateModal({
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            px: 3,
+            px: { xs: 2, sm: 3 },
             pt: 2,
-            maxHeight: "60vh",
+            maxHeight: { xs: "70vh", md: "60vh" },
             overflowY: "auto",
           }}
         >
@@ -395,7 +397,7 @@ export default function CreateTemplateModal({
               }}
             >
               <Stack spacing={1.5}>
-                <Stack direction="row" spacing={1}>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
                   <TextField
                     label="Nome do campo"
                     placeholder="ex: nome"
@@ -429,7 +431,11 @@ export default function CreateTemplateModal({
                     }}
                   />
                 </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1}
+                  alignItems={{ xs: "stretch", sm: "center" }}
+                >
                   <TextField
                     label="Tipo"
                     select
@@ -439,7 +445,7 @@ export default function CreateTemplateModal({
                       setNewField({ ...newField, type: e.target.value })
                     }
                     sx={{
-                      minWidth: 140,
+                      minWidth: { sm: 140 },
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "10px",
                         bgcolor: "rgba(13, 17, 23, 0.4)",
@@ -487,6 +493,7 @@ export default function CreateTemplateModal({
                       color: "#BA68C8",
                       border: "1px solid rgba(142, 36, 170, 0.3)",
                       borderRadius: "10px",
+                      alignSelf: { xs: "stretch", sm: "center" },
                       "&:hover": { bgcolor: "rgba(142, 36, 170, 0.08)" },
                       "&.Mui-disabled": { opacity: 0.3 },
                     }}
@@ -516,7 +523,15 @@ export default function CreateTemplateModal({
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
+        <DialogActions
+          sx={{
+            px: { xs: 2, sm: 3 },
+            pb: { xs: 2, sm: 3 },
+            pt: 1,
+            gap: 1,
+            flexDirection: { xs: "column-reverse", sm: "row" },
+          }}
+        >
           <Button
             onClick={handleCloseModal}
             variant="text"
@@ -524,6 +539,7 @@ export default function CreateTemplateModal({
               color: "text.secondary",
               borderRadius: "12px",
               px: 2.5,
+              width: { xs: "100%", sm: "auto" },
               "&:hover": { bgcolor: "rgba(255, 255, 255, 0.04)" },
             }}
           >
@@ -536,6 +552,7 @@ export default function CreateTemplateModal({
             sx={{
               borderRadius: "12px",
               px: 3,
+              width: { xs: "100%", sm: "auto" },
               background: "linear-gradient(135deg, #BA68C8 0%, #8E24AA 100%)",
               "&:hover": {
                 background: "linear-gradient(135deg, #CE93D8 0%, #BA68C8 100%)",

@@ -1,31 +1,33 @@
 "use client";
 
 import { Editor } from "@tiptap/react";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import Divider from "@mui/material/Divider";
-import Popover from "@mui/material/Popover";
-import { useState } from "react";
-
-import FormatBoldIcon from "@mui/icons-material/FormatBold";
-import FormatItalicIcon from "@mui/icons-material/FormatItalic";
-import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
-import StrikethroughSIcon from "@mui/icons-material/StrikethroughS";
 import CodeIcon from "@mui/icons-material/Code";
-import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import FormatBoldIcon from "@mui/icons-material/FormatBold";
+import FormatClearIcon from "@mui/icons-material/FormatClear";
+import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
+import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
-import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
-import FormatClearIcon from "@mui/icons-material/FormatClear";
+import StrikethroughSIcon from "@mui/icons-material/StrikethroughS";
+import { Box, Divider, IconButton, Popover, Tooltip } from "@mui/material";
+import { useState } from "react";
 
 interface EditorToolbarProps {
   editor: Editor;
 }
 
+interface ToolbarActionButtonProps {
+  onClick: () => void;
+  isActive?: boolean;
+  tooltip: string;
+  children: React.ReactNode;
+}
+
 const TEXT_COLORS = [
-  { label: "Padrão", value: "" },
+  { label: "Padrao", value: "" },
   { label: "Dourado", value: "#D4AF37" },
   { label: "Dourado Claro", value: "#E8CC6E" },
   { label: "Roxo", value: "#BA68C8" },
@@ -37,37 +39,13 @@ const TEXT_COLORS = [
   { label: "Branco", value: "#FFFFFF" },
 ];
 
-export default function EditorToolbar({ editor }: EditorToolbarProps) {
-  const [colorAnchor, setColorAnchor] = useState<HTMLElement | null>(null);
-
-  const handleColorClick = (event: React.MouseEvent<HTMLElement>) => {
-    setColorAnchor(event.currentTarget);
-  };
-
-  const handleColorClose = () => {
-    setColorAnchor(null);
-  };
-
-  const applyColor = (color: string) => {
-    if (color === "") {
-      editor.chain().focus().unsetColor().run();
-    } else {
-      editor.chain().focus().setColor(color).run();
-    }
-    handleColorClose();
-  };
-
-  const ToolbarButton = ({
-    onClick,
-    isActive,
-    tooltip,
-    children,
-  }: {
-    onClick: () => void;
-    isActive?: boolean;
-    tooltip: string;
-    children: React.ReactNode;
-  }) => (
+function ToolbarActionButton({
+  onClick,
+  isActive,
+  tooltip,
+  children,
+}: ToolbarActionButtonProps) {
+  return (
     <Tooltip title={tooltip} arrow>
       <IconButton
         onClick={onClick}
@@ -90,8 +68,10 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       </IconButton>
     </Tooltip>
   );
+}
 
-  const ToolbarDivider = () => (
+function ToolbarDivider() {
+  return (
     <Divider
       orientation="vertical"
       flexItem
@@ -101,6 +81,19 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       }}
     />
   );
+}
+
+export default function EditorToolbar({ editor }: EditorToolbarProps) {
+  const [colorAnchor, setColorAnchor] = useState<HTMLElement | null>(null);
+
+  const applyColor = (color: string) => {
+    if (color === "") {
+      editor.chain().focus().unsetColor().run();
+    } else {
+      editor.chain().focus().setColor(color).run();
+    }
+    setColorAnchor(null);
+  };
 
   return (
     <Box
@@ -109,7 +102,7 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
         alignItems: "center",
         flexWrap: "wrap",
         gap: 0.3,
-        px: 2,
+        px: { xs: 1, sm: 1.5, md: 2 },
         py: 1,
         borderBottom: "1px solid rgba(212, 175, 55, 0.06)",
         bgcolor: "rgba(13, 17, 23, 0.3)",
@@ -117,11 +110,15 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
         top: 0,
         zIndex: 10,
         backdropFilter: "blur(12px)",
+        overflowX: "auto",
+        scrollbarWidth: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
       }}
     >
-      {/* Headings */}
       {[1, 2, 3].map((level) => (
-        <ToolbarButton
+        <ToolbarActionButton
           key={level}
           onClick={() =>
             editor
@@ -131,7 +128,7 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
               .run()
           }
           isActive={editor.isActive("heading", { level })}
-          tooltip={`Título ${level}`}
+          tooltip={`Titulo ${level}`}
         >
           <Box
             component="span"
@@ -146,95 +143,85 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
           >
             H{level}
           </Box>
-        </ToolbarButton>
+        </ToolbarActionButton>
       ))}
 
       <ToolbarDivider />
 
-      {/* Text formatting */}
-      <ToolbarButton
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         isActive={editor.isActive("bold")}
         tooltip="Negrito"
       >
         <FormatBoldIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
-
-      <ToolbarButton
+      </ToolbarActionButton>
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleItalic().run()}
         isActive={editor.isActive("italic")}
-        tooltip="Itálico"
+        tooltip="Italico"
       >
         <FormatItalicIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
-
-      <ToolbarButton
+      </ToolbarActionButton>
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         isActive={editor.isActive("underline")}
         tooltip="Sublinhado"
       >
         <FormatUnderlinedIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
-
-      <ToolbarButton
+      </ToolbarActionButton>
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleStrike().run()}
         isActive={editor.isActive("strike")}
         tooltip="Tachado"
       >
         <StrikethroughSIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
+      </ToolbarActionButton>
 
       <ToolbarDivider />
 
-      {/* Lists */}
-      <ToolbarButton
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         isActive={editor.isActive("bulletList")}
         tooltip="Lista"
       >
         <FormatListBulletedIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
-
-      <ToolbarButton
+      </ToolbarActionButton>
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         isActive={editor.isActive("orderedList")}
-        tooltip="Lista Numerada"
+        tooltip="Lista numerada"
       >
         <FormatListNumberedIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
+      </ToolbarActionButton>
 
       <ToolbarDivider />
 
-      {/* Block elements */}
-      <ToolbarButton
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
         isActive={editor.isActive("blockquote")}
-        tooltip="Citação"
+        tooltip="Citacao"
       >
         <FormatQuoteIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
-
-      <ToolbarButton
+      </ToolbarActionButton>
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
         isActive={editor.isActive("codeBlock")}
-        tooltip="Bloco de Código"
+        tooltip="Bloco de codigo"
       >
         <CodeIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
-
-      <ToolbarButton
+      </ToolbarActionButton>
+      <ToolbarActionButton
         onClick={() => editor.chain().focus().setHorizontalRule().run()}
-        tooltip="Linha Horizontal"
+        tooltip="Linha horizontal"
       >
         <HorizontalRuleIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
+      </ToolbarActionButton>
 
       <ToolbarDivider />
 
-      {/* Color */}
-      <Tooltip title="Cor do Texto" arrow>
+      <Tooltip title="Cor do texto" arrow>
         <IconButton
-          onClick={handleColorClick}
+          onClick={(event) => setColorAnchor(event.currentTarget)}
           size="small"
           sx={{
             color: editor.getAttributes("textStyle").color || "text.secondary",
@@ -254,7 +241,7 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       <Popover
         open={Boolean(colorAnchor)}
         anchorEl={colorAnchor}
-        onClose={handleColorClose}
+        onClose={() => setColorAnchor(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
         slotProps={{
@@ -303,15 +290,14 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
         </Box>
       </Popover>
 
-      {/* Clear formatting */}
-      <ToolbarButton
+      <ToolbarActionButton
         onClick={() =>
           editor.chain().focus().clearNodes().unsetAllMarks().run()
         }
-        tooltip="Limpar Formatação"
+        tooltip="Limpar formatacao"
       >
         <FormatClearIcon sx={{ fontSize: "1.1rem" }} />
-      </ToolbarButton>
+      </ToolbarActionButton>
     </Box>
   );
 }

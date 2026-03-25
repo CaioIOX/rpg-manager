@@ -46,14 +46,16 @@ export default function CampaignPage() {
       }}
     >
       <Navbar />
-      <Container maxWidth="lg" sx={{ py: 5 }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 3, sm: 4, md: 5 }, px: { xs: 2, sm: 3 } }}>
         {/* Header */}
         <Box
           sx={{
             display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
             justifyContent: "space-between",
-            alignItems: "center",
-            mb: 5,
+            alignItems: { xs: "stretch", sm: "center" },
+            gap: 2,
+            mb: { xs: 3, md: 5 },
             animation: "fadeInUp 0.5s ease-out",
           }}
         >
@@ -68,6 +70,7 @@ export default function CampaignPage() {
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
+                fontSize: { xs: "1.9rem", sm: "2.25rem" },
               }}
             >
               Minhas Campanhas
@@ -84,6 +87,7 @@ export default function CampaignPage() {
             color="primary"
             startIcon={<AddIcon />}
             sx={{
+              alignSelf: { xs: "stretch", sm: "auto" },
               px: 3,
               py: 1.2,
               fontSize: "0.95rem",
@@ -100,7 +104,7 @@ export default function CampaignPage() {
         </Box>
 
         {/* Campaign Grid */}
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, md: 3 }}>
           {campaigns.isPending &&
             Array.from(new Array(6)).map((_, index) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
@@ -120,7 +124,7 @@ export default function CampaignPage() {
               sx={{
                 width: "100%",
                 textAlign: "center",
-                py: 10,
+                py: { xs: 7, md: 10 },
                 animation: "fadeIn 0.6s ease-out",
               }}
             >

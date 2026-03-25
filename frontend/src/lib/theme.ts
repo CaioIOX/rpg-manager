@@ -1,6 +1,6 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
-const theme = createTheme({
+let theme = createTheme({
     palette: {
         mode: 'dark',
 
@@ -58,10 +58,13 @@ const theme = createTheme({
         h4: {
             fontFamily: '"Merriweather", "Georgia", serif',
             fontWeight: 600,
+            fontSize: "2.25rem",
+            lineHeight: 1.2,
         },
         h5: {
             fontFamily: '"Merriweather", "Georgia", serif',
             fontWeight: 600,
+            fontSize: "1.6rem",
         },
         h6: {
             fontWeight: 600,
@@ -69,9 +72,18 @@ const theme = createTheme({
         subtitle1: {
             fontWeight: 500,
         },
+        body1: {
+            fontSize: "1rem",
+            lineHeight: 1.65,
+        },
+        body2: {
+            fontSize: "0.95rem",
+            lineHeight: 1.6,
+        },
         button: {
             fontWeight: 600,
             letterSpacing: '0.02em',
+            fontSize: "0.95rem",
         },
     },
 
@@ -151,6 +163,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     '& .MuiOutlinedInput-root': {
+                        fontSize: "0.95rem",
                         transition: 'all 0.25s ease',
                         '&:hover .MuiOutlinedInput-notchedOutline': {
                             borderColor: 'rgba(212, 175, 55, 0.4)',
@@ -201,5 +214,7 @@ const theme = createTheme({
         },
     },
 });
+
+theme = responsiveFontSizes(theme);
 
 export default theme;

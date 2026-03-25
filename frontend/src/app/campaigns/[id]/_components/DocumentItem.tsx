@@ -16,9 +16,15 @@ interface DocumentItemProps {
   document: DocumentSummary;
   onEdit?: () => void;
   onDelete?: () => void;
+  onNavigate?: () => void;
 }
 
-export default function DocumentItem({ document, onEdit, onDelete }: DocumentItemProps) {
+export default function DocumentItem({
+  document,
+  onEdit,
+  onDelete,
+  onNavigate,
+}: DocumentItemProps) {
   const router = useRouter();
   const params = useParams();
   const campaignId = params.id as string;
@@ -43,7 +49,10 @@ export default function DocumentItem({ document, onEdit, onDelete }: DocumentIte
       onDragStart={(e) => {
         e.dataTransfer.setData("documentId", document.id);
       }}
-      onClick={() => router.push(`/campaigns/${campaignId}/docs/${document.id}`)}
+      onClick={() => {
+        router.push(`/campaigns/${campaignId}/docs/${document.id}`);
+        onNavigate?.();
+      }}
       sx={{
         display: "flex",
         alignItems: "center",
@@ -105,7 +114,7 @@ export default function DocumentItem({ document, onEdit, onDelete }: DocumentIte
           sx={{
             ml: "auto",
             p: 0.2,
-            opacity: menuAnchor ? 1 : 0,
+            opacity: { xs: 1, md: menuAnchor ? 1 : 0 },
             transition: "opacity 0.2s",
             color: "text.secondary",
             "&:hover": { opacity: 1, bgcolor: "rgba(212, 175, 55, 0.1)", color: "primary.main" },

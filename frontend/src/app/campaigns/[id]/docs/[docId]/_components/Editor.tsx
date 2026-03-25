@@ -2,7 +2,7 @@
 
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, type JSONContent } from "@tiptap/react";
 import Collaboration from "@tiptap/extension-collaboration";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -10,7 +10,7 @@ import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Placeholder from "@tiptap/extension-placeholder";
 import Mention from "@tiptap/extension-mention";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
@@ -54,8 +54,7 @@ export default function Editor({
 
   const ydoc = useMemo(() => new Y.Doc(), []);
 
-  const [isSynced, setIsSynced] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     if (!docId) return;
@@ -66,16 +65,12 @@ export default function Editor({
 
     const provider = new WebsocketProvider(wsBaseUrl, `ws/doc/${docId}`, ydoc);
 
-    provider.on("sync", (isSynced: boolean) => {
-      if (isSynced) setIsSynced(true);
-    });
-
     return () => {
       provider.destroy();
     };
   }, [docId, ydoc]);
 
-  const debouncedSave = useDebouncedCallback((jsonContent) => {
+  const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
     const templateData = initialContent?.templateData;
 
     updateDocument.mutate({
@@ -87,11 +82,11 @@ export default function Editor({
     });
 
     const extractedMentions: { target_doc_id: string; mention_text: string }[] = [];
-    const traverse = (node: any) => {
+    const traverse = (node: JSONContent) => {
       if (node.type === "mention") {
         extractedMentions.push({
-          target_doc_id: node.attrs.id,
-          mention_text: node.attrs.label || "Link",
+          target_doc_id: String(node.attrs?.id ?? ""),
+          mention_text: String(node.attrs?.label ?? "Link"),
         });
       }
       if (node.content && Array.isArray(node.content)) {
@@ -127,7 +122,7 @@ export default function Editor({
         HTMLAttributes: {
           class: "mention",
         },
-        suggestion: mentionSuggestion as any,
+        suggestion: mentionSuggestion,
       }),
     ],
     onUpdate: ({ editor }) => {
@@ -136,27 +131,32 @@ export default function Editor({
   });
 
   useEffect(() => {
-    if (editor && initialContent && !hasInitialized) {
+    if (editor && initialContent && !hasInitializedRef.current) {
       console.log(
         "Loading initial content from JSON DB because Custom Yjs server doesn't persist full state.",
       );
 
       const loadContent = () => {
-        const contentToLoad = {
-          type: initialContent.type || "doc",
-          content: initialContent.content || [],
+        const contentToLoad: JSONContent = {
+          type:
+            typeof initialContent.type === "string"
+              ? initialContent.type
+              : "doc",
+          content: Array.isArray(initialContent.content)
+            ? (initialContent.content as JSONContent[])
+            : [],
         };
 
         console.log("Loading content:", contentToLoad);
         if (editor.isEmpty) {
-          editor.commands.setContent(contentToLoad as any);
+          editor.commands.setContent(contentToLoad);
         }
       };
 
+      hasInitializedRef.current = true;
       setTimeout(loadContent, 100);
-      setHasInitialized(true);
     }
-  }, [editor, initialContent, hasInitialized]);
+  }, [editor, initialContent]);
 
   useEffect(() => {
     if (!editor) return;
@@ -188,11 +188,11 @@ export default function Editor({
       sx={{
         maxWidth: "800px",
         mx: "auto",
-        my: 4,
+        my: { xs: 2, md: 4 },
         bgcolor: "rgba(22, 27, 34, 0.5)",
-        borderRadius: "20px",
+        borderRadius: { xs: "16px", md: "20px" },
         border: "1px solid rgba(212, 175, 55, 0.06)",
-        minHeight: "70vh",
+        minHeight: { xs: "60vh", md: "70vh" },
         overflow: "hidden",
         transition: "border-color 0.3s ease",
         "&:focus-within": {
@@ -204,7 +204,15 @@ export default function Editor({
       <EditorContent editor={editor} />
       
       {documentLinks.data && (documentLinks.data.links_from?.length > 0 || documentLinks.data.links_to?.length > 0) && (
-        <Box sx={{ mt: 4, pt: 3, px: 4, pb: 4, borderTop: "1px solid rgba(212, 175, 55, 0.1)" }}>
+        <Box
+          sx={{
+            mt: 3,
+            pt: 2.5,
+            px: { xs: 2, sm: 3, md: 4 },
+            pb: { xs: 2.5, md: 4 },
+            borderTop: "1px solid rgba(212, 175, 55, 0.1)",
+          }}
+        >
           {documentLinks.data.links_to?.length > 0 && (
             <Box sx={{ mb: 2 }}>
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, display: "block", mb: 1, textTransform: "uppercase", letterSpacing: "0.05em" }}>

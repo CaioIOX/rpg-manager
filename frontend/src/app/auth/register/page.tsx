@@ -61,6 +61,8 @@ export default function RegisterPage() {
         justifyContent: "center",
         position: "relative",
         overflow: "hidden",
+        px: { xs: 2, sm: 3 },
+        py: { xs: 4, md: 6 },
         bgcolor: "background.default",
       }}
     >
@@ -98,6 +100,8 @@ export default function RegisterPage() {
           zIndex: 1,
           textAlign: "center",
           animation: "fadeInUp 0.6s ease-out",
+          width: "100%",
+          maxWidth: "520px",
         }}
       >
         <Typography
@@ -112,6 +116,7 @@ export default function RegisterPage() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             mb: 1,
+            fontSize: { xs: "2rem", sm: "3rem" },
           }}
         >
           Criar Conta
@@ -121,7 +126,7 @@ export default function RegisterPage() {
           variant="body1"
           sx={{
             color: "text.secondary",
-            mb: 5,
+            mb: { xs: 3, md: 5 },
             maxWidth: "380px",
             mx: "auto",
             lineHeight: 1.6,
@@ -134,10 +139,11 @@ export default function RegisterPage() {
         {/* Register Card */}
         <Box
           sx={{
+            width: "100%",
             maxWidth: "440px",
             mx: "auto",
-            p: 4,
-            borderRadius: "24px",
+            p: { xs: 2.5, sm: 4 },
+            borderRadius: { xs: "20px", md: "24px" },
             bgcolor: "rgba(22, 27, 34, 0.8)",
             backdropFilter: "blur(20px)",
             border: "1px solid rgba(212, 175, 55, 0.12)",
@@ -151,7 +157,7 @@ export default function RegisterPage() {
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: 2.5,
+              gap: { xs: 2, sm: 2.5 },
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>

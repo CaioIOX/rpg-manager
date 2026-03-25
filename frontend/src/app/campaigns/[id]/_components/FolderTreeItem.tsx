@@ -27,6 +27,7 @@ interface FolderTreeItemProps {
   onDeleteFolder?: (f: Folder) => void;
   onEditDoc?: (d: DocumentSummary) => void;
   onDeleteDoc?: (d: DocumentSummary) => void;
+  onNavigate?: () => void;
 }
 
 export default function FolderTreeItem({
@@ -38,6 +39,7 @@ export default function FolderTreeItem({
   onDeleteFolder,
   onEditDoc,
   onDeleteDoc,
+  onNavigate,
 }: FolderTreeItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -169,7 +171,7 @@ export default function FolderTreeItem({
             sx={{
               ml: 1,
               p: 0.2,
-              opacity: menuAnchor ? 1 : 0,
+              opacity: { xs: 1, md: menuAnchor ? 1 : 0 },
               transition: "opacity 0.2s",
               color: "text.secondary",
               "&:hover": { opacity: 1, bgcolor: "rgba(212, 175, 55, 0.1)", color: "primary.main" },
@@ -239,6 +241,7 @@ export default function FolderTreeItem({
               onDeleteFolder={onDeleteFolder}
               onEditDoc={onEditDoc}
               onDeleteDoc={onDeleteDoc}
+              onNavigate={onNavigate}
             />
           ))}
 
@@ -249,6 +252,7 @@ export default function FolderTreeItem({
               document={doc} 
               onEdit={() => onEditDoc?.(doc)}
               onDelete={() => onDeleteDoc?.(doc)}
+              onNavigate={onNavigate}
             />
           ))}
 

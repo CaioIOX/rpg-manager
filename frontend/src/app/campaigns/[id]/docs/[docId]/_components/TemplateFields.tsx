@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface TemplateField {
   name: string;
@@ -32,12 +32,6 @@ export default function TemplateFields({
 
   const schema = (template.schema as unknown as TemplateField[]) ?? [];
 
-  useEffect(() => {
-    if (initialData) {
-      setFieldValues(initialData);
-    }
-  }, [initialData]);
-
   const handleChange = (fieldName: string, value: string) => {
     const updated = { ...fieldValues, [fieldName]: value };
     setFieldValues(updated);
@@ -52,8 +46,8 @@ export default function TemplateFields({
         maxWidth: "800px",
         mx: "auto",
         mb: 3,
-        p: 3,
-        borderRadius: "20px",
+        p: { xs: 2, sm: 2.5, md: 3 },
+        borderRadius: { xs: "16px", md: "20px" },
         bgcolor: "rgba(142, 36, 170, 0.04)",
         border: "1px solid rgba(142, 36, 170, 0.1)",
         transition: "border-color 0.3s ease",
@@ -67,7 +61,7 @@ export default function TemplateFields({
           display: "flex",
           alignItems: "center",
           gap: 1,
-          mb: 2.5,
+          mb: 2,
         }}
       >
         <Typography sx={{ fontSize: "1.1rem", lineHeight: 1 }}>
@@ -81,6 +75,7 @@ export default function TemplateFields({
             textTransform: "uppercase",
             fontSize: "0.7rem",
             letterSpacing: "0.08em",
+            lineHeight: 1.5,
           }}
         >
           {template.name}
