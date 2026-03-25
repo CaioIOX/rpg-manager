@@ -21,6 +21,7 @@ services:
       MIGRATION_URL: postgres://rpg:${DB_PASSWORD}@db:5432/rpg_manager?sslmode=disable
       JWT_SECRET: ${JWT_SECRET}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
 
   frontend:
     build:

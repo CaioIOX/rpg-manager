@@ -65,7 +65,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		Name:     "token",
 		Value:    resp,
 		HTTPOnly: true,
-		SameSite: "strict",
+		SameSite: "None",
+		Secure:   true,
 	})
 
 	return c.JSON(fiber.Map{"message": "Login realizado com sucesso!"})
@@ -90,7 +91,8 @@ func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
 		Name:     "token",
 		Value:    resp,
 		HTTPOnly: true,
-		SameSite: "strict",
+		SameSite: "None",
+		Secure:   true,
 	})
 
 	return c.JSON(fiber.Map{"message": "Login realizado com sucesso!"})
