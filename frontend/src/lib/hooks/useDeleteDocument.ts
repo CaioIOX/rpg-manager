@@ -15,7 +15,6 @@ export default function useDeleteDocument() {
       toast.success("Documento removido com sucesso!");
     },
     onError: (error: any) => {
-      console.error("Falha ao apagar documento: ", error);
       toast.error(error.response?.data?.error || "Ocorreu um erro ao apagar o documento.");
     },
   });

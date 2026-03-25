@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { AddMember } from "../api/campaigns";
+import { toast } from "sonner";
 
 export default function useAddMember() {
   return useMutation({
@@ -12,8 +13,8 @@ export default function useAddMember() {
       email: string;
       role: string;
     }) => AddMember(campaignId, email, role),
-    onError: (error) => {
-      console.error("Falha ao adicionar membro: ", error);
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Falha ao adicionar membro");
     },
   });
 }

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Register } from "../api/auth";
+import { toast } from "sonner";
 
 export default function useRegisterMutation() {
   return useMutation({
@@ -12,11 +13,11 @@ export default function useRegisterMutation() {
       username: string;
       password: string;
     }) => Register(username, email, password),
-    onSuccess: (message) => {
-      console.log(message);
+    onSuccess: () => {
+      // Success handled by caller
     },
-    onError: (error) => {
-      console.error("Falha ao cadastrar: ", error);
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Falha ao cadastrar");
     },
   });
 }

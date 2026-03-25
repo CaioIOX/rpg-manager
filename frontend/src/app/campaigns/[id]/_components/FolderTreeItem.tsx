@@ -18,6 +18,8 @@ import MenuItem from "@mui/material/MenuItem";
 import { MouseEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
+const DEFAULT_FOLDER_ICON_COLOR = "#9E9E9E";
+
 interface FolderTreeItemProps {
   folder: Folder;
   allFolders: Folder[];
@@ -61,6 +63,8 @@ export default function FolderTreeItem({
   const childFolders = allFolders.filter((f) => f.parent_id === folder.id);
   const folderDocs = documents.filter((d) => d.folder_id === folder.id);
   const hasChildren = childFolders.length > 0 || folderDocs.length > 0;
+  const folderIconColor = folder.color ?? DEFAULT_FOLDER_ICON_COLOR;
+  const folderIconOpacity = folder.color ? 1 : 0.7;
 
   return (
     <Box sx={{ pl: depth > 0 ? 1.5 : 0 }}>
@@ -130,11 +134,20 @@ export default function FolderTreeItem({
         </IconButton>
         {isExpanded ? (
           <FolderOpenIcon
-            sx={{ fontSize: "1rem", color: "#D4AF37", flexShrink: 0 }}
+            sx={{
+              fontSize: "1rem",
+              color: folderIconColor,
+              flexShrink: 0,
+            }}
           />
         ) : (
           <FolderIcon
-            sx={{ fontSize: "1rem", color: "#D4AF37", opacity: 0.7, flexShrink: 0 }}
+            sx={{
+              fontSize: "1rem",
+              color: folderIconColor,
+              opacity: folderIconOpacity,
+              flexShrink: 0,
+            }}
           />
         )}
         <Typography

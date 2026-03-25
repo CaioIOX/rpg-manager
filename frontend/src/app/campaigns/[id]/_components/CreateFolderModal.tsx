@@ -19,9 +19,15 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Folder } from "@/lib/types/Folder";
 
+const DEFAULT_FOLDER_COLOR = "#9E9E9E";
+
 const folderSchema = z.object({
   name: z.string().min(1, "O nome da pasta é obrigatório"),
   parentId: z.string().optional(),
+  color: z
+    .string()
+    .regex(/^#([0-9A-Fa-f]{6})$/, "Informe um hexadecimal válido")
+    .optional(),
 });
 
 type FormData = z.infer<typeof folderSchema>;
@@ -53,6 +59,7 @@ export default function CreateFolderModal({
     defaultValues: {
       name: initialData?.name || "",
       parentId: initialData?.parent_id || "",
+      color: initialData?.color || DEFAULT_FOLDER_COLOR,
     },
     resolver: zodResolver(folderSchema),
   });
@@ -67,6 +74,7 @@ export default function CreateFolderModal({
       reset({
         name: initialData.name,
         parentId: initialData.parent_id || "",
+        color: initialData.color || DEFAULT_FOLDER_COLOR,
       });
     }
   }, [initialData, isModalOpen, reset]);
@@ -79,6 +87,7 @@ export default function CreateFolderModal({
           folderId: initialData.id,
           name: data.name,
           parentId: data.parentId || undefined,
+          color: data.color ?? DEFAULT_FOLDER_COLOR,
         },
         {
           onSuccess: () => {
@@ -93,6 +102,7 @@ export default function CreateFolderModal({
           campaignId,
           name: data.name,
           parentId: data.parentId || undefined,
+          color: data.color,
         },
         {
           onSuccess: () => {
@@ -195,6 +205,28 @@ export default function CreateFolderModal({
               </MenuItem>
             ))}
           </TextField>
+
+          <TextField
+            label="Cor da pasta"
+            type="color"
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            {...register("color")}
+            error={!!errors.color}
+            helperText={
+              errors.color?.message ?? "Escolha uma cor exibida no ícone da pasta."
+            }
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "14px",
+                bgcolor: "rgba(13, 17, 23, 0.4)",
+              },
+              "& .MuiInputBase-input": {
+                padding: "8px",
+              },
+            }}
+          />
         </DialogContent>
         <DialogActions
           sx={{

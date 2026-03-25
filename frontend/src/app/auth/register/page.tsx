@@ -3,6 +3,7 @@
 import useRegisterMutation from "@/lib/hooks/useRegisterMutation";
 import { useGoogleLoginMutation } from "@/lib/hooks/useGoogleLoginMutation";
 import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
@@ -172,7 +173,7 @@ export default function RegisterPage() {
                    }
                  }}
                  onError={() => {
-                   console.error('Falha no Login com o Google');
+                   toast.error('Falha no Login com o Google');
                  }}
                  theme="filled_black"
                  shape="pill"

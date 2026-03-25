@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Update } from "../api/campaigns";
+import { toast } from "sonner";
 
 export default function useUpdateCampaign() {
   return useMutation({
@@ -12,11 +13,11 @@ export default function useUpdateCampaign() {
       name: string;
       description?: string;
     }) => Update(campaignId, name, description),
-    onSuccess: (message) => {
-      console.log(message);
+    onSuccess: () => {
+      toast.success("Campanha atualizada com sucesso!");
     },
-    onError: (error) => {
-      console.error("Falha ao atualizar campanha: ", error);
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Falha ao atualizar campanha");
     },
   });
 }

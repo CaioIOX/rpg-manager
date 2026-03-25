@@ -1,14 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { GoogleAuth } from "../api/auth";
+import { toast } from "sonner";
 
 export function useGoogleLoginMutation() {
   return useMutation({
     mutationFn: (credential: string) => GoogleAuth(credential),
-    onSuccess: (message) => {
-      console.log(message);
+    onSuccess: () => {
+      // Success handled by caller
     },
-    onError: (error) => {
-      console.error("Falha ao logar com Google: ", error);
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Falha ao logar com Google");
     },
   });
 }
