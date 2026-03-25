@@ -10,7 +10,7 @@ import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Placeholder from "@tiptap/extension-placeholder";
 import Mention from "@tiptap/extension-mention";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
@@ -55,6 +55,7 @@ export default function Editor({
   const ydoc = useMemo(() => new Y.Doc(), []);
   const hasInitializedRef = useRef(false);
   const syncedRef = useRef(false);
+  const providerRef = useRef<WebsocketProvider | null>(null);
 
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
     const templateData = initialContent?.templateData;
@@ -93,32 +94,6 @@ export default function Editor({
     };
   }, [debouncedSave]);
 
-  useEffect(() => {
-    if (!docId) return;
-
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = window.location.host;
-    const wsBaseUrl =
-      process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}`;
-
-    const provider = new WebsocketProvider(
-      wsBaseUrl,
-      `ws/doc/${docId}`,
-      ydoc,
-    );
-
-    const handleSync = (isSynced: boolean) => {
-      syncedRef.current = isSynced;
-    };
-
-    provider.on("sync", handleSync);
-
-    return () => {
-      provider.off("sync", handleSync);
-      provider.destroy();
-    };
-  }, [docId, ydoc]);
-
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -142,17 +117,21 @@ export default function Editor({
     },
   });
 
-  useEffect(() => {
+  const attemptInitialLoad = useCallback(() => {
     if (!editor) return;
     if (!initialContent) return;
     if (hasInitializedRef.current) return;
-    if (!syncedRef.current) return;
 
     const fragment = ydoc.getXmlFragment("prosemirror");
     const hasYContent = fragment && fragment.length > 0;
-
     if (hasYContent) {
       hasInitializedRef.current = true;
+      return;
+    }
+
+    const peers =
+      providerRef.current?.awareness.getStates().size ?? 1;
+    if (peers > 1 && !syncedRef.current) {
       return;
     }
 
@@ -169,6 +148,40 @@ export default function Editor({
     editor.commands.setContent(contentToLoad);
     hasInitializedRef.current = true;
   }, [editor, initialContent, ydoc]);
+
+  useEffect(() => {
+    if (!docId) return;
+
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.host;
+    const wsBaseUrl =
+      process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}`;
+
+    const provider = new WebsocketProvider(
+      wsBaseUrl,
+      `ws/doc/${docId}`,
+      ydoc,
+    );
+    providerRef.current = provider;
+
+    const handleSync = (isSynced: boolean) => {
+      syncedRef.current = isSynced;
+      attemptInitialLoad();
+    };
+
+    provider.on("sync", handleSync);
+
+    return () => {
+      provider.off("sync", handleSync);
+      provider.destroy();
+      providerRef.current = null;
+    };
+  }, [docId, ydoc, attemptInitialLoad]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => attemptInitialLoad(), 600);
+    return () => clearTimeout(timeout);
+  }, [attemptInitialLoad]);
 
   useEffect(() => {
     if (!editor) return;
