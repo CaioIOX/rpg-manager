@@ -20,7 +20,7 @@ services:
       DATABASE_URL: postgres://rpg:${DB_PASSWORD}@db:5432/rpg_manager?sslmode=disable
       MIGRATION_URL: postgres://rpg:${DB_PASSWORD}@db:5432/rpg_manager?sslmode=disable
       JWT_SECRET: ${JWT_SECRET}
-      ALLOWED_ORIGINS: "*"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
 
   frontend:
     build: ./frontend
@@ -29,8 +29,7 @@ services:
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
-      NEXT_PUBLIC_WS_URL: ws://localhost:8080
+      BACKEND_URL: http://backend:8080
 
 volumes:
   pgdata:
