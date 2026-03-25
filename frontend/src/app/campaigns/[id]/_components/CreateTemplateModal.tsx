@@ -481,50 +481,59 @@ export default function CreateTemplateModal({
                     />
                   )}
                 </Stack>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      size="small"
-                      checked={newField.required}
-                      onChange={(e) =>
-                        setNewField({
-                          ...newField,
-                          required: e.target.checked,
-                        })
-                      }
-                      sx={{
-                        "& .Mui-checked": { color: "#BA68C8" },
-                        "& .Mui-checked + .MuiSwitch-track": {
-                          bgcolor: "rgba(142, 36, 170, 0.5)",
-                        },
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
-                      Obrigatório
-                    </Typography>
-                  }
-                />
-                <IconButton
-                  onClick={addField}
-                  disabled={
-                    !newField.name ||
-                    !newField.label ||
-                    (newField.type === "select" &&
-                      newFieldOptions.trim() === "")
-                  }
-                  sx={{
-                    color: "#BA68C8",
-                    border: "1px solid rgba(142, 36, 170, 0.3)",
-                    borderRadius: "10px",
-                    alignSelf: { xs: "stretch", sm: "center" },
-                    "&:hover": { bgcolor: "rgba(142, 36, 170, 0.08)" },
-                    "&.Mui-disabled": { opacity: 0.3 },
-                  }}
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1}
+                  alignItems={{ xs: "stretch", sm: "center" }}
                 >
-                  <AddIcon fontSize="small" />
-                </IconButton>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        size="small"
+                        checked={newField.required}
+                        onChange={(e) =>
+                          setNewField({
+                            ...newField,
+                            required: e.target.checked,
+                          })
+                        }
+                        sx={{
+                          "& .Mui-checked": { color: "#BA68C8" },
+                          "& .Mui-checked + .MuiSwitch-track": {
+                            bgcolor: "rgba(142, 36, 170, 0.5)",
+                          },
+                        }}
+                      />
+                    }
+                    label={
+                      <Typography
+                        variant="caption"
+                        sx={{ fontSize: "0.75rem" }}
+                      >
+                        Obrigatório
+                      </Typography>
+                    }
+                  />
+                  <IconButton
+                    onClick={addField}
+                    disabled={
+                      !newField.name ||
+                      !newField.label ||
+                      (newField.type === "select" &&
+                        newFieldOptions.trim() === "")
+                    }
+                    sx={{
+                      color: "#BA68C8",
+                      border: "1px solid rgba(142, 36, 170, 0.3)",
+                      borderRadius: "10px",
+                      alignSelf: { xs: "stretch", sm: "center" },
+                      "&:hover": { bgcolor: "rgba(142, 36, 170, 0.08)" },
+                      "&.Mui-disabled": { opacity: 0.3 },
+                    }}
+                  >
+                    <AddIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
               </Stack>
             </Box>
           </Box>
