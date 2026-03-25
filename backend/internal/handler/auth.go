@@ -84,7 +84,7 @@ func (h *AuthHandler) GoogleLogin(c *fiber.Ctx) error {
 
 	resp, err := h.authService.GoogleLogin(c.Context(), input.Credential)
 	if err != nil {
-		return c.Status(401).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(401).JSON(fiber.Map{"error": err.Error(), "details": "Verifique os logs do servidor"})
 	}
 
 	c.Cookie(&fiber.Cookie{
