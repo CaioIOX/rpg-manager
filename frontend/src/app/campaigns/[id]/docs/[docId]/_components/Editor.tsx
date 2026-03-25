@@ -10,7 +10,7 @@ import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Placeholder from "@tiptap/extension-placeholder";
 import Mention from "@tiptap/extension-mention";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
@@ -54,8 +54,9 @@ export default function Editor({
   const mentionSuggestion = useMentionSuggestion(campaignId, docId);
 
   const ydoc = useMemo(() => new Y.Doc(), []);
-
   const hasInitializedRef = useRef(false);
+  const syncedRef = useRef(false);
+  const providerRef = useRef<WebsocketProvider | null>(null);
 
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
     const templateData = initialContent?.templateData;
@@ -117,9 +118,40 @@ export default function Editor({
     },
   });
 
+  const attemptInitialLoad = useCallback(() => {
+    if (!editor) return;
+    if (!initialContent) return;
+    if (hasInitializedRef.current) return;
+
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const hasYContent = fragment && fragment.length > 0;
+    if (hasYContent) {
+      hasInitializedRef.current = true;
+      return;
+    }
+
+    const peers =
+      providerRef.current?.awareness.getStates().size ?? 1;
+    if (peers > 1 && !syncedRef.current) {
+      return;
+    }
+
+    const contentToLoad: JSONContent = {
+      type:
+        typeof initialContent.type === "string"
+          ? initialContent.type
+          : "doc",
+      content: Array.isArray(initialContent.content)
+        ? (initialContent.content as JSONContent[])
+        : [],
+    };
+
+    editor.commands.setContent(contentToLoad);
+    hasInitializedRef.current = true;
+  }, [editor, initialContent, ydoc]);
+
   useEffect(() => {
     if (!docId) return;
-    if (!editor) return;
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.host;
@@ -131,32 +163,11 @@ export default function Editor({
       `ws/doc/${docId}`,
       ydoc,
     );
+    providerRef.current = provider;
 
     const handleSync = (isSynced: boolean) => {
-      if (!isSynced || !initialContent) return;
-      if (hasInitializedRef.current) return;
-
-      const loadContent = () => {
-        const contentToLoad: JSONContent = {
-          type:
-            typeof initialContent.type === "string"
-              ? initialContent.type
-              : "doc",
-          content: Array.isArray(initialContent.content)
-            ? (initialContent.content as JSONContent[])
-            : [],
-        };
-
-        if (editor.isEmpty) {
-          editor.commands.setContent(contentToLoad);
-        }
-      };
-
-      if (editor.isEmpty) {
-        setTimeout(loadContent, 50);
-      }
-
-      hasInitializedRef.current = true;
+      syncedRef.current = isSynced;
+      attemptInitialLoad();
     };
 
     provider.on("sync", handleSync);
@@ -164,8 +175,14 @@ export default function Editor({
     return () => {
       provider.off("sync", handleSync);
       provider.destroy();
+      providerRef.current = null;
     };
-  }, [docId, ydoc, editor, initialContent]);
+  }, [docId, ydoc, attemptInitialLoad]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => attemptInitialLoad(), 600);
+    return () => clearTimeout(timeout);
+  }, [attemptInitialLoad]);
 
   useEffect(() => {
     if (!editor) return;
