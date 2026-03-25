@@ -133,6 +133,9 @@ export default function SidebarContent({
                     "&:hover": {
                       bgcolor: "rgba(142, 36, 170, 0.06)",
                       color: "text.primary",
+                      "& .templ-actions": {
+                        opacity: 1,
+                      },
                     },
                   }}
                 >
@@ -155,6 +158,7 @@ export default function SidebarContent({
                   </Typography>
 
                   <IconButton
+                    className="templ-actions"
                     size="small"
                     onClick={(event) => onTemplateMenuOpen(event, template.id)}
                     sx={{
