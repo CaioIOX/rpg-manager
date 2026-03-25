@@ -2,7 +2,6 @@
 
 import { Campaign } from "@/lib/types/Campaign";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -68,7 +67,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
             transition: "opacity 0.3s ease",
           },
           "&:hover": {
-            transform: "translateY(-6px)",
+            transform: { xs: "none", md: "translateY(-6px)" },
             boxShadow:
               "0 12px 40px rgba(212, 175, 55, 0.12), 0 4px 12px rgba(0,0,0,0.3)",
             borderColor: "rgba(212, 175, 55, 0.2)",
@@ -79,7 +78,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
         }}
         onClick={() => router.push(`/campaigns/${campaign.id}`)}
       >
-        <CardContent sx={{ flexGrow: 1, p: 3 }}>
+        <CardContent sx={{ flexGrow: 1, p: { xs: 2.25, md: 3 } }}>
           <Box
             sx={{
               display: "flex",
@@ -90,14 +89,14 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
           >
             <Box
             sx={{
-              p: 1.5,
-              borderRadius: "16px",
+              p: { xs: 1.2, md: 1.5 },
+              borderRadius: { xs: "14px", md: "16px" },
               bgcolor: "rgba(212, 175, 55, 0.1)",
               color: "#D4AF37",
               mb: 2,
             }}
           >
-            <AutoStoriesIcon sx={{ fontSize: 24 }} />
+            <AutoStoriesIcon sx={{ fontSize: { xs: 22, md: 24 } }} />
           </Box>
           
           {(onEdit || onDelete) && (
@@ -125,6 +124,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
               fontWeight: 700,
               mb: 1,
               lineHeight: 1.3,
+              fontSize: { xs: "1rem", md: "1.25rem" },
             }}
           >
             {campaign.name || "Campanha sem nome"}
@@ -147,8 +147,8 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
         <CardActions
         sx={{
           justifyContent: "space-between",
-          px: 3,
-          pb: 3,
+          px: { xs: 2.25, md: 3 },
+          pb: { xs: 2.25, md: 3 },
           pt: 0,
         }}
       >

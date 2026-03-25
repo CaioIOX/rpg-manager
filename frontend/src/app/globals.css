@@ -13,6 +13,7 @@ body {
   font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -248,4 +249,43 @@ a {
 
 .tiptap .mention:hover {
   background-color: rgba(186, 104, 200, 0.4);
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+@media (max-width: 900px) {
+  .tiptap {
+    padding: 1.25rem;
+    min-height: 50vh;
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .tiptap h1 {
+    font-size: 1.65rem;
+  }
+
+  .tiptap h2 {
+    font-size: 1.35rem;
+  }
+
+  .tiptap h3 {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .tiptap {
+    padding: 1rem;
+    font-size: 0.92rem;
+  }
+
+  .tiptap pre {
+    padding: 0.85rem;
+  }
 }

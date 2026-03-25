@@ -35,15 +35,22 @@ export default function Navbar() {
           "linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent) 1",
       }}
     >
-      <Toolbar sx={{ px: { xs: 2, md: 3 } }}>
+      <Toolbar
+        sx={{
+          minHeight: { xs: 64, md: 72 },
+          px: { xs: 1.5, sm: 2, md: 3 },
+          gap: 1,
+        }}
+      >
         {/* Brand */}
         <Box
           onClick={() => router.push("/campaigns")}
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
+            gap: { xs: 1, sm: 1.5 },
             flexGrow: 1,
+            minWidth: 0,
             cursor: "pointer",
             "&:hover .brand-icon": {
               transform: "rotate(12deg) scale(1.1)",
@@ -54,7 +61,7 @@ export default function Navbar() {
             className="brand-icon"
             sx={{
               color: "primary.main",
-              fontSize: "1.75rem",
+              fontSize: { xs: "1.4rem", sm: "1.75rem" },
               transition: "transform 0.3s ease",
               filter: "drop-shadow(0 0 6px rgba(212, 175, 55, 0.3))",
             }}
@@ -71,6 +78,8 @@ export default function Navbar() {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               letterSpacing: "-0.01em",
+              fontSize: { xs: "1rem", sm: "1.25rem" },
+              whiteSpace: "nowrap",
             }}
           >
             CodexLore
@@ -82,7 +91,8 @@ export default function Navbar() {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
+            gap: { xs: 0.75, sm: 1.5 },
+            minWidth: 0,
           }}
         >
           <Box
@@ -90,7 +100,7 @@ export default function Navbar() {
               display: "flex",
               alignItems: "center",
               gap: 1,
-              px: 1.5,
+              px: { xs: 1, sm: 1.5 },
               py: 0.5,
               borderRadius: "20px",
               bgcolor: "rgba(255, 255, 255, 0.04)",
@@ -103,9 +113,9 @@ export default function Navbar() {
           >
             <Avatar
               sx={{
-                width: 30,
-                height: 30,
-                fontSize: "0.85rem",
+                width: { xs: 28, sm: 30 },
+                height: { xs: 28, sm: 30 },
+                fontSize: { xs: "0.8rem", sm: "0.85rem" },
                 fontWeight: 700,
                 background:
                   "linear-gradient(135deg, #8E24AA 0%, #BA68C8 100%)",
@@ -120,6 +130,10 @@ export default function Navbar() {
                 color: "text.primary",
                 fontWeight: 500,
                 display: { xs: "none", sm: "block" },
+                maxWidth: 120,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
             >
               {loggedUser.data?.username || "Carregando..."}
