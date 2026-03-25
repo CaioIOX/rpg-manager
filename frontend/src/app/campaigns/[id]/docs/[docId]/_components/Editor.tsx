@@ -56,20 +56,6 @@ export default function Editor({
 
   const hasInitializedRef = useRef(false);
 
-  useEffect(() => {
-    if (!docId) return;
-
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}`;
-
-    const provider = new WebsocketProvider(wsBaseUrl, `ws/doc/${docId}`, ydoc);
-
-    return () => {
-      provider.destroy();
-    };
-  }, [docId, ydoc]);
-
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
     const templateData = initialContent?.templateData;
 
@@ -131,10 +117,23 @@ export default function Editor({
   });
 
   useEffect(() => {
-    if (editor && initialContent && !hasInitializedRef.current) {
-      console.log(
-        "Loading initial content from JSON DB because Custom Yjs server doesn't persist full state.",
-      );
+    if (!docId) return;
+    if (!editor) return;
+
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.host;
+    const wsBaseUrl =
+      process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}`;
+
+    const provider = new WebsocketProvider(
+      wsBaseUrl,
+      `ws/doc/${docId}`,
+      ydoc,
+    );
+
+    const handleSync = (isSynced: boolean) => {
+      if (!isSynced || !initialContent) return;
+      if (hasInitializedRef.current) return;
 
       const loadContent = () => {
         const contentToLoad: JSONContent = {
@@ -147,20 +146,25 @@ export default function Editor({
             : [],
         };
 
-        console.log("Loading content:", contentToLoad);
+        if (editor.isEmpty) {
+          editor.commands.setContent(contentToLoad);
+        }
+      };
+
       if (editor.isEmpty) {
-        editor.commands.setContent(contentToLoad);
+        setTimeout(loadContent, 50);
       }
+
+      hasInitializedRef.current = true;
     };
 
-    const hasExistingText = editor.getText().trim().length > 0;
-    if (!hasExistingText) {
-      setTimeout(loadContent, 100);
-    }
+    provider.on("sync", handleSync);
 
-    hasInitializedRef.current = true;
-    }
-  }, [editor, initialContent]);
+    return () => {
+      provider.off("sync", handleSync);
+      provider.destroy();
+    };
+  }, [docId, ydoc, editor, initialContent]);
 
   useEffect(() => {
     if (!editor) return;
