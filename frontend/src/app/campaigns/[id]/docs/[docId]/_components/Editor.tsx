@@ -148,13 +148,17 @@ export default function Editor({
         };
 
         console.log("Loading content:", contentToLoad);
-        if (editor.isEmpty) {
-          editor.commands.setContent(contentToLoad);
-        }
-      };
+      if (editor.isEmpty) {
+        editor.commands.setContent(contentToLoad);
+      }
+    };
 
-      hasInitializedRef.current = true;
+    const hasExistingText = editor.getText().trim().length > 0;
+    if (!hasExistingText) {
       setTimeout(loadContent, 100);
+    }
+
+    hasInitializedRef.current = true;
     }
   }, [editor, initialContent]);
 
