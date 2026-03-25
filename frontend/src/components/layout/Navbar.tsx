@@ -73,7 +73,7 @@ export default function Navbar() {
               letterSpacing: "-0.01em",
             }}
           >
-            RPG Manager
+            CodexLore
           </Typography>
         </Box>
 

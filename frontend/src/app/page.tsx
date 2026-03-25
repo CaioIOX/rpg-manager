@@ -81,7 +81,7 @@ export default function Home() {
             mb: 1,
           }}
         >
-          RPG Manager
+          CodexLore
         </Typography>
 
         <Typography

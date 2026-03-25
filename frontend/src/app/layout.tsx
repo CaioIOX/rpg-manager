@@ -4,7 +4,7 @@ import Providers from "./providers";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "RPG Manager — Gerencie suas Campanhas",
+  title: "CodexLore — Gerencie suas Campanhas",
   description:
     "Gerencie suas campanhas de RPG de mesa com documentos colaborativos, templates e organização inteligente.",
 };
