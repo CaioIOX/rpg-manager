@@ -10,19 +10,19 @@ export default function useUpdateFolder() {
       name,
       position,
       parentId,
+      color,
     }: {
       campaignId: string;
       folderId: string;
       name: string;
       position?: number;
       parentId?: string;
-    }) => Update(campaignId, folderId, name, position, parentId),
-    onSuccess: (message) => {
-      console.log(message);
+      color?: string;
+    }) => Update(campaignId, folderId, name, position, parentId, color),
+    onSuccess: () => {
       toast.success("Pasta atualizada com sucesso!");
     },
     onError: (error: any) => {
-      console.error("Falha ao atualizar pasta: ", error);
       toast.error(error.response?.data?.error || "Ocorreu um erro ao atualizar a pasta.");
     },
   });

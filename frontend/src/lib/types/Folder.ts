@@ -5,5 +5,6 @@ export interface Folder {
     name: string,
     position: number,
     created_at: Date,
+    color?: string | null,
     updated_at: Date
 }

@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useLoginMutation } from "@/lib/hooks/useLoginMutation";
 import { useGoogleLoginMutation } from "@/lib/hooks/useGoogleLoginMutation";
 import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "sonner";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
@@ -68,7 +69,7 @@ export default function LoginPage() {
             }
           }}
           onError={() => {
-            console.error('Falha no Login com o Google');
+            toast.error('Falha no Login com o Google');
           }}
           theme="filled_black"
           shape="pill"

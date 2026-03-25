@@ -1,15 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { Login } from "../api/auth";
+import { toast } from "sonner";
 
 export function useLoginMutation() {
   return useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       Login(email, password),
-    onSuccess: (message) => {
-      console.log(message);
+    onSuccess: () => {
+      // Success handled by caller
     },
-    onError: (error) => {
-      console.error("Falha ao logar: ", error);
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || "Falha ao logar");
     },
   });
 }

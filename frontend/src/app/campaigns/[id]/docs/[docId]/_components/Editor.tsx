@@ -23,6 +23,7 @@ import Chip from "@mui/material/Chip";
 import EditorToolbar from "./Toolbar";
 import useMentionSuggestion from "@/lib/hooks/useMentionSuggestion";
 import { SyncLinks, GetLinks } from "@/lib/api/documents";
+import { toast } from "sonner";
 
 interface EditorProps {
   title?: string;
@@ -82,8 +83,8 @@ export default function Editor({
     if (jsonContent) traverse(jsonContent);
 
     const uniqueMentions = Array.from(new Map(extractedMentions.map(item => [item.target_doc_id, item])).values());
-    SyncLinks(campaignId, docId, uniqueMentions).catch((err) =>
-      console.error("Falha ao salvar menções:", err)
+    SyncLinks(campaignId, docId, uniqueMentions).catch(() =>
+      toast.error("Falha ao salvar menções")
     );
   }, 1000);
 

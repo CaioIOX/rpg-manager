@@ -1,0 +1,3 @@
+ALTER TABLE folders
+    DROP COLUMN IF EXISTS color;
+

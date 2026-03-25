@@ -16,7 +16,6 @@ export async function List(campaignID: string): Promise<DocumentSummary[]> {
     const resp = await apiClient.get(`/api/campaigns/${campaignID}/documents`);
     return resp.data;
   } catch (error) {
-    console.error("Falha ao listar os documentos: ", error);
     throw error;
   }
 }
@@ -31,7 +30,6 @@ export async function GetByID(
     );
     return resp.data;
   } catch (error) {
-    console.error("Falha ao recuperar informações dos documentos: ", error);
     throw error;
   }
 }
@@ -57,7 +55,6 @@ export async function Create(
     );
     return resp.data;
   } catch (error) {
-    console.error("Falha ao criar o documento: ", error);
     throw error;
   }
 }
@@ -70,7 +67,6 @@ export async function Update(
   content?: Record<string, unknown>,
   isSpoiler?: boolean,
 ): Promise<TypeDocument> {
-  console.log(title, folderID, content, isSpoiler);
   try {
     const resp = await apiClient.put(
       `/api/campaigns/${campaignID}/documents/${documentID}`,
@@ -78,7 +74,6 @@ export async function Update(
     );
     return resp.data;
   } catch (error) {
-    console.error("Falha ao atualizar o documento: ", error);
     throw error;
   }
 }
@@ -93,7 +88,6 @@ export async function Delete(
     );
     return resp.data;
   } catch (error) {
-    console.error("Falha ao apagar o documento: ", error);
     throw error;
   }
 }
@@ -108,7 +102,6 @@ export async function GetLinks(
     );
     return resp.data;
   } catch (error) {
-    console.error("Falha ao recuperar menções: ", error);
     throw error;
   }
 }
@@ -123,7 +116,6 @@ export async function Search(
     });
     return resp.data;
   } catch (error) {
-    console.error("Consulta não encontrada: ", error);
     throw error;
   }
 }
@@ -140,7 +132,6 @@ export async function SyncLinks(
     );
     return resp.data;
   } catch (error) {
-    console.error("Falha ao sincronizar as menções: ", error);
     throw error;
   }
 }

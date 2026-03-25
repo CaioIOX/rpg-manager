@@ -23,7 +23,6 @@ export default function useCreateTemplate() {
       toast.success("Template criado com sucesso!");
     },
     onError: (error: any) => {
-      console.error("Falha ao criar template: ", error);
       toast.error(error.response?.data?.error || "Ocorreu um erro ao criar o template.");
     },
   });

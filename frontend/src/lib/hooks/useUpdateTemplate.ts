@@ -30,13 +30,11 @@ export default function useUpdateTemplate() {
         description,
         icon,
       ),
-    onSuccess: (message) => {
-      console.log(message);
+    onSuccess: () => {
       toast.success("Template atualizado com sucesso!");
     },
     onError: (error: any) => {
-      console.error("Falha ao atualizar template: ", error);
-      toast.error(error.response?.data?.error || "Ocorreu um erro ao atualizar o template.");
+      toast.error(error.response?.data?.error || "Ocorreu um erro ao atualizar the template.");
     },
   });
 }

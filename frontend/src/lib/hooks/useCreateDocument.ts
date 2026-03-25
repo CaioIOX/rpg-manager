@@ -23,7 +23,6 @@ export default function useCreateDocument() {
       toast.success("Documento criado com sucesso!");
     },
     onError: (error: any) => {
-      console.error("Falha ao criar documento: ", error);
       toast.error(error.response?.data?.error || "Ocorreu um erro ao criar o documento.");
     },
   });

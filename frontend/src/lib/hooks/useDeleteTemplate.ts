@@ -11,12 +11,10 @@ export default function useDeleteTemplate() {
       campaignId: string;
       templateId: string;
     }) => Delete(campaignId, templateId),
-    onSuccess: (message) => {
-      console.log(message);
+    onSuccess: () => {
       toast.success("Template removido com sucesso!");
     },
     onError: (error: any) => {
-      console.error("Falha ao apagar template: ", error);
       toast.error(error.response?.data?.error || "Ocorreu um erro ao apagar o template.");
     },
   });

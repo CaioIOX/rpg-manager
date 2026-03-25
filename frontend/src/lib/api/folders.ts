@@ -7,7 +7,6 @@ export async function List(campaignID: string): Promise<Folder[]> {
         const resp = await apiClient.get(`/api/campaigns/${campaignID}/folders`)
         return resp.data
     } catch (error) {
-        console.error("Falha ao listar pastas: ", error)
         throw error;
     }
 }
@@ -17,27 +16,24 @@ export async function GetByID(campaignID: string, folderID: string): Promise<Fol
         const resp = await apiClient.get(`/api/campaigns/${campaignID}/folders/${folderID}`)
         return resp.data
     } catch (error) {
-        console.error("Falha ao recuperar informações da pasta: ", error)
         throw error;
     }
 }
 
-export async function Create(campaignID: string, name: string, parentID?: string): Promise<MessageResponse> {
+export async function Create(campaignID: string, name: string, parentID?: string, color?: string): Promise<MessageResponse> {
     try {
-        const resp = await apiClient.post(`/api/campaigns/${campaignID}/folders`, { name, parent_id: parentID })
+        const resp = await apiClient.post(`/api/campaigns/${campaignID}/folders`, { name, parent_id: parentID, color })
         return resp.data
     } catch (error) {
-        console.error("Falha ao criar a pasta: ", error)
         throw error;
     }
 }
 
-export async function Update(campaignID: string, folderID: string, name: string, position?: number, parentID?: string): Promise<Folder> {
+export async function Update(campaignID: string, folderID: string, name: string, position?: number, parentID?: string, color?: string): Promise<Folder> {
     try {
-        const resp = await apiClient.put(`/api/campaigns/${campaignID}/folders/${folderID}`, { name, position, parent_id: parentID })
+        const resp = await apiClient.put(`/api/campaigns/${campaignID}/folders/${folderID}`, { name, position, parent_id: parentID, color })
         return resp.data
     } catch (error) {
-        console.error("Falha ao atualizar pasta: ", error)
         throw error;
     }
 }
@@ -47,7 +43,6 @@ export async function Delete(campaignID: string, folderID: string): Promise<Mess
         const resp = await apiClient.delete(`/api/campaigns/${campaignID}/folders/${folderID}`)
         return resp.data
     } catch (error) {
-        console.error("Falha ao apagar pasta: ", error)
         throw error;
     }
 }

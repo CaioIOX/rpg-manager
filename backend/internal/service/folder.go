@@ -66,6 +66,7 @@ func (s *FolderService) Create(ctx context.Context, newFolder dto.CreateFolderRe
 		Name:       newFolder.Name,
 		ParentID:   newFolder.ParentID,
 		CampaignID: campaignID,
+		Color:      newFolder.Color,
 	}
 
 	if err := s.folderRepo.Create(ctx, folder); err != nil {

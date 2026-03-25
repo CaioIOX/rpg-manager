@@ -8,16 +8,17 @@ export default function useCreateFolder() {
       campaignId,
       name,
       parentId,
+      color,
     }: {
       campaignId: string;
       name: string;
       parentId?: string;
-    }) => Create(campaignId, name, parentId),
+      color?: string;
+    }) => Create(campaignId, name, parentId, color),
     onSuccess: () => {
       toast.success("Pasta criada com sucesso!");
     },
     onError: (error: any) => {
-      console.error("Falha ao criar pasta: ", error);
       toast.error(error.response?.data?.error || "Ocorreu um erro ao criar a pasta.");
     },
   });

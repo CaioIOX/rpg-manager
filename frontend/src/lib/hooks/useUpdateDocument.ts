@@ -20,9 +20,7 @@ export default function useUpdateDocument() {
       content?: Record<string, unknown>;
       isSpoiler?: boolean;
     }) => Update(campaignId, documentId, title, folderID, content, isSpoiler),
-    onSuccess: (message, variables) => {
-      console.log(message);
-      
+    onSuccess: (_, variables) => {
       queryClient.setQueryData(["document", variables.documentId], (oldData: any) => {
         if (!oldData) return oldData;
         return {
@@ -37,7 +35,6 @@ export default function useUpdateDocument() {
       queryClient.invalidateQueries({ queryKey: ["document", variables.documentId] });
     },
     onError: (error: any) => {
-      console.error("Falha ao atualizar documento: ", error);
       toast.error(error.response?.data?.error || "Ocorreu um erro ao salvar o documento.");
     },
   });

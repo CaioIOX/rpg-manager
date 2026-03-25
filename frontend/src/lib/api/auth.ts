@@ -10,7 +10,6 @@ export async function Login(
     const resp = await apiClient.post("/api/auth/login", { email, password });
     return resp.data;
   } catch (error) {
-    console.error("Falha ao fazer login: ", error);
     throw error;
   }
 }
@@ -20,7 +19,6 @@ export async function GoogleAuth(credential: string): Promise<MessageResponse> {
     const resp = await apiClient.post("/api/auth/google", { credential });
     return resp.data;
   } catch (error) {
-    console.error("Falha ao se autenticar com o Google: ", error);
     throw error;
   }
 }
@@ -38,7 +36,6 @@ export async function Register(
     });
     return resp.data;
   } catch (error) {
-    console.error("Falha ao se registrar: ", error);
     throw error;
   }
 }
@@ -48,7 +45,6 @@ export async function GetCurrentUser(): Promise<User> {
     const resp = await apiClient.get("/api/me");
     return resp.data;
   } catch (error) {
-    console.error("Falha ao recuperar dados do usuário", error);
     throw error;
   }
 }
@@ -58,7 +54,6 @@ export async function Logout(): Promise<MessageResponse> {
     const resp = await apiClient.post("/api/logout");
     return resp.data;
   } catch (error) {
-    console.error("Falha ao fazer logout: ", error);
     throw error;
   }
 }
