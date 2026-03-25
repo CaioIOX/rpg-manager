@@ -54,6 +54,7 @@ export default function Editor({
 
   const ydoc = useMemo(() => new Y.Doc(), []);
   const hasInitializedRef = useRef(false);
+  const syncedRef = useRef(false);
 
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
     const templateData = initialContent?.templateData;
@@ -106,7 +107,14 @@ export default function Editor({
       ydoc,
     );
 
+    const handleSync = (isSynced: boolean) => {
+      syncedRef.current = isSynced;
+    };
+
+    provider.on("sync", handleSync);
+
     return () => {
+      provider.off("sync", handleSync);
       provider.destroy();
     };
   }, [docId, ydoc]);
@@ -138,6 +146,7 @@ export default function Editor({
     if (!editor) return;
     if (!initialContent) return;
     if (hasInitializedRef.current) return;
+    if (!syncedRef.current) return;
 
     const fragment = ydoc.getXmlFragment("prosemirror");
     const hasYContent = fragment && fragment.length > 0;
