@@ -19,12 +19,9 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           script: |
-            # ATENÇÃO: Substitua pelo caminho real na sua VPS, ex: ~/rpg-manager
+          
             cd ~/rpg-manager 
             git pull origin main
-            # Opcional: injetar variáveis de ambiente se necessário
-            # echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
             docker compose build
             docker compose up -d
