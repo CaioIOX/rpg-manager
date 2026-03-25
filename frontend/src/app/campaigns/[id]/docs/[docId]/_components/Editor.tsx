@@ -53,7 +53,6 @@ export default function Editor({
   const mentionSuggestion = useMentionSuggestion(campaignId, docId);
 
   const ydoc = useMemo(() => new Y.Doc(), []);
-
   const hasInitializedRef = useRef(false);
 
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
@@ -93,6 +92,25 @@ export default function Editor({
     };
   }, [debouncedSave]);
 
+  useEffect(() => {
+    if (!docId) return;
+
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.host;
+    const wsBaseUrl =
+      process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}`;
+
+    const provider = new WebsocketProvider(
+      wsBaseUrl,
+      `ws/doc/${docId}`,
+      ydoc,
+    );
+
+    return () => {
+      provider.destroy();
+    };
+  }, [docId, ydoc]);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -117,54 +135,31 @@ export default function Editor({
   });
 
   useEffect(() => {
-    if (!docId) return;
     if (!editor) return;
+    if (!initialContent) return;
+    if (hasInitializedRef.current) return;
 
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = window.location.host;
-    const wsBaseUrl =
-      process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}`;
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const hasYContent = fragment && fragment.length > 0;
 
-    const provider = new WebsocketProvider(
-      wsBaseUrl,
-      `ws/doc/${docId}`,
-      ydoc,
-    );
-
-    const handleSync = (isSynced: boolean) => {
-      if (!isSynced || !initialContent) return;
-      if (hasInitializedRef.current) return;
-
-      const loadContent = () => {
-        const contentToLoad: JSONContent = {
-          type:
-            typeof initialContent.type === "string"
-              ? initialContent.type
-              : "doc",
-          content: Array.isArray(initialContent.content)
-            ? (initialContent.content as JSONContent[])
-            : [],
-        };
-
-        if (editor.isEmpty) {
-          editor.commands.setContent(contentToLoad);
-        }
-      };
-
-      if (editor.isEmpty) {
-        setTimeout(loadContent, 50);
-      }
-
+    if (hasYContent) {
       hasInitializedRef.current = true;
+      return;
+    }
+
+    const contentToLoad: JSONContent = {
+      type:
+        typeof initialContent.type === "string"
+          ? initialContent.type
+          : "doc",
+      content: Array.isArray(initialContent.content)
+        ? (initialContent.content as JSONContent[])
+        : [],
     };
 
-    provider.on("sync", handleSync);
-
-    return () => {
-      provider.off("sync", handleSync);
-      provider.destroy();
-    };
-  }, [docId, ydoc, editor, initialContent]);
+    editor.commands.setContent(contentToLoad);
+    hasInitializedRef.current = true;
+  }, [editor, initialContent, ydoc]);
 
   useEffect(() => {
     if (!editor) return;

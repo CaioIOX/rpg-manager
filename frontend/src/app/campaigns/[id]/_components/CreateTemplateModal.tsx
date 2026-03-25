@@ -96,7 +96,7 @@ export default function CreateTemplateModal({
     reset,
     watch,
     formState: { errors },
-  } = useForm<FormData>({ 
+  } = useForm<FormData>({
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
@@ -130,7 +130,10 @@ export default function CreateTemplateModal({
     if (!newField.name || !newField.label) return;
     const addedField: SchemaField = { ...newField };
     if (newField.type === "select" && newFieldOptions.trim() !== "") {
-      addedField.options = newFieldOptions.split(",").map((o) => o.trim()).filter((o) => o !== "");
+      addedField.options = newFieldOptions
+        .split(",")
+        .map((o) => o.trim())
+        .filter((o) => o !== "");
     }
     setFields([...fields, addedField]);
     setNewField({ name: "", type: "text", label: "", required: false });
@@ -370,7 +373,9 @@ export default function CreateTemplateModal({
                       {field.name} •{" "}
                       {FIELD_TYPES.find((t) => t.value === field.type)?.label}
                       {field.required && " • Obrigatório"}
-                      {field.type === "select" && field.options && ` • Opções: ${field.options.join(", ")}`}
+                      {field.type === "select" &&
+                        field.options &&
+                        ` • Opções: ${field.options.join(", ")}`}
                     </Typography>
                   </Box>
                   <IconButton
@@ -458,67 +463,69 @@ export default function CreateTemplateModal({
                       </MenuItem>
                     ))}
                   </TextField>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        size="small"
-                        checked={newField.required}
-                        onChange={(e) =>
-                          setNewField({
-                            ...newField,
-                            required: e.target.checked,
-                          })
-                        }
-                        sx={{
-                          "& .Mui-checked": { color: "#BA68C8" },
-                          "& .Mui-checked + .MuiSwitch-track": {
-                            bgcolor: "rgba(142, 36, 170, 0.5)",
-                          },
-                        }}
-                      />
-                    }
-                    label={
-                      <Typography
-                        variant="caption"
-                        sx={{ fontSize: "0.75rem" }}
-                      >
-                        Obrigatório
-                      </Typography>
-                    }
-                  />
-                  <IconButton
-                    onClick={addField}
-                    disabled={!newField.name || !newField.label || (newField.type === "select" && newFieldOptions.trim() === "")}
-                    sx={{
-                      color: "#BA68C8",
-                      border: "1px solid rgba(142, 36, 170, 0.3)",
-                      borderRadius: "10px",
-                      alignSelf: { xs: "stretch", sm: "center" },
-                      "&:hover": { bgcolor: "rgba(142, 36, 170, 0.08)" },
-                      "&.Mui-disabled": { opacity: 0.3 },
-                    }}
-                  >
-                    <AddIcon fontSize="small" />
-                  </IconButton>
+                  {newField.type === "select" && (
+                    <TextField
+                      label="Opções (separadas por vírgula)"
+                      placeholder="ex: Opção 1, Opção 2, Opção 3"
+                      size="small"
+                      fullWidth
+                      value={newFieldOptions}
+                      onChange={(e) => setNewFieldOptions(e.target.value)}
+                      sx={{
+                        mt: 1.5,
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "10px",
+                          bgcolor: "rgba(13, 17, 23, 0.4)",
+                        },
+                      }}
+                    />
+                  )}
                 </Stack>
-              </Stack>
-              {newField.type === "select" && (
-                <TextField
-                  label="Opções (separadas por vírgula)"
-                  placeholder="ex: Opção 1, Opção 2, Opção 3"
-                  size="small"
-                  fullWidth
-                  value={newFieldOptions}
-                  onChange={(e) => setNewFieldOptions(e.target.value)}
-                  sx={{
-                    mt: 1.5,
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "10px",
-                      bgcolor: "rgba(13, 17, 23, 0.4)",
-                    },
-                  }}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      size="small"
+                      checked={newField.required}
+                      onChange={(e) =>
+                        setNewField({
+                          ...newField,
+                          required: e.target.checked,
+                        })
+                      }
+                      sx={{
+                        "& .Mui-checked": { color: "#BA68C8" },
+                        "& .Mui-checked + .MuiSwitch-track": {
+                          bgcolor: "rgba(142, 36, 170, 0.5)",
+                        },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
+                      Obrigatório
+                    </Typography>
+                  }
                 />
-              )}
+                <IconButton
+                  onClick={addField}
+                  disabled={
+                    !newField.name ||
+                    !newField.label ||
+                    (newField.type === "select" &&
+                      newFieldOptions.trim() === "")
+                  }
+                  sx={{
+                    color: "#BA68C8",
+                    border: "1px solid rgba(142, 36, 170, 0.3)",
+                    borderRadius: "10px",
+                    alignSelf: { xs: "stretch", sm: "center" },
+                    "&:hover": { bgcolor: "rgba(142, 36, 170, 0.08)" },
+                    "&.Mui-disabled": { opacity: 0.3 },
+                  }}
+                >
+                  <AddIcon fontSize="small" />
+                </IconButton>
+              </Stack>
             </Box>
           </Box>
         </DialogContent>
@@ -548,7 +555,11 @@ export default function CreateTemplateModal({
           <Button
             type="submit"
             variant="contained"
-            disabled={templateMutation.isPending || templateUpdateMutation.isPending || fields.length === 0}
+            disabled={
+              templateMutation.isPending ||
+              templateUpdateMutation.isPending ||
+              fields.length === 0
+            }
             sx={{
               borderRadius: "12px",
               px: 3,
