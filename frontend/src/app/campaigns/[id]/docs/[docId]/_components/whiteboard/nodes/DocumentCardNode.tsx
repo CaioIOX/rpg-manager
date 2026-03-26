@@ -48,8 +48,10 @@ export default function DocumentCardNode({ data, selected }: NodeProps) {
         lineStyle={{ border: "1px dashed rgba(212,175,55,0.7)" }}
         handleStyle={{ background: "#D4AF37", border: "none", width: 8, height: 8, borderRadius: 2 }}
       />
-      <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
-      <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Top} />
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
 
       <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
         <span style={{ fontSize: "1rem", flexShrink: 0, marginTop: 2 }}>📄</span>
