@@ -20,9 +20,11 @@ interface Props {
   onDuplicate: () => void;
   onCopy: () => void;
   onCut: () => void;
+  onPaste: () => void;
   onGroup: () => void;
   onUngroup: () => void;
   hasGroup: boolean;
+  hasClipboard: boolean;
 }
 
 const itemSx = {
@@ -34,7 +36,7 @@ const itemSx = {
   "&:hover": { bgcolor: "rgba(212,175,55,0.1)", color: "#E8CC6E" },
 };
 
-export default function WhiteboardContextMenu({ menu, onClose, onDelete, onDuplicate, onCopy, onCut, onGroup, onUngroup, hasGroup }: Props) {
+export default function WhiteboardContextMenu({ menu, onClose, onDelete, onDuplicate, onCopy, onCut, onPaste, onGroup, onUngroup, hasGroup, hasClipboard }: Props) {
   if (!menu || typeof document === "undefined") return null;
 
   const hasNodes = menu.nodeIds.length > 0;
@@ -66,6 +68,13 @@ export default function WhiteboardContextMenu({ menu, onClose, onDelete, onDupli
             <MenuItem onClick={() => { onCopy(); onClose(); }} sx={itemSx}>Copiar</MenuItem>
             <MenuItem onClick={() => { onCut(); onClose(); }} sx={itemSx}>Recortar</MenuItem>
             <MenuItem onClick={() => { onDuplicate(); onClose(); }} sx={itemSx}>Duplicar</MenuItem>
+            <MenuItem 
+              disabled={!hasClipboard}
+              onClick={() => { onPaste(); onClose(); }} 
+              sx={{ ...itemSx, opacity: hasClipboard ? 1 : 0.5 }}
+            >
+              Colar
+            </MenuItem>
             <Divider sx={{ my: 0.4, borderColor: "rgba(255,255,255,0.08)" }} />
             {multi && (
               <MenuItem onClick={() => { onGroup(); onClose(); }} sx={itemSx}>Agrupar seleção</MenuItem>
@@ -80,9 +89,20 @@ export default function WhiteboardContextMenu({ menu, onClose, onDelete, onDupli
           </>
         )}
         {!hasNodes && (
-          <Typography variant="caption" sx={{ display: "block", px: 1.5, py: 0.5, color: "text.secondary" }}>
-            Clique em um objeto para opções
-          </Typography>
+          <>
+            <MenuItem 
+              disabled={!hasClipboard}
+              onClick={() => { onPaste(); onClose(); }} 
+              sx={{ ...itemSx, opacity: hasClipboard ? 1 : 0.5 }}
+            >
+              Colar
+            </MenuItem>
+            {!hasClipboard && (
+              <Typography variant="caption" sx={{ display: "block", px: 1.5, py: 0.5, color: "text.secondary" }}>
+                Clique em um objeto para opções
+              </Typography>
+            )}
+          </>
         )}
       </Box>
     </>,

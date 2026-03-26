@@ -45,12 +45,19 @@ export default function MiniToolbar({ editorRef, anchorRef }: Props) {
   const applySize = (px: string) => {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed) { focus(); return; }
-    const range = sel.getRangeAt(0);
-    try {
+    
+    // Use execCommand to apply a temporary font size 7
+    document.execCommand("fontSize", false, "7");
+    
+    // Find all <font size="7"> elements and replace them with span
+    const fonts = editorRef.current?.querySelectorAll('font[size="7"]');
+    fonts?.forEach(font => {
       const span = document.createElement("span");
       span.style.fontSize = px;
-      range.surroundContents(span);
-    } catch { /* overlapping ranges */ }
+      span.innerHTML = (font as HTMLElement).innerHTML;
+      font.parentNode?.replaceChild(span, font);
+    });
+    
     focus();
   };
 
@@ -62,50 +69,50 @@ export default function MiniToolbar({ editorRef, anchorRef }: Props) {
       onClick={(e) => e.stopPropagation()}
       sx={{
         position: "fixed",
-        top: pos.top,
+        top: pos.top - 10,
         left: pos.left,
         zIndex: 99999,
         display: "flex",
         alignItems: "center",
         flexWrap: "nowrap",
-        gap: 0.25,
-        px: 0.75,
-        py: 0.5,
-        bgcolor: "rgba(14,14,18,0.97)",
-        borderRadius: "8px",
-        border: "1px solid rgba(255,255,255,0.14)",
-        boxShadow: "0 4px 18px rgba(0,0,0,0.75)",
+        gap: 0.5,
+        px: 1,
+        py: 0.75,
+        bgcolor: "rgba(14,14,18,0.98)",
+        borderRadius: "10px",
+        border: "1px solid rgba(255,255,255,0.18)",
+        boxShadow: "0 6px 24px rgba(0,0,0,0.8)",
         whiteSpace: "nowrap",
         pointerEvents: "all",
       }}
     >
-      <Tooltip title="Negrito (Ctrl+B)"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("bold")}><FormatBoldIcon sx={{ fontSize: 15 }} /></IconButton></Tooltip>
-      <Tooltip title="Itálico (Ctrl+I)"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("italic")}><FormatItalicIcon sx={{ fontSize: 15 }} /></IconButton></Tooltip>
-      <Tooltip title="Sublinhado (Ctrl+U)"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("underline")}><FormatUnderlinedIcon sx={{ fontSize: 15 }} /></IconButton></Tooltip>
-      <Tooltip title="Tachado"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("strikeThrough")}><StrikethroughSIcon sx={{ fontSize: 15 }} /></IconButton></Tooltip>
+      <Tooltip title="Negrito (Ctrl+B)"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("bold")}><FormatBoldIcon sx={{ fontSize: 19 }} /></IconButton></Tooltip>
+      <Tooltip title="Itálico (Ctrl+I)"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("italic")}><FormatItalicIcon sx={{ fontSize: 19 }} /></IconButton></Tooltip>
+      <Tooltip title="Sublinhado (Ctrl+U)"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("underline")}><FormatUnderlinedIcon sx={{ fontSize: 19 }} /></IconButton></Tooltip>
+      <Tooltip title="Tachado"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("strikeThrough")}><StrikethroughSIcon sx={{ fontSize: 19 }} /></IconButton></Tooltip>
 
-      <Divider orientation="vertical" flexItem sx={{ mx: 0.25, borderColor: "rgba(255,255,255,0.1)" }} />
+      <Divider orientation="vertical" flexItem sx={{ mx: 0.5, borderColor: "rgba(255,255,255,0.15)" }} />
 
       {FONT_SIZES.map(({ label, px }) => (
         <Tooltip key={label} title={`Tamanho ${label}`}>
-          <IconButton size="small" sx={{ ...btnSx, fontSize: 10, fontWeight: 700 }} onMouseDown={(e) => e.preventDefault()} onClick={() => applySize(px)}>
+          <IconButton size="small" sx={{ ...btnSx, fontSize: 13, fontWeight: 700, width: 28, height: 28 }} onMouseDown={(e) => e.preventDefault()} onClick={() => applySize(px)}>
             {label}
           </IconButton>
         </Tooltip>
       ))}
 
-      <Divider orientation="vertical" flexItem sx={{ mx: 0.25, borderColor: "rgba(255,255,255,0.1)" }} />
+      <Divider orientation="vertical" flexItem sx={{ mx: 0.5, borderColor: "rgba(255,255,255,0.15)" }} />
 
-      <Tooltip title="Lista em tópicos"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("insertUnorderedList")}><FormatListBulletedIcon sx={{ fontSize: 15 }} /></IconButton></Tooltip>
+      <Tooltip title="Lista em tópicos"><IconButton size="small" sx={btnSx} onMouseDown={(e) => e.preventDefault()} onClick={() => exec("insertUnorderedList")}><FormatListBulletedIcon sx={{ fontSize: 19 }} /></IconButton></Tooltip>
 
-      <Divider orientation="vertical" flexItem sx={{ mx: 0.25, borderColor: "rgba(255,255,255,0.1)" }} />
+      <Divider orientation="vertical" flexItem sx={{ mx: 0.5, borderColor: "rgba(255,255,255,0.15)" }} />
 
       {COLORS.map((c) => (
         <Box
           key={c}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => exec("foreColor", c)}
-          sx={{ width: 13, height: 13, bgcolor: c, borderRadius: "50%", cursor: "pointer", border: "1.5px solid rgba(255,255,255,0.25)", flexShrink: 0, "&:hover": { transform: "scale(1.3)" }, transition: "transform 0.1s" }}
+          sx={{ width: 16, height: 16, bgcolor: c, borderRadius: "50%", cursor: "pointer", border: "2px solid rgba(255,255,255,0.3)", flexShrink: 0, "&:hover": { transform: "scale(1.35)" }, transition: "transform 0.1s" }}
         />
       ))}
     </Box>,

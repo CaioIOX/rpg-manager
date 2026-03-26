@@ -112,42 +112,49 @@ export default function WhiteboardToolbar({
     <Box
       sx={{
         position: "absolute",
-        top: 16,
+        top: 12,
         left: "50%",
         transform: "translateX(-50%)",
         display: "flex",
         alignItems: "center",
-        gap: 0.25,
-        zIndex: 5,
-        bgcolor: "rgba(10, 10, 14, 0.92)",
-        border: "1px solid rgba(212,175,55,0.18)",
-        borderRadius: "14px",
-        px: 1,
-        py: 0.75,
-        backdropFilter: "blur(12px)",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: 0.5,
+        zIndex: 100,
+        bgcolor: "rgba(10, 10, 14, 0.96)",
+        border: "1px solid rgba(212, 175, 55, 0.24)",
+        borderRadius: "16px",
+        px: 1.5,
+        py: 1,
+        maxWidth: "92vw",
+        width: "auto",
+        backdropFilter: "blur(14px)",
+        boxShadow: "0 10px 32px rgba(0,0,0,0.6)",
         userSelect: "none",
+        "& .MuiDivider-root": {
+           display: { xs: "none", sm: "block" } // Hide dividers on very small screens to save space
+        }
       }}
     >
       {/* Mode buttons */}
       <ToolBtn
         label="Selecionar"
         shortcut="V"
-        icon={<NearMeOutlinedIcon sx={{ fontSize: 18 }} />}
+        icon={<NearMeOutlinedIcon sx={{ fontSize: 22 }} />}
         active={mode === "select"}
         onClick={() => onModeChange("select")}
       />
       <ToolBtn
         label="Mover canvas"
         shortcut="G"
-        icon={<PanToolOutlinedIcon sx={{ fontSize: 18 }} />}
+        icon={<PanToolOutlinedIcon sx={{ fontSize: 22 }} />}
         active={mode === "grab"}
         onClick={() => onModeChange("grab")}
       />
       <ToolBtn
         label="Texto (clique no canvas)"
         shortcut="T"
-        icon={<TitleIcon sx={{ fontSize: 18 }} />}
+        icon={<TitleIcon sx={{ fontSize: 22 }} />}
         active={mode === "text"}
         onClick={() => onModeChange("text")}
       />
@@ -157,17 +164,17 @@ export default function WhiteboardToolbar({
       {/* Node types */}
       <ToolBtn
         label="Post-it"
-        icon={<NoteAltOutlinedIcon sx={{ fontSize: 18 }} />}
+        icon={<NoteAltOutlinedIcon sx={{ fontSize: 22 }} />}
         onClick={() => addCentered("stickyNote", { text: "", color: "#F9E04B" }, 100, 70)}
       />
       <ToolBtn
         label="Texto Livre"
-        icon={<TextFieldsIcon sx={{ fontSize: 18 }} />}
+        icon={<TextFieldsIcon sx={{ fontSize: 22 }} />}
         onClick={() => addCentered("text", { html: "" }, 80, 20)}
       />
       <ToolBtn
         label="Vincular Documento"
-        icon={<DescriptionOutlinedIcon sx={{ fontSize: 18 }} />}
+        icon={<DescriptionOutlinedIcon sx={{ fontSize: 22 }} />}
         onClick={onAddDocumentCard}
       />
 
@@ -175,17 +182,17 @@ export default function WhiteboardToolbar({
 
       <ToolBtn
         label="Retângulo"
-        icon={<CropSquareIcon sx={{ fontSize: 18 }} />}
+        icon={<CropSquareIcon sx={{ fontSize: 22 }} />}
         onClick={() => addCentered("shape", { label: "", shape: "rectangle", color: "rgba(100,181,246,0.18)" }, 70, 40)}
       />
       <ToolBtn
         label="Círculo"
-        icon={<CircleOutlinedIcon sx={{ fontSize: 18 }} />}
+        icon={<CircleOutlinedIcon sx={{ fontSize: 22 }} />}
         onClick={() => addCentered("shape", { label: "", shape: "circle", color: "rgba(129,199,132,0.18)" }, 60, 60)}
       />
       <ToolBtn
         label="Losango"
-        icon={<ChangeHistoryOutlinedIcon sx={{ fontSize: 18 }} />}
+        icon={<ChangeHistoryOutlinedIcon sx={{ fontSize: 22 }} />}
         onClick={() => addCentered("shape", { label: "", shape: "diamond", color: "rgba(206,147,216,0.18)" }, 70, 50)}
       />
 
@@ -194,13 +201,13 @@ export default function WhiteboardToolbar({
       {/* Edge type */}
       <ToolBtn
         label="Conexão: Linha"
-        icon={<HorizontalRuleIcon sx={{ fontSize: 18 }} />}
+        icon={<HorizontalRuleIcon sx={{ fontSize: 22 }} />}
         active={!arrowEdges}
         onClick={() => onArrowEdgesChange(false)}
       />
       <ToolBtn
         label="Conexão: Seta"
-        icon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
+        icon={<ArrowForwardIcon sx={{ fontSize: 22 }} />}
         active={arrowEdges}
         onClick={() => onArrowEdgesChange(true)}
       />

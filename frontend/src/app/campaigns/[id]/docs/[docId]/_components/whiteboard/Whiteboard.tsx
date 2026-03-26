@@ -199,13 +199,33 @@ function WhiteboardCanvas({ initialContent }: WhiteboardProps) {
         onDuplicate={handleDuplicate}
         onCopy={handleCopy}
         onCut={handleCut}
+        onPaste={() => {
+          if (clipboard.current.length === 0) return;
+          const pos = screenToFlowPosition({ x: ctxMenu?.x || 0, y: ctxMenu?.y || 0 });
+          // Find the center or top-left of the clipboard nodes to offset them
+          const minX = Math.min(...clipboard.current.map(n => n.position.x));
+          const minY = Math.min(...clipboard.current.map(n => n.position.y));
+          
+          const newNodes = clipboard.current.map((n) => ({
+            ...n,
+            id: `${n.type}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            position: {
+              x: pos.x + (n.position.x - minX),
+              y: pos.y + (n.position.y - minY),
+            },
+            selected: true,
+          }));
+          
+          rfSetNodes((nds) => nds.map(node => ({ ...node, selected: false })).concat(newNodes));
+        }}
         onGroup={handleGroup}
         onUngroup={handleUngroup}
         hasGroup={hasGroup}
+        hasClipboard={clipboard.current.length > 0}
       />
 
       <style>{`
-        .react-flow__handle { width:12px!important;height:12px!important;background:#4dabf7!important;border:2px solid #fff!important;border-radius:50%!important;opacity:0!important;transition:opacity .15s,transform .15s!important;z-index:20!important; }
+        .react-flow__handle { width:14px!important;height:14px!important;background:#4dabf7!important;border:2px solid #fff!important;border-radius:50%!important;opacity:0!important;transition:opacity .15s,transform .15s!important;z-index:20!important; }
         .react-flow__node:hover .react-flow__handle,.react-flow__node.selected .react-flow__handle{opacity:1!important;}
         .react-flow__handle:hover{transform:scale(1.5)!important;background:#228be6!important;opacity:1!important;}
         .react-flow__controls button{background:#ffffff!important;border-bottom:1px solid #ddd!important;}
@@ -215,7 +235,7 @@ function WhiteboardCanvas({ initialContent }: WhiteboardProps) {
         .react-flow__connection-line{stroke:rgba(212,175,55,0.9)!important;stroke-width:2px!important;}
         .react-flow__selection{background:rgba(212,175,55,0.06)!important;border:1px solid rgba(212,175,55,0.45)!important;}
         .react-flow__resize-control.line{border-color:rgba(212,175,55,0.5)!important;}
-        .react-flow__resize-control.handle{background:#D4AF37!important;border:none!important;width:7px!important;height:7px!important;border-radius:2px!important;}
+        .react-flow__resize-control.handle{background:#D4AF37!important;border:none!important;width:8px!important;height:8px!important;border-radius:2px!important;}
       `}</style>
 
       <ReactFlow
@@ -227,6 +247,7 @@ function WhiteboardCanvas({ initialContent }: WhiteboardProps) {
         onPaneClick={handlePaneClick}
         onPaneContextMenu={handlePaneCtx}
         onNodeContextMenu={handleNodeCtx}
+        onSelectionContextMenu={handlePaneCtx}
         nodeTypes={nodeTypes}
         connectionMode={ConnectionMode.Loose}
         isValidConnection={() => true}
@@ -236,6 +257,10 @@ function WhiteboardCanvas({ initialContent }: WhiteboardProps) {
         multiSelectionKeyCode="Shift"
         deleteKeyCode={["Delete", "Backspace"]}
         zoomOnScroll
+        zoomOnPinch
+        panOnScroll
+        preventScrolling={false}
+        nodeDragThreshold={5}
         fitView
         proOptions={{ hideAttribution: true }}
         style={{ background: "#000" }}

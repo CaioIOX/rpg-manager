@@ -58,7 +58,23 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
           contentEditable
           suppressContentEditableWarning
           onBlur={handleBlur}
-          sx={{ width: "100%", height: "calc(100% - 8px)", outline: "none", color: "rgba(0,0,0,0.82)", fontSize: "0.85rem", fontWeight: 500, lineHeight: 1.4, wordBreak: "break-word", caretColor: "#333", "& ul": { pl: 2 } }}
+          className="nodrag"
+          onPointerDown={(e) => e.stopPropagation()}
+          sx={{ 
+            width: "100%", 
+            height: "calc(100% - 8px)", 
+            outline: "none", 
+            color: "rgba(0,0,0,0.85)", 
+            fontSize: "0.85rem", 
+            fontWeight: 500, 
+            lineHeight: 1.4, 
+            wordBreak: "break-word", 
+            caretColor: "#333",
+            bgcolor: "rgba(0,0,0,0.04)",
+            borderRadius: "2px",
+            px: 0.5,
+            "& ul": { pl: 2 } 
+          }}
         />
       ) : (
         <Box

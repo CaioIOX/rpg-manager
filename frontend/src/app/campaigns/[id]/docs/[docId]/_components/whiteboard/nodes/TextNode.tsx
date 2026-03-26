@@ -48,7 +48,22 @@ export default function TextNode({ data, selected }: NodeProps) {
           contentEditable
           suppressContentEditableWarning
           onBlur={handleBlur}
-          sx={{ flex: 1, outline: "none", color: "#E6E6E6", fontSize: "1rem", lineHeight: 1.5, wordBreak: "break-word", caretColor: "#D4AF37", px: 0.5, "& ul": { pl: 2.5 } }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="nodrag"
+          sx={{ 
+            flex: 1, 
+            outline: "none", 
+            color: "#E6E6E6", 
+            fontSize: "1rem", 
+            lineHeight: 1.5, 
+            wordBreak: "break-word", 
+            caretColor: "#D4AF37", 
+            px: 1, 
+            py: 0.5,
+            bgcolor: "rgba(255,255,255,0.05)",
+            borderRadius: "4px",
+            "& ul": { pl: 2.5 } 
+          }}
         />
       ) : (
         <Box
