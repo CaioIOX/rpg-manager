@@ -4,75 +4,109 @@ import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import TextFieldsIcon from "@mui/icons-material/TextFields";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import CropSquareIcon from "@mui/icons-material/CropSquare";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import ChangeHistoryOutlinedIcon from "@mui/icons-material/ChangeHistoryOutlined";
+import NearMeOutlinedIcon from "@mui/icons-material/NearMeOutlined";
+import PanToolOutlinedIcon from "@mui/icons-material/PanToolOutlined";
+import TitleIcon from "@mui/icons-material/Title";
+import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
+import { WhiteboardMode } from "./types";
 
 interface WhiteboardToolbarProps {
+  mode: WhiteboardMode;
+  onModeChange: (m: WhiteboardMode) => void;
+  arrowEdges: boolean;
+  onArrowEdgesChange: (v: boolean) => void;
   onAddDocumentCard: () => void;
 }
 
-export default function WhiteboardToolbar({ onAddDocumentCard }: WhiteboardToolbarProps) {
+function Sep() {
+  return (
+    <Divider
+      orientation="vertical"
+      flexItem
+      sx={{ mx: 0.5, borderColor: "rgba(255,255,255,0.1)" }}
+    />
+  );
+}
+
+function ToolBtn({
+  label,
+  icon,
+  active,
+  shortcut,
+  onClick,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  active?: boolean;
+  shortcut?: string;
+  onClick: () => void;
+}) {
+  return (
+    <Tooltip
+      title={
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="caption" display="block">{label}</Typography>
+          {shortcut && (
+            <Typography variant="caption" sx={{ opacity: 0.6, fontSize: "0.65rem" }}>
+              {shortcut}
+            </Typography>
+          )}
+        </Box>
+      }
+      placement="bottom"
+    >
+      <IconButton
+        size="small"
+        onClick={onClick}
+        sx={{
+          color: active ? "#D4AF37" : "rgba(200,200,200,0.7)",
+          borderRadius: "8px",
+          bgcolor: active ? "rgba(212,175,55,0.12)" : "transparent",
+          border: active ? "1px solid rgba(212,175,55,0.35)" : "1px solid transparent",
+          transition: "all 0.15s",
+          "&:hover": {
+            color: "#D4AF37",
+            bgcolor: "rgba(212,175,55,0.08)",
+          },
+        }}
+      >
+        {icon}
+      </IconButton>
+    </Tooltip>
+  );
+}
+
+export default function WhiteboardToolbar({
+  mode,
+  onModeChange,
+  arrowEdges,
+  onArrowEdgesChange,
+  onAddDocumentCard,
+}: WhiteboardToolbarProps) {
   const { addNodes, screenToFlowPosition } = useReactFlow();
 
-  const getCenterPosition = useCallback(() => {
-    return screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-  }, [screenToFlowPosition]);
-
-  const addNode = useCallback(
-    (type: string, data: Record<string, unknown>) => {
-      const position = getCenterPosition();
+  const addCentered = useCallback(
+    (type: string, data: Record<string, unknown>, offsetX = 60, offsetY = 60) => {
+      const pos = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
       addNodes({
         id: `${type}-${Date.now()}`,
         type,
-        position: { x: position.x - 60, y: position.y - 60 },
+        position: { x: pos.x - offsetX, y: pos.y - offsetY },
         data,
       });
     },
-    [addNodes, getCenterPosition],
+    [addNodes, screenToFlowPosition],
   );
-
-  const tools = [
-    {
-      label: "Post-it",
-      icon: <NoteAltOutlinedIcon fontSize="small" />,
-      onClick: () => addNode("stickyNote", { text: "", color: "#F9E04B" }),
-    },
-    {
-      label: "Texto Livre",
-      icon: <TextFieldsIcon fontSize="small" />,
-      onClick: () => addNode("text", { text: "" }),
-    },
-    {
-      label: "Card de Documento",
-      icon: <DescriptionOutlinedIcon fontSize="small" />,
-      onClick: onAddDocumentCard,
-    },
-    null, // divider
-    {
-      label: "Retângulo",
-      icon: <CropSquareIcon fontSize="small" />,
-      onClick: () =>
-        addNode("shape", { label: "", shape: "rectangle", color: "rgba(100,181,246,0.2)" }),
-    },
-    {
-      label: "Círculo",
-      icon: <CircleOutlinedIcon fontSize="small" />,
-      onClick: () =>
-        addNode("shape", { label: "", shape: "circle", color: "rgba(129,199,132,0.2)" }),
-    },
-    {
-      label: "Losango",
-      icon: <ChangeHistoryOutlinedIcon fontSize="small" />,
-      onClick: () =>
-        addNode("shape", { label: "", shape: "diamond", color: "rgba(206,147,216,0.2)" }),
-    },
-  ];
 
   return (
     <Box
@@ -83,40 +117,93 @@ export default function WhiteboardToolbar({ onAddDocumentCard }: WhiteboardToolb
         transform: "translateX(-50%)",
         display: "flex",
         alignItems: "center",
-        gap: 0.5,
+        gap: 0.25,
         zIndex: 5,
-        bgcolor: "rgba(13, 17, 23, 0.88)",
-        border: "1px solid rgba(212, 175, 55, 0.18)",
+        bgcolor: "rgba(10, 10, 14, 0.92)",
+        border: "1px solid rgba(212,175,55,0.18)",
         borderRadius: "14px",
         px: 1,
         py: 0.75,
         backdropFilter: "blur(12px)",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+        boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+        userSelect: "none",
       }}
     >
-      {tools.map((tool, i) =>
-        tool === null ? (
-          <Divider key={i} orientation="vertical" flexItem sx={{ mx: 0.5, borderColor: "rgba(255,255,255,0.1)" }} />
-        ) : (
-          <Tooltip key={i} title={tool.label} placement="bottom">
-            <IconButton
-              size="small"
-              onClick={tool.onClick}
-              sx={{
-                color: "text.secondary",
-                borderRadius: "8px",
-                transition: "all 0.15s",
-                "&:hover": {
-                  color: "#D4AF37",
-                  bgcolor: "rgba(212, 175, 55, 0.1)",
-                },
-              }}
-            >
-              {tool.icon}
-            </IconButton>
-          </Tooltip>
-        ),
-      )}
+      {/* Mode buttons */}
+      <ToolBtn
+        label="Selecionar"
+        shortcut="V"
+        icon={<NearMeOutlinedIcon sx={{ fontSize: 18 }} />}
+        active={mode === "select"}
+        onClick={() => onModeChange("select")}
+      />
+      <ToolBtn
+        label="Mover canvas"
+        shortcut="G"
+        icon={<PanToolOutlinedIcon sx={{ fontSize: 18 }} />}
+        active={mode === "grab"}
+        onClick={() => onModeChange("grab")}
+      />
+      <ToolBtn
+        label="Texto (clique no canvas)"
+        shortcut="T"
+        icon={<TitleIcon sx={{ fontSize: 18 }} />}
+        active={mode === "text"}
+        onClick={() => onModeChange("text")}
+      />
+
+      <Sep />
+
+      {/* Node types */}
+      <ToolBtn
+        label="Post-it"
+        icon={<NoteAltOutlinedIcon sx={{ fontSize: 18 }} />}
+        onClick={() => addCentered("stickyNote", { text: "", color: "#F9E04B" }, 100, 70)}
+      />
+      <ToolBtn
+        label="Texto Livre"
+        icon={<TextFieldsIcon sx={{ fontSize: 18 }} />}
+        onClick={() => addCentered("text", { html: "" }, 80, 20)}
+      />
+      <ToolBtn
+        label="Vincular Documento"
+        icon={<DescriptionOutlinedIcon sx={{ fontSize: 18 }} />}
+        onClick={onAddDocumentCard}
+      />
+
+      <Sep />
+
+      <ToolBtn
+        label="Retângulo"
+        icon={<CropSquareIcon sx={{ fontSize: 18 }} />}
+        onClick={() => addCentered("shape", { label: "", shape: "rectangle", color: "rgba(100,181,246,0.18)" }, 70, 40)}
+      />
+      <ToolBtn
+        label="Círculo"
+        icon={<CircleOutlinedIcon sx={{ fontSize: 18 }} />}
+        onClick={() => addCentered("shape", { label: "", shape: "circle", color: "rgba(129,199,132,0.18)" }, 60, 60)}
+      />
+      <ToolBtn
+        label="Losango"
+        icon={<ChangeHistoryOutlinedIcon sx={{ fontSize: 18 }} />}
+        onClick={() => addCentered("shape", { label: "", shape: "diamond", color: "rgba(206,147,216,0.18)" }, 70, 50)}
+      />
+
+      <Sep />
+
+      {/* Edge type */}
+      <ToolBtn
+        label="Conexão: Linha"
+        icon={<HorizontalRuleIcon sx={{ fontSize: 18 }} />}
+        active={!arrowEdges}
+        onClick={() => onArrowEdgesChange(false)}
+      />
+      <ToolBtn
+        label="Conexão: Seta"
+        icon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
+        active={arrowEdges}
+        onClick={() => onArrowEdgesChange(true)}
+      />
     </Box>
   );
 }

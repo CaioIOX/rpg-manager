@@ -10,6 +10,8 @@ export type StickyNoteData = {
   color: string;
 };
 
+const HANDLE_STYLE = { zIndex: 10 };
+
 export default function StickyNoteNode({ data, selected }: NodeProps) {
   const nodeData = data as StickyNoteData;
   const [editing, setEditing] = useState(false);
@@ -19,8 +21,8 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
       sx={{
         width: "100%",
         height: "100%",
-        minWidth: 140,
-        minHeight: 100,
+        minWidth: 120,
+        minHeight: 80,
         bgcolor: nodeData.color || "#F9E04B",
         borderRadius: "4px",
         p: 1.5,
@@ -39,21 +41,15 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
           width: 0,
           height: 0,
           borderLeft: "16px solid transparent",
-          borderBottom: `16px solid rgba(0,0,0,0.15)`,
+          borderBottom: "16px solid rgba(0,0,0,0.15)",
         },
       }}
     >
-      <NodeResizer
-        isVisible={selected}
-        minWidth={140}
-        minHeight={100}
-        lineStyle={{ border: "1px dashed rgba(212,175,55,0.7)" }}
-        handleStyle={{ background: "#D4AF37", border: "none", width: 8, height: 8, borderRadius: 2 }}
-      />
-      <Handle type="target" position={Position.Top} />
-      <Handle type="source" position={Position.Bottom} />
-      <Handle type="target" position={Position.Left} />
-      <Handle type="source" position={Position.Right} />
+      <NodeResizer isVisible={selected} minWidth={120} minHeight={80} />
+      <Handle id="top" type="source" position={Position.Top} style={HANDLE_STYLE} />
+      <Handle id="bottom" type="source" position={Position.Bottom} style={HANDLE_STYLE} />
+      <Handle id="left" type="source" position={Position.Left} style={HANDLE_STYLE} />
+      <Handle id="right" type="source" position={Position.Right} style={HANDLE_STYLE} />
 
       {editing ? (
         <textarea
@@ -65,14 +61,14 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
           }}
           style={{
             width: "100%",
-            height: "calc(100% - 12px)",
+            height: "calc(100% - 8px)",
             background: "transparent",
             border: "none",
             outline: "none",
             resize: "none",
             fontFamily: "inherit",
             fontSize: "0.85rem",
-            color: "rgba(0,0,0,0.8)",
+            color: "rgba(0,0,0,0.82)",
             fontWeight: 500,
           }}
         />
@@ -81,7 +77,7 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
           variant="body2"
           onDoubleClick={() => setEditing(true)}
           sx={{
-            color: "rgba(0,0,0,0.8)",
+            color: "rgba(0,0,0,0.82)",
             fontWeight: 500,
             fontSize: "0.85rem",
             whiteSpace: "pre-wrap",
