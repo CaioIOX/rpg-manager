@@ -5,14 +5,17 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactCompiler: true,
   async rewrites() {
+    const isDev = process.env.NODE_ENV === 'development';
+    const backendUrl = process.env.BACKEND_URL || (isDev ? 'http://localhost:8080' : 'http://backend:8080');
+    
     return [
       {
         source: '/api/:path*',
-        destination: process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/api/:path*` : 'http://localhost:8080/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
       {
         source: '/ws/:path*',
-        destination: process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/ws/:path*` : 'http://localhost:8080/ws/:path*',
+        destination: `${backendUrl}/ws/:path*`,
       },
     ]
   },
