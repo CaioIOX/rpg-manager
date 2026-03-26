@@ -7,7 +7,6 @@ import {
   Grid,
   Skeleton,
   Typography,
-
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { Campaign } from "@/lib/types/Campaign";
