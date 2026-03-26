@@ -39,9 +39,10 @@ func main() {
 		log.Printf("DATABASE_URL not set, using local default: %s", dbURL)
 	}
 
+	log.Printf("Attempting to connect to database using URL (masked): %s", dbURL[:15]+"...")
 	db, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatalf("CRITICAL: Failed to create connection pool: %v", err)
 	}
 	defer db.Close()
 
@@ -55,9 +56,10 @@ func main() {
 		mURL = dbURL
 	}
 
+	log.Printf("Attempting to run migrations from URL: %s", mURL[:15]+"...")
 	m, err := migrate.New("file://migrations", mURL)
 	if err != nil {
-		log.Fatalf("Failed to create migrator: %v", err)
+		log.Fatalf("CRITICAL: Failed to create migrator: %v", err)
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
