@@ -5,6 +5,7 @@ export interface TypeDocument {
     template_id?: string,
     title: string,
     content: Record<string, unknown>,
+    doc_type: 'editor' | 'whiteboard',
     is_spoiler: boolean,
     created_by: string,
     created_at: Date,
@@ -16,6 +17,7 @@ export interface DocumentSummary {
     title: string,
     folder_id?: string,
     template_id?: string,
+    doc_type: 'editor' | 'whiteboard',
     is_spoiler: boolean,
     created_by: string,
     updated_at: Date
