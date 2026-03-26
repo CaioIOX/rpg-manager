@@ -41,6 +41,7 @@ export async function Create(
   folderID?: string,
   templateID?: string,
   isSpoiler?: boolean,
+  docType: 'editor' | 'whiteboard' = 'editor',
 ): Promise<MessageResponse> {
   try {
     const resp = await apiClient.post(
@@ -51,6 +52,7 @@ export async function Create(
         folder_id: folderID || null,
         template_id: templateID || null,
         is_spoiler: isSpoiler ?? false,
+        doc_type: docType,
       },
     );
     return resp.data;

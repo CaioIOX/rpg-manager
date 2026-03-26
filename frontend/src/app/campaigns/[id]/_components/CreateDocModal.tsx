@@ -14,13 +14,16 @@ import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
+import Box from "@mui/material/Box";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DocumentSummary } from "@/lib/types/Documents";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 
 const docSchema = z.object({
   title: z.string().min(1, "O título é obrigatório"),
@@ -54,6 +57,8 @@ export default function CreateDocModal({
   const { data: folders } = useFolders(campaignId);
   const { data: templates } = useTemplates(campaignId);
 
+  const [docType, setDocType] = useState<"editor" | "whiteboard">("editor");
+
   const {
     register,
     handleSubmit,
@@ -64,7 +69,7 @@ export default function CreateDocModal({
     defaultValues: {
       title: initialData?.title || "",
       folderId: initialData?.folder_id || defaultFolderId || "",
-      templateId: initialData?.template_id || "", // Cannot change template after creation
+      templateId: initialData?.template_id || "",
       isSpoiler: initialData?.is_spoiler || false,
     },
     resolver: zodResolver(docSchema),
@@ -75,6 +80,7 @@ export default function CreateDocModal({
   const handleCloseModal = () => {
     setIsModalOpen(false);
     reset();
+    setDocType("editor");
   };
 
   useEffect(() => {
@@ -82,7 +88,7 @@ export default function CreateDocModal({
       reset({
         title: initialData.title,
         folderId: initialData.folder_id || defaultFolderId || "",
-        templateId: initialData.template_id || "", // Cannot change template after creation
+        templateId: initialData.template_id || "",
         isSpoiler: initialData.is_spoiler || false,
       });
     }
@@ -118,6 +124,7 @@ export default function CreateDocModal({
           folderId: data.folderId || undefined,
           templateId: data.templateId || undefined,
           isSpoiler: data.isSpoiler,
+          docType,
         },
         {
           onSuccess: () => {
@@ -134,6 +141,26 @@ export default function CreateDocModal({
     }
   };
 
+  const typeOptions: {
+    value: "editor" | "whiteboard";
+    label: string;
+    description: string;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      value: "editor",
+      label: "Documento",
+      description: "Editor de texto rico com suporte a menções",
+      icon: <DescriptionOutlinedIcon sx={{ fontSize: 22 }} />,
+    },
+    {
+      value: "whiteboard",
+      label: "Lousa",
+      description: "Canvas infinito com cards e conexões",
+      icon: <DashboardCustomizeOutlinedIcon sx={{ fontSize: 22 }} />,
+    },
+  ];
+
   return (
     <Dialog
       open={isModalOpen}
@@ -143,8 +170,8 @@ export default function CreateDocModal({
           sx: {
             bgcolor: "background.paper",
             borderRadius: { xs: "20px", md: "24px" },
-            width: { xs: "calc(100% - 24px)", sm: "440px" },
-            maxWidth: "440px",
+            width: { xs: "calc(100% - 24px)", sm: "480px" },
+            maxWidth: "480px",
             border: "1px solid rgba(212, 175, 55, 0.12)",
             boxShadow:
               "0 24px 48px rgba(0, 0, 0, 0.5), 0 0 80px rgba(212, 175, 55, 0.04)",
@@ -185,6 +212,78 @@ export default function CreateDocModal({
             pt: 2,
           }}
         >
+          {/* Type selector — only show on creation */}
+          {!initialData && (
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+              {typeOptions.map((opt) => {
+                const selected = docType === opt.value;
+                return (
+                  <Box
+                    key={opt.value}
+                    onClick={() => setDocType(opt.value)}
+                    sx={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 0.75,
+                      p: 1.75,
+                      borderRadius: "14px",
+                      border: "1.5px solid",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      borderColor: selected
+                        ? "rgba(212, 175, 55, 0.6)"
+                        : "rgba(255,255,255,0.06)",
+                      bgcolor: selected
+                        ? "rgba(212, 175, 55, 0.07)"
+                        : "rgba(13, 17, 23, 0.4)",
+                      "&:hover": {
+                        borderColor: selected
+                          ? "rgba(212, 175, 55, 0.6)"
+                          : "rgba(255,255,255,0.14)",
+                        bgcolor: selected
+                          ? "rgba(212, 175, 55, 0.07)"
+                          : "rgba(255,255,255,0.03)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        color: selected ? "#D4AF37" : "text.secondary",
+                        transition: "color 0.2s",
+                      }}
+                    >
+                      {opt.icon}
+                    </Box>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "0.8rem",
+                        color: selected ? "#E8CC6E" : "text.primary",
+                        transition: "color 0.2s",
+                      }}
+                    >
+                      {opt.label}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: "0.7rem",
+                        textAlign: "center",
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {opt.description}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
+
           <TextField
             label="Título do documento"
             placeholder="Aventura dos amigos"
@@ -229,27 +328,30 @@ export default function CreateDocModal({
             ))}
           </TextField>
 
-          <TextField
-            label="Template (opcional)"
-            select
-            fullWidth
-            variant="outlined"
-            defaultValue=""
-            {...register("templateId")}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "14px",
-                bgcolor: "rgba(13, 17, 23, 0.4)",
-              },
-            }}
-          >
-            <MenuItem value="">Nenhum</MenuItem>
-            {templates?.map((template) => (
-              <MenuItem key={template.id} value={template.id}>
-                {template.icon} {template.name}
-              </MenuItem>
-            ))}
-          </TextField>
+          {/* Template picker only for text editor documents */}
+          {docType === "editor" && !initialData && (
+            <TextField
+              label="Template (opcional)"
+              select
+              fullWidth
+              variant="outlined"
+              defaultValue=""
+              {...register("templateId")}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "14px",
+                  bgcolor: "rgba(13, 17, 23, 0.4)",
+                },
+              }}
+            >
+              <MenuItem value="">Nenhum</MenuItem>
+              {templates?.map((template) => (
+                <MenuItem key={template.id} value={template.id}>
+                  {template.icon} {template.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
 
           <FormControlLabel
             control={
@@ -312,7 +414,7 @@ export default function CreateDocModal({
               },
             }}
           >
-            {initialData ? "Salvar Alterações" : "Criar Documento"}
+            {initialData ? "Salvar Alterações" : "Criar"}
           </Button>
         </DialogActions>
       </form>

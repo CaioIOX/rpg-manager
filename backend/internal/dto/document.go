@@ -8,6 +8,7 @@ type CreateDocumentRequest struct {
 	TemplateID *string         `json:"template_id"`
 	Content    json.RawMessage `json:"content"`
 	IsSpoiler  *bool           `json:"is_spoiler"`
+	DocType    string          `json:"doc_type"`
 }
 
 type UpdateDocumentRequest struct {

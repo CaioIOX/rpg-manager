@@ -119,6 +119,7 @@ func (s *DocumentService) Create(ctx context.Context, newDocument dto.CreateDocu
 		CreatedBy:  loggedUser,
 		Content:    newDocument.Content,
 		IsSpoiler:  isSpoiler,
+		DocType:    newDocument.DocType,
 	}
 
 	if err := s.documentRepo.Create(ctx, document); err != nil {
