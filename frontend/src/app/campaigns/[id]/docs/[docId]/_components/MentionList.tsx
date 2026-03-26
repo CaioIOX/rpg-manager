@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { DocumentSummary } from '@/lib/types/Documents';
 
