@@ -58,6 +58,7 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterInput) error
 func (s *AuthService) Login(ctx context.Context, req dto.LoginInput) (string, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
+		log.Printf("[LOGIN ERROR] GetByEmail failed for %s: %v", req.Email, err)
 		return "", customErrors.ErrInvalidCredentials
 	}
 
@@ -108,6 +109,7 @@ func (s *AuthService) GoogleLogin(ctx context.Context, token string) (string, er
 
 	user, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil || user == nil {
+		log.Printf("[GOOGLE AUTH] User %s not found, creating new account", email)
 		hash, _ := bcrypt.GenerateFromPassword([]byte("google_oauth_"+email), bcrypt.DefaultCost)
 		user = &model.User{
 			Username:     name,
@@ -115,11 +117,15 @@ func (s *AuthService) GoogleLogin(ctx context.Context, token string) (string, er
 			PasswordHash: string(hash),
 		}
 		if errCreate := s.userRepo.Create(ctx, user); errCreate != nil {
-			log.Printf("[GOOGLE AUTH ERROR] Failed to create user: %v", errCreate)
+			log.Printf("[GOOGLE AUTH ERROR] Failed to create user %s: %v", email, errCreate)
 			return "", errors.New("erro ao criar usuário via Google")
 		}
-		// Refresh user to get the ID if scan didn't return it
-		user, _ = s.userRepo.GetByEmail(ctx, email)
+		// Refresh user to get the full model (ID, etc) if Scan didn't populate it
+		user, err = s.userRepo.GetByEmail(ctx, email)
+		if err != nil || user == nil {
+			log.Printf("[GOOGLE AUTH ERROR] Still could not find user %s after creation: %v", email, err)
+			return "", errors.New("erro crítico ao recuperar usuário após criação")
+		}
 	}
 
 	claims := jwt.MapClaims{
