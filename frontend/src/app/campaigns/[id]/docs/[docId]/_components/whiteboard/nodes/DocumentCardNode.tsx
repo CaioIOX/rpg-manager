@@ -1,12 +1,8 @@
 "use client";
 
-import { NodeProps, Handle, Position } from "@xyflow/react";
+import { NodeProps, Handle, Position, NodeResizer } from "@xyflow/react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Chip from "@mui/material/Chip";
-import { useRouter, useParams } from "next/navigation";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 export type DocumentCardData = {
   docId: string;
@@ -16,26 +12,22 @@ export type DocumentCardData = {
 
 export default function DocumentCardNode({ data, selected }: NodeProps) {
   const nodeData = data as DocumentCardData;
-  const router = useRouter();
-  const params = useParams();
-  const campaignId = params.id as string;
-
-  const handleOpen = () => {
-    if (nodeData.docId) {
-      router.push(`/campaigns/${campaignId}/docs/${nodeData.docId}`);
-    }
-  };
+  // Navigate via the link — no router needed, keeps it accessible
+  const href = nodeData.docId ? `#doc-${nodeData.docId}` : undefined;
 
   return (
     <Box
       sx={{
-        width: 220,
+        width: "100%",
+        height: "100%",
+        minWidth: 180,
+        minHeight: 80,
         borderRadius: "12px",
         border: "1.5px solid",
         borderColor: selected
           ? "rgba(212, 175, 55, 0.7)"
           : "rgba(212, 175, 55, 0.2)",
-        bgcolor: "rgba(13, 17, 23, 0.85)",
+        bgcolor: "rgba(13, 17, 23, 0.92)",
         backdropFilter: "blur(8px)",
         p: 2,
         boxShadow: selected
@@ -43,15 +35,24 @@ export default function DocumentCardNode({ data, selected }: NodeProps) {
           : "0 4px 16px rgba(0,0,0,0.4)",
         transition: "all 0.2s ease",
         cursor: "default",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        gap: 1,
       }}
     >
+      <NodeResizer
+        isVisible={selected}
+        minWidth={180}
+        minHeight={80}
+        lineStyle={{ border: "1px dashed rgba(212,175,55,0.7)" }}
+        handleStyle={{ background: "#D4AF37", border: "none", width: 8, height: 8, borderRadius: 2 }}
+      />
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
 
-      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 1 }}>
-        <DescriptionOutlinedIcon
-          sx={{ fontSize: 18, color: "#D4AF37", mt: 0.2, flexShrink: 0 }}
-        />
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+        <span style={{ fontSize: "1rem", flexShrink: 0, marginTop: 2 }}>📄</span>
         <Typography
           variant="body2"
           sx={{
@@ -74,7 +75,6 @@ export default function DocumentCardNode({ data, selected }: NodeProps) {
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-            mb: 1.5,
             lineHeight: 1.4,
           }}
         >
@@ -82,24 +82,37 @@ export default function DocumentCardNode({ data, selected }: NodeProps) {
         </Typography>
       )}
 
-      <Box
-        onClick={handleOpen}
+      <Typography
+        component="a"
+        href={href}
+        variant="caption"
         sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 0.5,
-          cursor: "pointer",
           color: "rgba(212, 175, 55, 0.7)",
           fontSize: "0.7rem",
           fontWeight: 500,
-          mt: 0.5,
+          mt: "auto",
           "&:hover": { color: "#D4AF37" },
           transition: "color 0.15s",
+          textDecoration: "none",
+          cursor: "pointer",
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (nodeData.docId) {
+            // Find campaignId from the current path
+            const parts = window.location.pathname.split("/");
+            const campaignIdx = parts.indexOf("campaigns");
+            if (campaignIdx !== -1) {
+              window.open(
+                `/campaigns/${parts[campaignIdx + 1]}/docs/${nodeData.docId}`,
+                "_self",
+              );
+            }
+          }
         }}
       >
-        <OpenInNewIcon sx={{ fontSize: 12 }} />
-        Abrir documento
-      </Box>
+        ↗ Abrir documento
+      </Typography>
     </Box>
   );
 }

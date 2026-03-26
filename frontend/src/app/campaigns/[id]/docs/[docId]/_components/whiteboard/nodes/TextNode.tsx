@@ -1,6 +1,6 @@
 "use client";
 
-import { NodeProps, Handle, Position } from "@xyflow/react";
+import { NodeProps, Handle, Position, NodeResizer } from "@xyflow/react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
@@ -16,15 +16,25 @@ export default function TextNode({ data, selected }: NodeProps) {
   return (
     <Box
       sx={{
-        minWidth: 120,
-        maxWidth: 320,
+        width: "100%",
+        height: "100%",
+        minWidth: 100,
+        minHeight: 40,
         px: 1,
         py: 0.5,
         borderRadius: "6px",
         border: selected ? "1.5px solid #D4AF37" : "1.5px solid transparent",
         transition: "border-color 0.2s",
+        overflow: "hidden",
       }}
     >
+      <NodeResizer
+        isVisible={selected}
+        minWidth={100}
+        minHeight={40}
+        lineStyle={{ border: "1px dashed rgba(212,175,55,0.7)" }}
+        handleStyle={{ background: "#D4AF37", border: "none", width: 8, height: 8, borderRadius: 2 }}
+      />
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
 
@@ -45,7 +55,7 @@ export default function TextNode({ data, selected }: NodeProps) {
             fontSize: "1rem",
             fontFamily: "inherit",
             width: "100%",
-            minWidth: 100,
+            height: "100%",
           }}
         />
       ) : (
