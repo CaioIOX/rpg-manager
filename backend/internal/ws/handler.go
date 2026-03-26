@@ -40,7 +40,7 @@ func (h *Handler) HandlerWs(hub *Hub) fiber.Handler {
 
 		document, err := h.docRepo.GetByID(context.Background(), docID)
 		if err == nil && document.YjsState != nil {
-			if err := c.WriteMessage(websocket.BinaryMessage, document.YjsState); err != nil {
+			if err := client.Write(websocket.BinaryMessage, document.YjsState); err != nil {
 				log.Printf("[WS] Erro enviando estado inicial: %v", err)
 			}
 		}
@@ -51,17 +51,8 @@ func (h *Handler) HandlerWs(hub *Hub) fiber.Handler {
 				break
 			}
 
+			// Broadcast message to other clients in the same room
 			hub.Broadcast(client.DocID, client, messageType, message)
-
-			if messageType == websocket.BinaryMessage {
-				stateToSave := make([]byte, len(message))
-				copy(stateToSave, message)
-				go func() {
-					if err := h.docRepo.UpdateYjsState(context.Background(), docID, stateToSave); err != nil {
-						log.Printf("[WS] Erro ao persistir estado Yjs do documento %s: %v", docID, err)
-					}
-				}()
-			}
 		}
 	})
 }

@@ -12,6 +12,13 @@ type Client struct {
 	DocID  string
 	UserID string
 	Name   string
+	mu     sync.Mutex
+}
+
+func (c *Client) Write(messageType int, data []byte) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.Conn.WriteMessage(messageType, data)
 }
 
 type Hub struct {
@@ -61,7 +68,7 @@ func (h *Hub) Broadcast(docID string, sender *Client, messageType int, message [
 
 	for client := range room {
 		if client != sender {
-			if err := client.Conn.WriteMessage(messageType, message); err != nil {
+			if err := client.Write(messageType, message); err != nil {
 				log.Printf("[WS] Erro ao fazer broadcast à %s: %v", client.UserID, err)
 			}
 		}
