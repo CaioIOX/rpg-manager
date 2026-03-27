@@ -51,6 +51,11 @@ func (h *Handler) HandlerWs(hub *Hub) fiber.Handler {
 				break
 			}
 
+			// Ignore empty messages that might cause JSON.parse errors on the client
+			if len(message) == 0 {
+				continue
+			}
+
 			// Broadcast message to other clients in the same room
 			hub.Broadcast(client.DocID, client, messageType, message)
 		}

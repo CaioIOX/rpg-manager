@@ -58,6 +58,9 @@ func (h *Hub) Unregister(client *Client) {
 }
 
 func (h *Hub) Broadcast(docID string, sender *Client, messageType int, message []byte) {
+	if len(message) == 0 {
+		return
+	}
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
