@@ -129,35 +129,6 @@ function WhiteboardCanvas({ initialContent }: WhiteboardProps) {
         onSelect={handleAddDocumentCard}
       />
 
-      <style>{`
-        .react-flow__handle {
-          width: 8px !important;
-          height: 8px !important;
-          background: #4dabf7 !important;
-          border: 2px solid #ffffff !important;
-          opacity: 0;
-          transition: opacity 0.2s, transform 0.2s;
-        }
-        .react-flow__node:hover .react-flow__handle,
-        .react-flow__node.selected .react-flow__handle {
-          opacity: 1;
-        }
-        .react-flow__handle:hover {
-          transform: scale(1.2);
-          background: #228be6 !important;
-        }
-        .react-flow__controls button {
-          background: #ffffff !important;
-          border-bottom: 1px solid #eee !important;
-        }
-        .react-flow__controls button svg {
-          fill: #222 !important;
-        }
-        .react-flow__controls button:hover {
-          background: #f8f9fa !important;
-        }
-      `}</style>
-
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -177,13 +148,11 @@ function WhiteboardCanvas({ initialContent }: WhiteboardProps) {
           color="rgba(255,255,255,0.12)"
         />
         <Controls
-          showInteractive={false}
           style={{
+            background: "rgba(20, 20, 20, 0.95)",
             border: "1px solid rgba(255,255,255,0.15)",
             borderRadius: 10,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
+            filter: "brightness(0) invert(0.5)",
           }}
         />
         <WhiteboardToolbar onAddDocumentCard={() => setPickerOpen(true)} />
