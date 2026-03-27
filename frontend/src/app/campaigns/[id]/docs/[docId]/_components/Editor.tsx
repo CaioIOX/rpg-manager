@@ -16,6 +16,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import { Markdown } from "tiptap-markdown";
+import { Details, DetailsSummary, DetailsContent } from "@/lib/tiptap/extensions/details";
 import { useCallback, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
@@ -172,21 +173,13 @@ export default function Editor({
       TableHeader,
       TableCell,
       TaskList.configure({
-        HTMLAttributes: {
-          class: "task-list",
-        },
+        HTMLAttributes: { class: "task-list" },
       }),
-      TaskItem.configure({
-        nested: true,
-        HTMLAttributes: {
-          class: "task-item",
-        },
-      }),
-      Markdown.configure({
-        html: false,
-        transformCopiedText: true,
-        transformPastedText: true,
-      }),
+      TaskItem.configure({ nested: true }),
+      Markdown,
+      Details,
+      DetailsSummary,
+      DetailsContent,
     ],
     onUpdate: ({ editor }) => {
       if (isReadyRef.current) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Editor } from "@tiptap/react";
+import { Editor, useEditorState } from "@tiptap/react";
 import { WebsocketProvider } from "y-websocket";
 import CodeIcon from "@mui/icons-material/Code";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
@@ -15,6 +15,7 @@ import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
 import StrikethroughSIcon from "@mui/icons-material/StrikethroughS";
 import CheckBoxOutlinedIcon from "@mui/icons-material/CheckBoxOutlined";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
+import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
@@ -379,6 +380,30 @@ export default function EditorToolbar({
 }: EditorToolbarProps) {
   const [colorAnchor, setColorAnchor] = useState<HTMLElement | null>(null);
 
+  // Subscribe to editor state so toolbar re-renders on every selection/transaction change.
+  // This ensures isActive() reflects the correct state when cursor moves or text is selected.
+  const editorState = useEditorState({
+    editor,
+    selector: (ctx) => ({
+      isBold: ctx.editor.isActive("bold"),
+      isItalic: ctx.editor.isActive("italic"),
+      isUnderline: ctx.editor.isActive("underline"),
+      isStrike: ctx.editor.isActive("strike"),
+      isCode: ctx.editor.isActive("code"),
+      isCodeBlock: ctx.editor.isActive("codeBlock"),
+      isBlockquote: ctx.editor.isActive("blockquote"),
+      isBulletList: ctx.editor.isActive("bulletList"),
+      isOrderedList: ctx.editor.isActive("orderedList"),
+      isTaskList: ctx.editor.isActive("taskList"),
+      isTable: ctx.editor.isActive("table"),
+      isDetails: ctx.editor.isActive("details"),
+      isH1: ctx.editor.isActive("heading", { level: 1 }),
+      isH2: ctx.editor.isActive("heading", { level: 2 }),
+      isH3: ctx.editor.isActive("heading", { level: 3 }),
+      textColor: ctx.editor.getAttributes("textStyle").color,
+    }),
+  });
+
   const applyColor = (color: string) => {
     if (color === "") {
       editor.chain().focus().unsetColor().run();
@@ -412,17 +437,17 @@ export default function EditorToolbar({
     >
       {/* Left: all editor action buttons */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, flexWrap: "wrap" }}>
-        {[1, 2, 3].map((level) => (
+        {([1, 2, 3] as const).map((level) => (
           <ToolbarActionButton
             key={level}
             onClick={() =>
               editor
                 .chain()
                 .focus()
-                .toggleHeading({ level: level as 1 | 2 | 3 })
+                .toggleHeading({ level })
                 .run()
             }
-            isActive={editor.isActive("heading", { level })}
+            isActive={level === 1 ? editorState.isH1 : level === 2 ? editorState.isH2 : editorState.isH3}
             tooltip={`Titulo ${level}`}
           >
             <Box
@@ -445,28 +470,28 @@ export default function EditorToolbar({
 
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleBold().run()}
-          isActive={editor.isActive("bold")}
+          isActive={editorState.isBold}
           tooltip="Negrito"
         >
           <FormatBoldIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          isActive={editor.isActive("italic")}
+          isActive={editorState.isItalic}
           tooltip="Italico"
         >
           <FormatItalicIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          isActive={editor.isActive("underline")}
+          isActive={editorState.isUnderline}
           tooltip="Sublinhado"
         >
           <FormatUnderlinedIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          isActive={editor.isActive("strike")}
+          isActive={editorState.isStrike}
           tooltip="Tachado"
         >
           <StrikethroughSIcon sx={{ fontSize: "1.1rem" }} />
@@ -476,21 +501,21 @@ export default function EditorToolbar({
 
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          isActive={editor.isActive("bulletList")}
+          isActive={editorState.isBulletList}
           tooltip="Lista"
         >
           <FormatListBulletedIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          isActive={editor.isActive("orderedList")}
+          isActive={editorState.isOrderedList}
           tooltip="Lista numerada"
         >
           <FormatListNumberedIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleTaskList().run()}
-          isActive={editor.isActive("taskList")}
+          isActive={editorState.isTaskList}
           tooltip="Lista de tarefas"
         >
           <CheckBoxOutlinedIcon sx={{ fontSize: "1.1rem" }} />
@@ -505,17 +530,24 @@ export default function EditorToolbar({
 
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          isActive={editor.isActive("blockquote")}
+          isActive={editorState.isBlockquote}
           tooltip="Citacao"
         >
           <FormatQuoteIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          isActive={editor.isActive("codeBlock")}
+          isActive={editorState.isCodeBlock}
           tooltip="Bloco de codigo"
         >
           <CodeIcon sx={{ fontSize: "1.1rem" }} />
+        </ToolbarActionButton>
+        <ToolbarActionButton
+          onClick={() => editor.chain().focus().setDetails().run()}
+          isActive={editorState.isDetails}
+          tooltip="Bloco recolhivel"
+        >
+          <UnfoldLessIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().setHorizontalRule().run()}

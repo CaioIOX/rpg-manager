@@ -4,9 +4,11 @@ import { DocumentSummary } from "@/lib/types/Documents";
 import { Folder } from "@/lib/types/Folder";
 import { Template } from "@/lib/types/Template";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   Box,
+  Collapse,
   Divider,
   IconButton,
   Menu,
@@ -14,7 +16,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { MouseEvent } from "react";
+import { MouseEvent, useState } from "react";
 import DocumentItem from "./DocumentItem";
 import FolderTreeItem from "./FolderTreeItem";
 
@@ -85,6 +87,7 @@ export default function SidebarContent({
   const activeTemplate = templates.find(
     (template) => template.id === activeTemplateId,
   );
+  const [templatesExpanded, setTemplatesExpanded] = useState(true);
 
   return (
     <Box sx={{ flex: 1, overflow: "auto", px: 1, py: 1.5 }}>
@@ -117,104 +120,136 @@ export default function SidebarContent({
         <Stack spacing={0}>
           {templates.length > 0 && (
             <Box sx={{ mb: 2 }}>
-              <SectionLabel>Templates</SectionLabel>
-              {templates.map((template) => (
-                <Box
-                  key={template.id}
+              {/* Collapsible Templates Header */}
+              <Box
+                onClick={() => setTemplatesExpanded((prev) => !prev)}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  px: 1,
+                  pb: 1,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  "&:hover .templ-chevron": { color: "text.primary" },
+                }}
+              >
+                <Typography
+                  variant="caption"
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.25,
-                    px: 1.5,
-                    py: 1,
-                    borderRadius: "10px",
                     color: "text.secondary",
-                    transition: "all 0.15s ease",
-                    "&:hover": {
-                      bgcolor: "rgba(142, 36, 170, 0.06)",
-                      color: "text.primary",
-                      "& .templ-actions": {
-                        opacity: 1,
+                    textTransform: "uppercase",
+                    fontWeight: 700,
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.08em",
+                    flex: 1,
+                  }}
+                >
+                  Templates
+                </Typography>
+                <KeyboardArrowDownIcon
+                  className="templ-chevron"
+                  sx={{
+                    fontSize: "0.9rem",
+                    color: "text.disabled",
+                    transition: "transform 0.2s ease",
+                    transform: templatesExpanded ? "rotate(0deg)" : "rotate(-90deg)",
+                  }}
+                />
+              </Box>
+
+              <Collapse in={templatesExpanded} timeout={200}>
+                {templates.map((template) => (
+                  <Box
+                    key={template.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.25,
+                      px: 1.5,
+                      py: 1,
+                      borderRadius: "10px",
+                      color: "text.secondary",
+                      transition: "all 0.15s ease",
+                      "&:hover": {
+                        bgcolor: "rgba(142, 36, 170, 0.06)",
+                        color: "text.primary",
+                        "& .templ-actions": { opacity: 1 },
                       },
+                    }}
+                  >
+                    <Box sx={{ fontSize: "0.95rem", lineHeight: 1 }}>
+                      {template.icon}
+                    </Box>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        minWidth: 0,
+                        flex: 1,
+                        fontSize: "0.85rem",
+                        fontWeight: 500,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {template.name}
+                    </Typography>
+
+                    <IconButton
+                      className="templ-actions"
+                      size="small"
+                      onClick={(event) => onTemplateMenuOpen(event, template.id)}
+                      sx={{
+                        p: 0.25,
+                        opacity: {
+                          xs: 1,
+                          md: activeTemplateId === template.id ? 1 : 0,
+                        },
+                        transition: "opacity 0.2s",
+                        "&:hover": {
+                          opacity: 1,
+                          bgcolor: "rgba(142, 36, 170, 0.1)",
+                        },
+                      }}
+                    >
+                      <MoreVertIcon sx={{ fontSize: "1rem" }} />
+                    </IconButton>
+                  </Box>
+                ))}
+
+                <Menu
+                  anchorEl={templateMenuAnchor}
+                  open={Boolean(templateMenuAnchor)}
+                  onClose={onTemplateMenuClose}
+                  sx={{
+                    "& .MuiPaper-root": {
+                      bgcolor: "background.paper",
+                      border: "1px solid rgba(142, 36, 170, 0.12)",
+                      boxShadow: "0 8px 16px rgba(0,0,0,0.5)",
+                      borderRadius: "8px",
                     },
                   }}
                 >
-                  <Box sx={{ fontSize: "0.95rem", lineHeight: 1 }}>
-                    {template.icon}
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      minWidth: 0,
-                      flex: 1,
-                      fontSize: "0.85rem",
-                      fontWeight: 500,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
+                  <MenuItem
+                    onClick={() => {
+                      if (activeTemplate) onEditTemplate(activeTemplate);
+                      onTemplateMenuClose();
                     }}
+                    sx={{ fontSize: "0.85rem" }}
                   >
-                    {template.name}
-                  </Typography>
-
-                  <IconButton
-                    className="templ-actions"
-                    size="small"
-                    onClick={(event) => onTemplateMenuOpen(event, template.id)}
-                    sx={{
-                      p: 0.25,
-                      opacity: {
-                        xs: 1,
-                        md: activeTemplateId === template.id ? 1 : 0,
-                      },
-                      transition: "opacity 0.2s",
-                      "&:hover": {
-                        opacity: 1,
-                        bgcolor: "rgba(142, 36, 170, 0.1)",
-                      },
+                    Editar
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      if (activeTemplate) onDeleteTemplate(activeTemplate);
+                      onTemplateMenuClose();
                     }}
+                    sx={{ fontSize: "0.85rem", color: "error.main" }}
                   >
-                    <MoreVertIcon sx={{ fontSize: "1rem" }} />
-                  </IconButton>
-                </Box>
-              ))}
-
-              <Menu
-                anchorEl={templateMenuAnchor}
-                open={Boolean(templateMenuAnchor)}
-                onClose={onTemplateMenuClose}
-                sx={{
-                  "& .MuiPaper-root": {
-                    bgcolor: "background.paper",
-                    border: "1px solid rgba(142, 36, 170, 0.12)",
-                    boxShadow: "0 8px 16px rgba(0,0,0,0.5)",
-                    borderRadius: "8px",
-                  },
-                }}
-              >
-                <MenuItem
-                  onClick={() => {
-                    if (activeTemplate) {
-                      onEditTemplate(activeTemplate);
-                    }
-                    onTemplateMenuClose();
-                  }}
-                  sx={{ fontSize: "0.85rem" }}
-                >
-                  Editar
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    if (activeTemplate) {
-                      onDeleteTemplate(activeTemplate);
-                    }
-                    onTemplateMenuClose();
-                  }}
-                  sx={{ fontSize: "0.85rem", color: "error.main" }}
-                >
-                  Apagar
-                </MenuItem>
-              </Menu>
+                    Apagar
+                  </MenuItem>
+                </Menu>
+              </Collapse>
 
               <Divider sx={{ mt: 1.5 }} />
             </Box>
