@@ -140,9 +140,6 @@ export default function Editor({
       Underline,
       TextStyle,
       Color,
-      Placeholder.configure({
-        placeholder: "Comece a escrever sua aventura...",
-      }),
       Mention.configure({
         HTMLAttributes: {
           class: "mention",
