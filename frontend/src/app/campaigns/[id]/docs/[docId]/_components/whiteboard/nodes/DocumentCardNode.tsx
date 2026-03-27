@@ -10,33 +10,26 @@ export type DocumentCardData = {
   preview?: string;
 };
 
-const HANDLE_STYLE = { zIndex: 10 };
-
 export default function DocumentCardNode({ data, selected }: NodeProps) {
   const nodeData = data as DocumentCardData;
-
-  const handleOpen = () => {
-    if (!nodeData.docId) return;
-    const parts = window.location.pathname.split("/");
-    const idx = parts.indexOf("campaigns");
-    if (idx !== -1) {
-      window.open(`/campaigns/${parts[idx + 1]}/docs/${nodeData.docId}`, "_self");
-    }
-  };
+  // Navigate via the link — no router needed, keeps it accessible
+  const href = nodeData.docId ? `#doc-${nodeData.docId}` : undefined;
 
   return (
     <Box
       sx={{
         width: "100%",
         height: "100%",
-        minWidth: 160,
-        minHeight: 70,
+        minWidth: 180,
+        minHeight: 80,
         borderRadius: "12px",
         border: "1.5px solid",
-        borderColor: selected ? "rgba(212,175,55,0.7)" : "rgba(212,175,55,0.22)",
-        bgcolor: "rgba(13,17,23,0.92)",
+        borderColor: selected
+          ? "rgba(212, 175, 55, 0.7)"
+          : "rgba(212, 175, 55, 0.2)",
+        bgcolor: "rgba(13, 17, 23, 0.92)",
         backdropFilter: "blur(8px)",
-        p: 1.75,
+        p: 2,
         boxShadow: selected
           ? "0 0 0 2px #D4AF37, 0 8px 24px rgba(0,0,0,0.5)"
           : "0 4px 16px rgba(0,0,0,0.4)",
@@ -45,20 +38,31 @@ export default function DocumentCardNode({ data, selected }: NodeProps) {
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        gap: 0.75,
+        gap: 1,
       }}
     >
-      <NodeResizer isVisible={selected} minWidth={160} minHeight={70} />
-      <Handle id="top" type="source" position={Position.Top} style={HANDLE_STYLE} />
-      <Handle id="bottom" type="source" position={Position.Bottom} style={HANDLE_STYLE} />
-      <Handle id="left" type="source" position={Position.Left} style={HANDLE_STYLE} />
-      <Handle id="right" type="source" position={Position.Right} style={HANDLE_STYLE} />
+      <NodeResizer
+        isVisible={selected}
+        minWidth={180}
+        minHeight={80}
+        lineStyle={{ border: "1px dashed rgba(212,175,55,0.7)" }}
+        handleStyle={{ background: "#D4AF37", border: "none", width: 8, height: 8, borderRadius: 2 }}
+      />
+      <Handle type="target" position={Position.Top} />
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
 
       <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
         <span style={{ fontSize: "1rem", flexShrink: 0, marginTop: 2 }}>📄</span>
         <Typography
           variant="body2"
-          sx={{ fontWeight: 600, color: "text.primary", lineHeight: 1.3, wordBreak: "break-word" }}
+          sx={{
+            fontWeight: 600,
+            color: "text.primary",
+            lineHeight: 1.3,
+            wordBreak: "break-word",
+          }}
         >
           {nodeData.title || "Documento sem título"}
         </Typography>
@@ -81,20 +85,32 @@ export default function DocumentCardNode({ data, selected }: NodeProps) {
       )}
 
       <Typography
-        component="span"
+        component="a"
+        href={href}
         variant="caption"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleOpen();
-        }}
         sx={{
-          color: "rgba(212,175,55,0.7)",
+          color: "rgba(212, 175, 55, 0.7)",
           fontSize: "0.7rem",
           fontWeight: 500,
           mt: "auto",
-          cursor: "pointer",
           "&:hover": { color: "#D4AF37" },
           transition: "color 0.15s",
+          textDecoration: "none",
+          cursor: "pointer",
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (nodeData.docId) {
+            // Find campaignId from the current path
+            const parts = window.location.pathname.split("/");
+            const campaignIdx = parts.indexOf("campaigns");
+            if (campaignIdx !== -1) {
+              window.open(
+                `/campaigns/${parts[campaignIdx + 1]}/docs/${nodeData.docId}`,
+                "_self",
+              );
+            }
+          }
         }}
       >
         ↗ Abrir documento
