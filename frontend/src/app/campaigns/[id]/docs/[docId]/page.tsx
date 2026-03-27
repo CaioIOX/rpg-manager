@@ -55,7 +55,7 @@ export default function DocPage() {
               variant="h4"
               sx={{
                 fontWeight: 700,
-                maxWidth: "800px",
+                maxWidth: "960px",
                 mx: "auto",
                 mb: 0,
                 px: { xs: 0.5, sm: 1, md: 2 },

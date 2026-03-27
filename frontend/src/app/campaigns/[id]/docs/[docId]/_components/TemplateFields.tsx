@@ -43,7 +43,7 @@ export default function TemplateFields({
   return (
     <Box
       sx={{
-        maxWidth: "800px",
+        maxWidth: "960px",
         mx: "auto",
         mb: 3,
         p: { xs: 2, sm: 2.5, md: 3 },
