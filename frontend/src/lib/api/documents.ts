@@ -66,11 +66,18 @@ export async function Update(
   folderID?: string,
   content?: Record<string, unknown>,
   isSpoiler?: boolean,
+  yjsState?: string,
 ): Promise<TypeDocument> {
   try {
     const resp = await apiClient.put(
       `/api/campaigns/${campaignID}/documents/${documentID}`,
-      { title, folder_id: folderID, content, is_spoiler: isSpoiler },
+      {
+        title,
+        folder_id: folderID,
+        content,
+        yjs_state: yjsState,
+        is_spoiler: isSpoiler,
+      },
     );
     return resp.data;
   } catch (error) {

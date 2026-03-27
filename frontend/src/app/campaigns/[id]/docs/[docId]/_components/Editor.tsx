@@ -22,6 +22,8 @@ import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
 import useDocuments from "@/lib/hooks/useDocuments";
 import useCurrentUser from "@/lib/hooks/useCurrentUser";
+import * as Y from "yjs";
+import { DocumentLink, DocumentSummary } from "@/lib/types/Documents";
 import useCollaboration from "@/lib/hooks/useCollaboration";
 import useMentionHover from "@/lib/hooks/useMentionHover";
 import { useQuery } from "@tanstack/react-query";
@@ -83,8 +85,21 @@ export default function Editor({
     handleClose: handleMentionClose,
   } = useMentionHover(campaignId);
 
+  const isReadyRef = useRef(false);
+
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
+    if (!isReadyRef.current) return;
+
     const templateData = initialContent?.templateData;
+
+    // Encode YJS state to base64 to save atomically via REST
+    const yjsState = Y.encodeStateAsUpdate(ydoc);
+    let binary = "";
+    const bytes = new Uint8Array(yjsState);
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const yjsStateBase64 = btoa(binary);
 
     updateDocument.mutate({
       campaignId: campaignId,
@@ -92,6 +107,7 @@ export default function Editor({
       title: title,
       folderID: folderId,
       content: { ...jsonContent, templateData },
+      yjsState: yjsStateBase64,
     });
 
     const extractedMentions: { target_doc_id: string; mention_text: string }[] =
@@ -173,7 +189,9 @@ export default function Editor({
       }),
     ],
     onUpdate: ({ editor }) => {
-      debouncedSave(editor.getJSON());
+      if (isReadyRef.current) {
+        debouncedSave(editor.getJSON());
+      }
     },
   });
 
@@ -195,7 +213,13 @@ export default function Editor({
   }, [editor, providerRef, username]);
 
   const runAttemptLoad = useCallback(() => {
-    if (editor) attemptInitialLoad(editor);
+    if (editor) {
+      attemptInitialLoad(editor);
+      // Mark as ready after a brief delay to allow TipTap/Yjs to stabilize
+      setTimeout(() => {
+        isReadyRef.current = true;
+      }, 500);
+    }
   }, [editor, attemptInitialLoad]);
 
   useEffect(() => {
@@ -204,6 +228,13 @@ export default function Editor({
 
     const handleSync = (isSynced: boolean) => {
       syncedRef.current = isSynced;
+      
+      // If synced and has content, we are ready
+      const fragment = ydoc.getXmlFragment("prosemirror");
+      if (isSynced && fragment.length > 0) {
+        isReadyRef.current = true;
+      }
+      
       runAttemptLoad();
     };
 
@@ -211,7 +242,14 @@ export default function Editor({
     return () => {
       provider.off("sync", handleSync);
     };
-  }, [providerRef, syncedRef, runAttemptLoad]);
+  }, [providerRef, syncedRef, runAttemptLoad, ydoc]);
+
+  // If initial load finishes, we are definitely ready
+  useEffect(() => {
+    if (ydoc.getXmlFragment("prosemirror").length > 0) {
+        isReadyRef.current = true;
+    }
+  }, [ydoc]);
 
   useEffect(() => {
     const timeout = setTimeout(() => runAttemptLoad(), 600);
@@ -324,9 +362,9 @@ export default function Editor({
                     Mencionado em
                   </Typography>
                   <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                    {documentLinks.data.links_to.map((link) => {
+                    {documentLinks.data.links_to.map((link: DocumentLink) => {
                       const sourceDoc = availableDocs.find(
-                        (d) => d.id === link.source_doc_id,
+                        (d: DocumentSummary) => d.id === link.source_doc_id,
                       );
                       return (
                         <Chip
@@ -367,9 +405,9 @@ export default function Editor({
                     Menciona
                   </Typography>
                   <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                    {documentLinks.data.links_from.map((link) => {
+                    {documentLinks.data.links_from.map((link: DocumentLink) => {
                       const targetDoc = availableDocs.find(
-                        (d) => d.id === link.target_doc_id,
+                        (d: DocumentSummary) => d.id === link.target_doc_id,
                       );
                       return (
                         <Chip

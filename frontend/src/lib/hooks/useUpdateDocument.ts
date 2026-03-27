@@ -12,6 +12,7 @@ export default function useUpdateDocument() {
       folderID,
       content,
       isSpoiler,
+      yjsState,
     }: {
       campaignId: string;
       documentId: string;
@@ -19,7 +20,8 @@ export default function useUpdateDocument() {
       folderID?: string;
       content?: Record<string, unknown>;
       isSpoiler?: boolean;
-    }) => Update(campaignId, documentId, title, folderID, content, isSpoiler),
+      yjsState?: string;
+    }) => Update(campaignId, documentId, title, folderID, content, isSpoiler, yjsState),
     onSuccess: (_, variables) => {
       queryClient.setQueryData(["document", variables.documentId], (oldData: any) => {
         if (!oldData) return oldData;

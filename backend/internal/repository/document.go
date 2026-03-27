@@ -89,14 +89,14 @@ func (r *DocumentRepository) Update(ctx context.Context, id string, req dto.Upda
 	doc := &model.Document{}
 	query := `
 		UPDATE documents 
-		SET title = COALESCE($1, title), folder_id = COALESCE($2, folder_id), content = COALESCE($3, content), is_spoiler = COALESCE($4, is_spoiler), updated_at = NOW()
-		WHERE id = $5
+		SET title = COALESCE($1, title), folder_id = COALESCE($2, folder_id), content = COALESCE($3, content), yjs_state = COALESCE($4, yjs_state), is_spoiler = COALESCE($5, is_spoiler), updated_at = NOW()
+		WHERE id = $6
 		RETURNING id, campaign_id, folder_id, template_id, title, content, is_spoiler, created_by, created_at, updated_at`
 	var contentArg interface{}
 	if req.Content != nil {
 		contentArg = req.Content
 	}
-	err := r.db.QueryRow(ctx, query, req.Title, req.FolderID, contentArg, req.IsSpoiler, id).Scan(&doc.ID, &doc.CampaignID, &doc.FolderID, &doc.TemplateID, &doc.Title, &doc.Content, &doc.IsSpoiler, &doc.CreatedBy, &doc.CreatedAt, &doc.UpdatedAt)
+	err := r.db.QueryRow(ctx, query, req.Title, req.FolderID, contentArg, req.YjsState, req.IsSpoiler, id).Scan(&doc.ID, &doc.CampaignID, &doc.FolderID, &doc.TemplateID, &doc.Title, &doc.Content, &doc.IsSpoiler, &doc.CreatedBy, &doc.CreatedAt, &doc.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}

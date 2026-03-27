@@ -298,7 +298,7 @@ video {
   margin: 1.25em 0;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid rgba(212, 175, 55, 0.12);
+  border: 1.5px solid rgba(212, 175, 55, 0.22);
   font-size: 0.9rem;
 }
 

@@ -14,5 +14,6 @@ type UpdateDocumentRequest struct {
 	Title     *string         `json:"title" validate:"omitempty,min=1,max=200"`
 	FolderID  *string         `json:"folder_id"`
 	Content   json.RawMessage `json:"content"`
+	YjsState  []byte          `json:"yjs_state"`
 	IsSpoiler *bool           `json:"is_spoiler"`
 }
