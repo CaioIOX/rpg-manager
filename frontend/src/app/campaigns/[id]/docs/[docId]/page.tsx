@@ -5,18 +5,11 @@ import useGetTemplate from "@/lib/hooks/useGetTemplate";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
 import Editor from "./_components/Editor";
 import TemplateFields from "./_components/TemplateFields";
-import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useDebouncedCallback } from "use-debounce";
-
-// Lazy-load the Whiteboard to avoid SSR issues with ReactFlow
-const Whiteboard = dynamic(
-  () => import("./_components/whiteboard/Whiteboard"),
-  { ssr: false },
-);
 
 export default function DocPage() {
   const params = useParams();
@@ -42,18 +35,8 @@ export default function DocPage() {
     800,
   );
 
-  const isWhiteboard = getDocument.data?.doc_type === "whiteboard";
-
   return (
-    <Box
-      sx={{
-        p: isWhiteboard ? 0 : { xs: 1.5, sm: 2, md: 4 },
-        animation: "fadeIn 0.4s ease-out",
-        height: isWhiteboard ? "calc(100vh - 64px)" : undefined,
-        display: isWhiteboard ? "flex" : undefined,
-        flexDirection: isWhiteboard ? "column" : undefined,
-      }}
-    >
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 4 }, animation: "fadeIn 0.4s ease-out" }}>
       {getDocument.isPending ? (
         <Box
           sx={{
@@ -65,10 +48,6 @@ export default function DocPage() {
         >
           <CircularProgress sx={{ color: "primary.main" }} />
         </Box>
-      ) : isWhiteboard ? (
-        <Whiteboard
-          initialContent={getDocument.data?.content as Record<string, unknown>}
-        />
       ) : (
         <>
           {getDocument.data?.title && (

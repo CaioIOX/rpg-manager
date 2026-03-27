@@ -3,7 +3,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import IconButton from "@mui/material/IconButton";
@@ -76,23 +75,13 @@ export default function DocumentItem({
         },
       }}
     >
-      {document.doc_type === "whiteboard" ? (
-        <DashboardCustomizeOutlinedIcon
-          sx={{
-            fontSize: "1rem",
-            color: isActive ? "primary.main" : "text.secondary",
-            flexShrink: 0,
-          }}
-        />
-      ) : (
-        <DescriptionOutlinedIcon
-          sx={{
-            fontSize: "1rem",
-            color: isActive ? "primary.main" : "text.secondary",
-            flexShrink: 0,
-          }}
-        />
-      )}
+      <DescriptionOutlinedIcon
+        sx={{
+          fontSize: "1rem",
+          color: isActive ? "primary.main" : "text.secondary",
+          flexShrink: 0,
+        }}
+      />
       <Typography
         variant="body2"
         sx={{

@@ -11,7 +11,6 @@ export default function useCreateDocument() {
       folderId,
       templateId,
       isSpoiler,
-      docType,
     }: {
       campaignId: string;
       title: string;
@@ -19,8 +18,7 @@ export default function useCreateDocument() {
       folderId?: string;
       templateId?: string;
       isSpoiler?: boolean;
-      docType?: 'editor' | 'whiteboard';
-    }) => Create(campaignId, title, content, folderId, templateId, isSpoiler, docType ?? 'editor'),
+    }) => Create(campaignId, title, content, folderId, templateId, isSpoiler),
     onSuccess: () => {
       toast.success("Documento criado com sucesso!");
     },
