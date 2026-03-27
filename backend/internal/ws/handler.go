@@ -51,8 +51,9 @@ func (h *Handler) HandlerWs(hub *Hub) fiber.Handler {
 				break
 			}
 
-			// Ignore empty messages that might cause JSON.parse errors on the client
-			if len(message) == 0 {
+			// Yjs/Collaboration protocol only uses binary messages.
+			// Ignore everything else (heartbeats, text pings, etc.) to prevent JSON.parse("") errors on the client.
+			if messageType != websocket.BinaryMessage || len(message) == 0 {
 				continue
 			}
 
