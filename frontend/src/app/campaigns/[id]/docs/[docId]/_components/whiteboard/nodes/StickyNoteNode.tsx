@@ -1,6 +1,6 @@
 "use client";
 
-import { NodeProps, Handle, Position, NodeResizer } from "@xyflow/react";
+import { NodeProps, Handle, Position } from "@xyflow/react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
@@ -10,6 +10,8 @@ export type StickyNoteData = {
   color: string;
 };
 
+const COLOR_OPTIONS = ["#F9E04B", "#81C784", "#64B5F6", "#F48FB1", "#CE93D8"];
+
 export default function StickyNoteNode({ data, selected }: NodeProps) {
   const nodeData = data as StickyNoteData;
   const [editing, setEditing] = useState(false);
@@ -17,20 +19,17 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
   return (
     <Box
       sx={{
-        width: "100%",
-        height: "100%",
-        minWidth: 140,
-        minHeight: 100,
+        width: 200,
+        minHeight: 140,
         bgcolor: nodeData.color || "#F9E04B",
         borderRadius: "4px",
         p: 1.5,
         boxShadow: selected
-          ? "0 0 0 2px #D4AF37, 0 4px 16px rgba(0,0,0,0.5)"
-          : "2px 4px 12px rgba(0,0,0,0.4)",
+          ? "0 0 0 2px #D4AF37, 0 4px 16px rgba(0,0,0,0.4)"
+          : "2px 4px 12px rgba(0,0,0,0.3)",
         cursor: "default",
         position: "relative",
         transition: "box-shadow 0.2s",
-        overflow: "hidden",
         "&::before": {
           content: '""',
           position: "absolute",
@@ -43,13 +42,6 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
         },
       }}
     >
-      <NodeResizer
-        isVisible={selected}
-        minWidth={140}
-        minHeight={100}
-        lineStyle={{ border: "1px dashed rgba(212,175,55,0.7)" }}
-        handleStyle={{ background: "#D4AF37", border: "none", width: 8, height: 8, borderRadius: 2 }}
-      />
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
 
@@ -63,7 +55,7 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
           }}
           style={{
             width: "100%",
-            height: "calc(100% - 12px)",
+            minHeight: 100,
             background: "transparent",
             border: "none",
             outline: "none",
@@ -84,6 +76,7 @@ export default function StickyNoteNode({ data, selected }: NodeProps) {
             fontSize: "0.85rem",
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
+            minHeight: 80,
             cursor: "text",
             userSelect: "none",
           }}

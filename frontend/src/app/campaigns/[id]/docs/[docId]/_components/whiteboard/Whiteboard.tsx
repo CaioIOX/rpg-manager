@@ -4,6 +4,7 @@ import {
   ReactFlow,
   Background,
   Controls,
+  MiniMap,
   addEdge,
   useNodesState,
   useEdgesState,
@@ -139,21 +140,28 @@ function WhiteboardCanvas({ initialContent }: WhiteboardProps) {
         defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
         fitView
         proOptions={{ hideAttribution: true }}
-        style={{ background: "#000000" }}
+        style={{ background: "transparent" }}
       >
         <Background
           variant={BackgroundVariant.Dots}
-          gap={28}
-          size={1.2}
-          color="rgba(255,255,255,0.12)"
+          gap={24}
+          size={1}
+          color="rgba(255,255,255,0.06)"
         />
         <Controls
           style={{
-            background: "rgba(20, 20, 20, 0.95)",
-            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(13, 17, 23, 0.8)",
+            border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
-            filter: "brightness(0) invert(0.5)",
           }}
+        />
+        <MiniMap
+          style={{
+            background: "rgba(13, 17, 23, 0.8)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 10,
+          }}
+          maskColor="rgba(0,0,0,0.5)"
         />
         <WhiteboardToolbar onAddDocumentCard={() => setPickerOpen(true)} />
       </ReactFlow>
