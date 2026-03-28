@@ -6,34 +6,53 @@ import { Node as ProseMirrorNode } from "@tiptap/pm/model";
  * This ensures that the native toggle event is synced with TipTap's state.
  */
 export const DetailsNodeView = (props: NodeViewRendererProps) => {
-  const { node, getPos, editor, HTMLAttributes } = props;
+  let { node, getPos, editor } = props;
   
-  // Create the main container
   const dom = document.createElement("details");
   dom.classList.add("tiptap-details");
   
-  // Set initial open state from attributes
   if (node.attrs.open) {
     dom.setAttribute("open", "");
   }
 
   // Handle the native toggle event to sync state back to TipTap
-  dom.addEventListener("toggle", (event) => {
-    // We only care about user-initiated toggles that change the state
+  const handleToggle = () => {
+    // We only care about toggles that change the state relative to our node attributes
     const isOpen = dom.hasAttribute("open");
-    if (node.attrs.open !== isOpen && typeof getPos === "function") {
-      editor.commands.command(({ tr }) => {
-        tr.setNodeMarkup(getPos(), undefined, {
-          ...node.attrs,
-          open: isOpen,
-        });
-        return true;
-      });
+    if (node.attrs.open === isOpen) {
+      return;
     }
-  });
 
-  // The contentDOM is where TipTap will render the child nodes (summary and content)
-  // For <details>, both children should be direct descendants of the <details> tag.
+    if (typeof getPos !== "function") {
+      return;
+    }
+
+    const pos = getPos();
+    
+    // Verify the node still exists at this position and is of the correct type
+    // This prevents "RangeError: Index out of range" during rapid updates or collaboration
+    const { state } = editor.view;
+    if (pos < 0 || pos + node.nodeSize > state.doc.content.size) {
+      return;
+    }
+
+    const actualNode = state.doc.nodeAt(pos);
+    if (!actualNode || actualNode.type.name !== node.type.name) {
+      return;
+    }
+
+    // Dispatch a transaction to update the 'open' attribute
+    // Using dispatch directly ensures atomic execution and syncs with ProseMirror state
+    editor.view.dispatch(
+      state.tr.setNodeMarkup(pos, undefined, {
+        ...node.attrs,
+        open: isOpen,
+      })
+    );
+  };
+
+  dom.addEventListener("toggle", handleToggle);
+
   const contentDOM = dom;
 
   return {
@@ -44,8 +63,10 @@ export const DetailsNodeView = (props: NodeViewRendererProps) => {
         return false;
       }
       
-      // Sync DOM with new attribute if changed (e.g., from collaboration)
-      const isOpen = updatedNode.attrs.open;
+      // Update local node reference so the listener uses the latest attributes
+      node = updatedNode;
+      
+      const isOpen = node.attrs.open;
       if (dom.hasAttribute("open") !== isOpen) {
         if (isOpen) {
           dom.setAttribute("open", "");
@@ -54,6 +75,9 @@ export const DetailsNodeView = (props: NodeViewRendererProps) => {
         }
       }
       return true;
+    },
+    destroy: () => {
+      dom.removeEventListener("toggle", handleToggle);
     },
   };
 };
