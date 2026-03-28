@@ -27,7 +27,7 @@ import * as Y from "yjs";
 import { DocumentLink, DocumentSummary } from "@/lib/types/Documents";
 import useCollaboration from "@/lib/hooks/useCollaboration";
 import useMentionHover from "@/lib/hooks/useMentionHover";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
@@ -59,10 +59,12 @@ export default function Editor({
   const currentUser = useCurrentUser();
   const username = currentUser.data?.username ?? "Anônimo";
 
+  const queryClient = useQueryClient();
+
   const documentLinks = useQuery({
     queryKey: ["documentLinks", campaignId, docId],
     queryFn: () => GetLinks(campaignId, docId),
-    refetchInterval: 10000,
+    staleTime: 1000 * 60 * 5, // 5 min — atualizado após cada save com menções
   });
 
   const documentsQuery = useDocuments(campaignId);
@@ -87,20 +89,16 @@ export default function Editor({
   } = useMentionHover(campaignId);
 
   const isReadyRef = useRef(false);
+  const prevMentionKeyRef = useRef<string>("");
 
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
     if (!isReadyRef.current) return;
 
     const templateData = initialContent?.templateData;
 
-    // Encode YJS state to base64 to save atomically via REST
+    // Encode YJS state to base64 usando Uint8Array spread (mais eficiente que loop)
     const yjsState = Y.encodeStateAsUpdate(ydoc);
-    let binary = "";
-    const bytes = new Uint8Array(yjsState);
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const yjsStateBase64 = btoa(binary);
+    const yjsStateBase64 = btoa(String.fromCharCode(...yjsState));
 
     updateDocument.mutate({
       campaignId: campaignId,
@@ -131,9 +129,18 @@ export default function Editor({
         extractedMentions.map((item) => [item.target_doc_id, item]),
       ).values(),
     );
-    SyncLinks(campaignId, docId, uniqueMentions).catch(() =>
-      toast.error("Falha ao salvar menções"),
-    );
+
+    // Só sincroniza menções se houver mudança (evita request a cada save sem alteração)
+    const mentionKey = uniqueMentions.map((m) => m.target_doc_id).sort().join(",");
+    if (mentionKey !== prevMentionKeyRef.current) {
+      prevMentionKeyRef.current = mentionKey;
+      SyncLinks(campaignId, docId, uniqueMentions)
+        .then(() => {
+          // Atualiza o painel de backlinks após sincronizar
+          queryClient.invalidateQueries({ queryKey: ["documentLinks", campaignId, docId] });
+        })
+        .catch(() => toast.error("Falha ao salvar menções"));
+    }
   }, 1000);
 
   useEffect(() => {

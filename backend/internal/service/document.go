@@ -276,3 +276,20 @@ func (s *DocumentService) UpdateYjsState(ctx context.Context, state []byte, camp
 
 	return nil
 }
+
+func (s *DocumentService) SyncLinks(ctx context.Context, campaignID, documentID, loggedUser string, links []model.DocumentLink) error {
+	userRole, err := s.campaignRepo.GetMemberRole(ctx, campaignID, loggedUser)
+	if err != nil {
+		return errors.New("Ocorreu um erro ao buscar documentos.")
+	}
+
+	if userRole != "owner" && userRole != "editor" {
+		return customErrors.ErrUnauthorized
+	}
+
+	if err := s.documentRepo.SyncLinks(ctx, documentID, links); err != nil {
+		return errors.New("Erro ao sincronizar menções.")
+	}
+
+	return nil
+}

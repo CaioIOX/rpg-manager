@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import LoginPage from "./auth/login/page";
+import LoginForm from "@/components/auth/LoginForm";
 
 export default function Home() {
   return (
@@ -127,7 +127,7 @@ export default function Home() {
           >
             Entrar na sua conta
           </Typography>
-          <LoginPage />
+          <LoginForm />
         </Box>
       </Box>
     </Box>
