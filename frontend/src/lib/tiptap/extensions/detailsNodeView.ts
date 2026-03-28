@@ -15,43 +15,50 @@ export const DetailsNodeView = (props: NodeViewRendererProps) => {
     dom.setAttribute("open", "");
   }
 
-  // Handle the native toggle event to sync state back to TipTap
-  const handleToggle = () => {
-    // We only care about toggles that change the state relative to our node attributes
-    const isOpen = dom.hasAttribute("open");
-    if (node.attrs.open === isOpen) {
-      return;
-    }
-
-    if (typeof getPos !== "function") {
-      return;
-    }
-
-    const pos = getPos();
+  // Handle the click on summary manually to ensure the attribute is synced correctly.
+  // We use preventDefault() to stop the native toggle and handle it ourselves,
+  // which is more reliable in a controlled contenteditable environment.
+  const handleClick = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const summary = target.closest("summary");
     
-    // Verify the node still exists at this position and is of the correct type
-    // This prevents "RangeError: Index out of range" during rapid updates or collaboration
-    const { state } = editor.view;
-    if (pos < 0 || pos + node.nodeSize > state.doc.content.size) {
-      return;
-    }
+    if (summary && dom.contains(summary)) {
+      // Only toggle if clicking the summary itself or its children
+      // We don't want to prevent default if clicking something interactive like a link
+      if (target.tagName === "A") return;
 
-    const actualNode = state.doc.nodeAt(pos);
-    if (!actualNode || actualNode.type.name !== node.type.name) {
-      return;
-    }
+      e.preventDefault();
+      e.stopPropagation();
 
-    // Dispatch a transaction to update the 'open' attribute
-    // Using dispatch directly ensures atomic execution and syncs with ProseMirror state
-    editor.view.dispatch(
-      state.tr.setNodeMarkup(pos, undefined, {
-        ...node.attrs,
-        open: isOpen,
-      })
-    );
+      const willBeOpen = !dom.hasAttribute("open");
+      
+      // Update DOM immediately for instant feedback
+      if (willBeOpen) {
+        dom.setAttribute("open", "");
+      } else {
+        dom.removeAttribute("open");
+      }
+
+      // Sync with editor state
+      if (typeof getPos !== "function") return;
+      const pos = getPos();
+      
+      const { state } = editor.view;
+      if (pos < 0 || pos + node.nodeSize > state.doc.content.size) return;
+
+      const actualNode = state.doc.nodeAt(pos);
+      if (!actualNode || actualNode.type.name !== node.type.name) return;
+
+      editor.view.dispatch(
+        state.tr.setNodeMarkup(pos, undefined, {
+          ...node.attrs,
+          open: willBeOpen,
+        })
+      );
+    }
   };
 
-  dom.addEventListener("toggle", handleToggle);
+  dom.addEventListener("click", handleClick);
 
   const contentDOM = dom;
 
@@ -63,7 +70,6 @@ export const DetailsNodeView = (props: NodeViewRendererProps) => {
         return false;
       }
       
-      // Update local node reference so the listener uses the latest attributes
       node = updatedNode;
       
       const isOpen = node.attrs.open;
@@ -77,7 +83,7 @@ export const DetailsNodeView = (props: NodeViewRendererProps) => {
       return true;
     },
     destroy: () => {
-      dom.removeEventListener("toggle", handleToggle);
+      dom.removeEventListener("click", handleClick);
     },
   };
 };

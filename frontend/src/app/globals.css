@@ -522,6 +522,11 @@ video {
   border-bottom: 1px solid transparent;
 }
 
+/* Force content to hide when details is closed, as a backup for native behavior */
+.tiptap details.tiptap-details:not([open]) > *:not(summary) {
+  display: none !important;
+}
+
 .tiptap details.tiptap-details[open] summary.details-summary {
   border-bottom: 1px solid rgba(212, 175, 55, 0.1);
   background: rgba(212, 175, 55, 0.03);
