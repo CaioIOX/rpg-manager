@@ -186,3 +186,30 @@ func (r *DocumentRepository) SearchByTitle(ctx context.Context, campaignID, quer
 
 	return docs, rows.Err()
 }
+
+func (r *DocumentRepository) SyncLinks(ctx context.Context, docID string, links []model.DocumentLink) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Delete old links
+	_, err = tx.Exec(ctx, `DELETE FROM document_links WHERE source_doc_id = $1`, docID)
+	if err != nil {
+		return err
+	}
+
+	// Insert new links
+	for _, link := range links {
+		query := `INSERT INTO document_links (source_doc_id, target_doc_id, mention_text) 
+                  VALUES ($1, $2, $3) 
+                  ON CONFLICT (source_doc_id, target_doc_id, mention_text) DO NOTHING`
+		_, err = tx.Exec(ctx, query, docID, link.TargetDocID, link.MentionText)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
+}

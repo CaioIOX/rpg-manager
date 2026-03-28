@@ -11,12 +11,10 @@ import { useState } from "react";
 import { Folder } from "@/lib/types/Folder";
 import { DocumentSummary } from "@/lib/types/Documents";
 import DocumentItem from "./DocumentItem";
-import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { MouseEvent } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 
 const DEFAULT_FOLDER_ICON_COLOR = "#9E9E9E";
 
@@ -29,6 +27,7 @@ interface FolderTreeItemProps {
   onDeleteFolder?: (f: Folder) => void;
   onEditDoc?: (d: DocumentSummary) => void;
   onDeleteDoc?: (d: DocumentSummary) => void;
+  onMoveDocument?: (docId: string, folderId: string) => void;
   onNavigate?: () => void;
 }
 
@@ -41,13 +40,11 @@ export default function FolderTreeItem({
   onDeleteFolder,
   onEditDoc,
   onDeleteDoc,
+  onMoveDocument,
   onNavigate,
 }: FolderTreeItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const updateDocument = useUpdateDocument();
-  const queryClient = useQueryClient();
-  
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
@@ -83,15 +80,7 @@ export default function FolderTreeItem({
           setIsDragOver(false);
           const docId = e.dataTransfer.getData("documentId");
           if (docId) {
-            updateDocument.mutate({
-              campaignId: folder.campaign_id,
-              documentId: docId,
-              folderID: folder.id,
-            }, {
-              onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["documents", folder.campaign_id] });
-              }
-            });
+            onMoveDocument?.(docId, folder.id);
           }
         }}
         onClick={() => setIsExpanded(!isExpanded)}
@@ -254,6 +243,7 @@ export default function FolderTreeItem({
               onDeleteFolder={onDeleteFolder}
               onEditDoc={onEditDoc}
               onDeleteDoc={onDeleteDoc}
+              onMoveDocument={onMoveDocument}
               onNavigate={onNavigate}
             />
           ))}

@@ -41,6 +41,7 @@ interface SidebarContentProps {
   onDeleteDoc: (doc: DocumentSummary) => void;
   onEditTemplate: (template: Template) => void;
   onDeleteTemplate: (template: Template) => void;
+  onMoveDocument?: (docId: string, folderId: string) => void;
   onNavigate?: () => void;
 }
 
@@ -82,6 +83,7 @@ export default function SidebarContent({
   onDeleteDoc,
   onEditTemplate,
   onDeleteTemplate,
+  onMoveDocument,
   onNavigate,
 }: SidebarContentProps) {
   const activeTemplate = templates.find(
@@ -267,6 +269,7 @@ export default function SidebarContent({
               onDeleteFolder={onDeleteFolder}
               onEditDoc={onEditDoc}
               onDeleteDoc={onDeleteDoc}
+              onMoveDocument={onMoveDocument}
               onNavigate={onNavigate}
             />
           ))}

@@ -105,7 +105,6 @@ func (h *DocumentHandler) Update(c *fiber.Ctx) error {
 		log.Printf("Erro na requisição [Status %d]: %v", 400, "Erro ao tentar atualziar documento.")
 		return c.Status(400).JSON(fiber.Map{"error": "Erro ao tentar atualziar documento."})
 	}
-log.Println(doc)
 	return c.JSON(doc)
 }
 
@@ -183,17 +182,9 @@ func (h *DocumentHandler) SyncLinks(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida."})
 	}
 
-	if err := h.documentService.DeleteLinksFrom(c.Context(), campaignID, docID, loggedUser); err != nil {
-		log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao apagar menções antigas")
-		return c.Status(400).JSON(fiber.Map{"error": "Falha ao apagar menções antigas"})
-	}
-
-	for _, link := range input.Links {
-		link.SourceDocID = docID
-		if err := h.documentService.CreateLink(c.Context(), link, campaignID, loggedUser); err != nil {
-			log.Printf("Erro na requisição [Status %d]: %v", 400, "Falha ao criar nova menção")
-			return c.Status(400).JSON(fiber.Map{"error": "Falha ao criar nova menção"})
-		}
+	if err := h.documentService.SyncLinks(c.Context(), campaignID, docID, loggedUser, input.Links); err != nil {
+		log.Printf("Erro na requisição [Status %d]: %v", 400, err.Error())
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(201).JSON(fiber.Map{"message": "Menções sincronizadas com sucesso!"})

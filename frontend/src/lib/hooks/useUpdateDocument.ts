@@ -32,9 +32,11 @@ export default function useUpdateDocument() {
           folder_id: variables.folderID ?? oldData.folder_id,
         };
       });
-      
-      queryClient.invalidateQueries({ queryKey: ["documents", variables.campaignId] });
-      queryClient.invalidateQueries({ queryKey: ["document", variables.documentId] });
+
+      // Só invalida a lista de documentos ao mudar título ou pasta (visível na sidebar)
+      if (variables.title !== undefined || variables.folderID !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ["documents", variables.campaignId] });
+      }
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || "Ocorreu um erro ao salvar o documento.");

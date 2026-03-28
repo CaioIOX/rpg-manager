@@ -12,26 +12,18 @@ interface LinksResponse {
 }
 
 export async function List(campaignID: string): Promise<DocumentSummary[]> {
-  try {
-    const resp = await apiClient.get(`/api/campaigns/${campaignID}/documents`);
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.get(`/api/campaigns/${campaignID}/documents`);
+  return resp.data;
 }
 
 export async function GetByID(
   campaignID: string,
   documentID: string,
 ): Promise<TypeDocument> {
-  try {
-    const resp = await apiClient.get(
-      `/api/campaigns/${campaignID}/documents/${documentID}`,
-    );
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.get(
+    `/api/campaigns/${campaignID}/documents/${documentID}`,
+  );
+  return resp.data;
 }
 
 export async function Create(
@@ -42,21 +34,17 @@ export async function Create(
   templateID?: string,
   isSpoiler?: boolean,
 ): Promise<MessageResponse> {
-  try {
-    const resp = await apiClient.post(
-      `/api/campaigns/${campaignID}/documents`,
-      {
-        title,
-        content: content || {},
-        folder_id: folderID || null,
-        template_id: templateID || null,
-        is_spoiler: isSpoiler ?? false,
-      },
-    );
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.post(
+    `/api/campaigns/${campaignID}/documents`,
+    {
+      title,
+      content: content || {},
+      folder_id: folderID || null,
+      template_id: templateID || null,
+      is_spoiler: isSpoiler ?? false,
+    },
+  );
+  return resp.data;
 }
 
 export async function Update(
@@ -68,63 +56,47 @@ export async function Update(
   isSpoiler?: boolean,
   yjsState?: string,
 ): Promise<TypeDocument> {
-  try {
-    const resp = await apiClient.put(
-      `/api/campaigns/${campaignID}/documents/${documentID}`,
-      {
-        title,
-        folder_id: folderID,
-        content,
-        yjs_state: yjsState,
-        is_spoiler: isSpoiler,
-      },
-    );
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.put(
+    `/api/campaigns/${campaignID}/documents/${documentID}`,
+    {
+      title,
+      folder_id: folderID,
+      content,
+      yjs_state: yjsState,
+      is_spoiler: isSpoiler,
+    },
+  );
+  return resp.data;
 }
 
 export async function Delete(
   campaignID: string,
   documentID: string,
 ): Promise<MessageResponse> {
-  try {
-    const resp = await apiClient.delete(
-      `/api/campaigns/${campaignID}/documents/${documentID}`,
-    );
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.delete(
+    `/api/campaigns/${campaignID}/documents/${documentID}`,
+  );
+  return resp.data;
 }
 
 export async function GetLinks(
   campaignID: string,
   documentID: string,
 ): Promise<LinksResponse> {
-  try {
-    const resp = await apiClient.get(
-      `/api/campaigns/${campaignID}/documents/${documentID}/links`,
-    );
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.get(
+    `/api/campaigns/${campaignID}/documents/${documentID}/links`,
+  );
+  return resp.data;
 }
 
 export async function Search(
   campaignID: string,
   q: string,
 ): Promise<DocumentSummary[]> {
-  try {
-    const resp = await apiClient.get(`/api/campaigns/${campaignID}/search`, {
-      params: { q },
-    });
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.get(`/api/campaigns/${campaignID}/search`, {
+    params: { q },
+  });
+  return resp.data;
 }
 
 export async function SyncLinks(
@@ -132,13 +104,9 @@ export async function SyncLinks(
   documentID: string,
   links: { target_doc_id: string; mention_text: string }[],
 ): Promise<MessageResponse> {
-  try {
-    const resp = await apiClient.post(
-      `/api/campaigns/${campaignID}/documents/${documentID}/links`,
-      { links },
-    );
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await apiClient.post(
+    `/api/campaigns/${campaignID}/documents/${documentID}/links`,
+    { links },
+  );
+  return resp.data;
 }

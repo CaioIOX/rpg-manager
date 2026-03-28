@@ -6,5 +6,6 @@ export default function useSearchQuery(campaignId: string, q: string) {
     queryKey: ["search", campaignId, q],
     queryFn: () => Search(campaignId, q),
     enabled: q.length >= 2,
+    staleTime: 30_000,
   });
 }

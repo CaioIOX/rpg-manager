@@ -3,11 +3,12 @@
 import Box from "@mui/material/Box";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useCallback, useState } from "react";
 import ConfirmDeleteModal from "../../_components/ConfirmDeleteModal";
 import useDeleteDocument from "@/lib/hooks/useDeleteDocument";
 import useDeleteFolder from "@/lib/hooks/useDeleteFolder";
 import useDeleteTemplate from "@/lib/hooks/useDeleteTemplate";
+import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
 import useDocuments from "@/lib/hooks/useDocuments";
 import useFolders from "@/lib/hooks/useFolders";
 import useGetCampaign from "@/lib/hooks/useGetCampaign";
@@ -45,7 +46,24 @@ export default function SideBar({
   const deleteFolder = useDeleteFolder();
   const deleteTemplate = useDeleteTemplate();
   const deleteDocument = useDeleteDocument();
+  const updateDocument = useUpdateDocument();
   const queryClient = useQueryClient();
+
+  // Drag-and-drop: move documento para pasta — centralizado aqui para evitar
+  // instanciar N mutation hooks dentro de cada FolderTreeItem
+  const handleMoveDocument = useCallback(
+    (docId: string, folderId: string) => {
+      updateDocument.mutate(
+        { campaignId, documentId: docId, folderID: folderId },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["documents", campaignId] });
+          },
+        },
+      );
+    },
+    [campaignId, updateDocument, queryClient],
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
@@ -151,6 +169,7 @@ export default function SideBar({
             setIsTemplateModalOpen(true);
           }}
           onDeleteTemplate={setTemplateToDelete}
+          onMoveDocument={handleMoveDocument}
           onNavigate={onNavigate}
         />
       </Box>
