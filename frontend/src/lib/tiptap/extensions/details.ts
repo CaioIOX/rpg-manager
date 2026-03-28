@@ -1,5 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
+import { DetailsNodeView } from "./detailsNodeView";
 
 /**
  * Details extension — Custom implementation using native HTML <details>/<summary>.
@@ -69,6 +70,10 @@ export const Details = Node.create({
       mergeAttributes(HTMLAttributes, { class: "tiptap-details" }),
       0,
     ];
+  },
+
+  addNodeView() {
+    return DetailsNodeView;
   },
 
   addCommands() {

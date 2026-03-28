@@ -503,7 +503,8 @@ video {
 }
 
 .tiptap details.tiptap-details:hover {
-  border-color: rgba(212, 175, 55, 0.28);
+  border-color: rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.04);
 }
 
 .tiptap details.tiptap-details summary.details-summary {
@@ -517,7 +518,13 @@ video {
   font-weight: 600;
   font-size: 0.95rem;
   user-select: none;
-  transition: background 0.15s ease;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.tiptap details.tiptap-details[open] summary.details-summary {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.03);
 }
 
 .tiptap details.tiptap-details summary.details-summary::-webkit-details-marker {
@@ -542,6 +549,6 @@ video {
 }
 
 .tiptap details.tiptap-details div[data-type='details-content'] {
-  padding: 0.75em 1em 0.75em 1.5em;
-  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 1rem 1.25rem;
+  background: rgba(13, 17, 23, 0.3);
 }
