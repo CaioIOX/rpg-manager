@@ -14,7 +14,6 @@ interface TemplateField {
   name: string;
   type: string;
   label: string;
-  required: boolean;
   options?: string[];
 }
 
@@ -117,7 +116,6 @@ export default function TemplateFields({
                     fullWidth
                     multiline
                     rows={3}
-                    required={field.required}
                     value={fieldValues[field.name] ?? ""}
                     onChange={(e) => handleChange(field.name, e.target.value)}
                     variant="outlined"
@@ -139,7 +137,6 @@ export default function TemplateFields({
                   label={field.label}
                   select
                   fullWidth
-                  required={field.required}
                   value={fieldValues[field.name] ?? ""}
                   onChange={(e) => handleChange(field.name, e.target.value)}
                   variant="outlined"
@@ -165,7 +162,6 @@ export default function TemplateFields({
                 label={field.label}
                 fullWidth
                 type={field.type === "number" ? "number" : "text"}
-                required={field.required}
                 value={fieldValues[field.name] ?? ""}
                 onChange={(e) => handleChange(field.name, e.target.value)}
                 variant="outlined"
