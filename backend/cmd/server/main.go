@@ -136,7 +136,7 @@ func main() {
 	// Documentos
 	api.Get("/campaigns/:campaign_id/documents", documentHandler.List)
 	api.Get("/campaigns/:campaign_id/documents/:document_id", documentHandler.Get)
-	api.Post("/campaigns/:campaign_id/documents", documentHandler.Create)
+	api.Post("/campaigns/:campaign_id/documents", middleware.DocumentLimit(userRepo), documentHandler.Create)
 	api.Put("/campaigns/:campaign_id/documents/:document_id", documentHandler.Update)
 	api.Delete("/campaigns/:campaign_id/documents/:document_id", documentHandler.Delete)
 	api.Get("/campaigns/:campaign_id/search", documentHandler.Search)

@@ -14,6 +14,7 @@ import useFolders from "@/lib/hooks/useFolders";
 import useGetCampaign from "@/lib/hooks/useGetCampaign";
 import useSearchQuery from "@/lib/hooks/useSearchQuery";
 import useTemplates from "@/lib/hooks/useTemplates";
+import useCurrentUser from "@/lib/hooks/useCurrentUser";
 import { DocumentSummary } from "@/lib/types/Documents";
 import { Folder } from "@/lib/types/Folder";
 import { Template } from "@/lib/types/Template";
@@ -42,6 +43,7 @@ export default function SideBar({
   const templates = useTemplates(campaignId);
   const documents = useDocuments(campaignId);
   const folders = useFolders(campaignId);
+  const { data: currentUser } = useCurrentUser();
 
   const deleteFolder = useDeleteFolder();
   const deleteTemplate = useDeleteTemplate();
@@ -172,6 +174,44 @@ export default function SideBar({
           onMoveDocument={handleMoveDocument}
           onNavigate={onNavigate}
         />
+        {currentUser && !currentUser.is_premium && (
+          <Box
+            sx={{
+              p: 2,
+              borderTop: "1px solid",
+              borderColor: "rgba(212, 175, 55, 0.06)",
+              textAlign: "center",
+              mt: "auto",
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                fontSize: "0.75rem",
+                color: "text.secondary",
+                display: "block",
+                mb: 0.5,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Documentos Criados
+            </Box>
+            <Box
+              component="span"
+              sx={{
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                color:
+                  (currentUser.document_count || 0) >= 15
+                    ? "error.main"
+                    : "primary.main",
+              }}
+            >
+              {String(currentUser.document_count || 0).padStart(2, "0")}/15
+            </Box>
+          </Box>
+        )}
       </Box>
 
       <CreateDocModal
@@ -273,6 +313,9 @@ export default function SideBar({
                   setDocToDelete(undefined);
                   queryClient.invalidateQueries({
                     queryKey: ["documents", campaignId],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["currentUser"],
                   });
                 },
               },

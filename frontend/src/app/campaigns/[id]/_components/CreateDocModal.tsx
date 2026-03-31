@@ -134,6 +134,9 @@ export default function CreateDocModal({
             queryClient.invalidateQueries({
               queryKey: ["documents", campaignId],
             });
+            queryClient.invalidateQueries({
+              queryKey: ["currentUser"],
+            });
             if (onSuccessCallback) {
               onSuccessCallback();
             }
