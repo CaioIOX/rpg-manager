@@ -504,10 +504,12 @@ export default function CreateTemplateModal({
                     onChange={(e) =>
                       setNewField({ ...newField, type: e.target.value })
                     }
-                    SelectProps={{
-                      MenuProps: {
-                        PaperProps: {
-                          sx: { maxHeight: 250 },
+                    slotProps={{
+                      select: {
+                        MenuProps: {
+                          PaperProps: {
+                            sx: { maxHeight: 250 },
+                          },
                         },
                       },
                     }}

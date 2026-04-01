@@ -225,10 +225,12 @@ export default function CreateDocModal({
             fullWidth
             variant="outlined"
             {...register("folderId")}
-            SelectProps={{
-              MenuProps: {
-                PaperProps: {
-                  sx: { maxHeight: 250 },
+            slotProps={{
+              select: {
+                MenuProps: {
+                  PaperProps: {
+                    sx: { maxHeight: 250 },
+                  },
                 },
               },
             }}
@@ -254,10 +256,12 @@ export default function CreateDocModal({
             fullWidth
             variant="outlined"
             {...register("templateId")}
-            SelectProps={{
-              MenuProps: {
-                PaperProps: {
-                  sx: { maxHeight: 250 },
+            slotProps={{
+              select: {
+                MenuProps: {
+                  PaperProps: {
+                    sx: { maxHeight: 250 },
+                  },
                 },
               },
             }}

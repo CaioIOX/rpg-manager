@@ -1,13 +1,12 @@
 "use client";
 
 import useResponsiveSidebar from "@/hooks/use-responsive-sidebar";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { Box, Drawer, IconButton, Tooltip } from "@mui/material";
+import { Box, Drawer } from "@mui/material";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import CampaignMobileHeader from "./CampaignMobileHeader";
 import SideBar from "./SideBar";
+import SidebarToggleButton from "./SidebarToggleButton";
 
 const MOBILE_SIDEBAR_WIDTH = "min(86vw, 320px)";
 const DESKTOP_SIDEBAR_WIDTH = 320;
@@ -57,48 +56,11 @@ export default function CampaignLayoutShell({
         </Box>
       </Box>
 
-      {/* Botão flutuante para recuar/expandir a Sidebar no Desktop */}
-      <Box
-        sx={{
-          display: { xs: "none", md: "flex" },
-          position: "absolute",
-          zIndex: 20,
-          left: isDesktopSidebarOpen ? DESKTOP_SIDEBAR_WIDTH - 14 : 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        }}
-      >
-        <Tooltip
-          title={isDesktopSidebarOpen ? "Esconder barra lateral" : "Mostrar barra lateral"}
-          placement="right"
-        >
-          <IconButton
-            onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-            size="small"
-            sx={{
-              bgcolor: "background.paper",
-              border: "1px solid rgba(212, 175, 55, 0.2)",
-              color: "text.secondary",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-              borderRadius: isDesktopSidebarOpen ? "50%" : "0 8px 8px 0",
-              width: isDesktopSidebarOpen ? 28 : 24,
-              height: isDesktopSidebarOpen ? 28 : 48,
-              "&:hover": {
-                bgcolor: "background.paper",
-                color: "primary.main",
-                borderColor: "primary.main",
-              },
-            }}
-          >
-            {isDesktopSidebarOpen ? (
-              <KeyboardArrowLeftIcon fontSize="small" />
-            ) : (
-              <KeyboardArrowRightIcon fontSize="small" />
-            )}
-          </IconButton>
-        </Tooltip>
-      </Box>
+      <SidebarToggleButton
+        isOpen={isDesktopSidebarOpen}
+        onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
+        desktopWidth={DESKTOP_SIDEBAR_WIDTH}
+      />
 
       <Drawer
         open={isSidebarOpen}
