@@ -442,6 +442,13 @@ export default function CreateTemplateModal({
                     onChange={(e) =>
                       setNewField({ ...newField, type: e.target.value })
                     }
+                    SelectProps={{
+                      MenuProps: {
+                        PaperProps: {
+                          sx: { maxHeight: 250 },
+                        },
+                      },
+                    }}
                     sx={{
                       minWidth: { sm: 140 },
                       "& .MuiOutlinedInput-root": {

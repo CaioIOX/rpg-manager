@@ -143,6 +143,13 @@ export default function TemplateFields({
                   value={fieldValues[field.name] ?? ""}
                   onChange={(e) => handleChange(field.name, e.target.value)}
                   variant="outlined"
+                  SelectProps={{
+                    MenuProps: {
+                      PaperProps: {
+                        sx: { maxHeight: 250 },
+                      },
+                    },
+                  }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "14px",

@@ -14,7 +14,7 @@ interface SidebarQuickActionsProps {
 const actions = [
   {
     key: "doc",
-    label: "Doc",
+    label: "Documento",
     icon: <AddIcon sx={{ fontSize: "1rem" }} />,
   },
   {

@@ -214,6 +214,13 @@ export default function CreateDocModal({
             variant="outlined"
             defaultValue={defaultFolderId || ""}
             {...register("folderId")}
+            SelectProps={{
+              MenuProps: {
+                PaperProps: {
+                  sx: { maxHeight: 250 },
+                },
+              },
+            }}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "14px",
@@ -236,6 +243,13 @@ export default function CreateDocModal({
             variant="outlined"
             defaultValue=""
             {...register("templateId")}
+            SelectProps={{
+              MenuProps: {
+                PaperProps: {
+                  sx: { maxHeight: 250 },
+                },
+              },
+            }}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "14px",
