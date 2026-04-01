@@ -1,14 +1,9 @@
 "use client";
 
-import DescriptionIcon from "@mui/icons-material/Description";
-import SettingsIcon from "@mui/icons-material/Settings";
+import RecentDocumentsCard from "./_components/RecentDocumentsCard";
+import StatCards from "./_components/StatCards";
 import {
   Box,
-  Card,
-  CardContent,
-  CircularProgress,
-  Grid,
-  Stack,
   Typography,
 } from "@mui/material";
 import { useParams } from "next/navigation";
@@ -23,32 +18,6 @@ export default function CampaignDashboard() {
     useDocuments(campaignId);
   const { data: templates, isLoading: isLoadingTemplates } =
     useTemplates(campaignId);
-
-  const totalDocuments = documents?.length ?? 0;
-  const totalTemplates = templates?.length ?? 0;
-
-  const statCards = [
-    {
-      label: "Total de Documentos",
-      value: totalDocuments,
-      isLoading: isLoadingDocs,
-      icon: <DescriptionIcon />,
-      gradient:
-        "linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%)",
-      iconColor: "#D4AF37",
-      borderColor: "rgba(212, 175, 55, 0.15)",
-    },
-    {
-      label: "Total de Templates",
-      value: totalTemplates,
-      isLoading: isLoadingTemplates,
-      icon: <SettingsIcon />,
-      gradient:
-        "linear-gradient(135deg, rgba(142, 36, 170, 0.15) 0%, rgba(142, 36, 170, 0.05) 100%)",
-      iconColor: "#BA68C8",
-      borderColor: "rgba(142, 36, 170, 0.15)",
-    },
-  ];
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3, md: 5 } }}>
@@ -72,73 +41,19 @@ export default function CampaignDashboard() {
         </Typography>
       </Box>
 
-      <Grid container spacing={{ xs: 2, md: 3 }}>
-        {statCards.map((card, index) => (
-          <Grid size={{ xs: 12, sm: 6 }} key={index}>
-            <Card
-              sx={{
-                borderRadius: { xs: "18px", md: "20px" },
-                border: "1px solid",
-                borderColor: card.borderColor,
-                background: card.gradient,
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease",
-              }}
-            >
-              <CardContent sx={{ p: { xs: 2.25, md: 3 } }}>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mb: 2.5 }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      p: { xs: 1.2, md: 1.5 },
-                      borderRadius: "14px",
-                      bgcolor: "rgba(255,255,255,0.05)",
-                      color: card.iconColor,
-                      border: "1px solid rgba(255,255,255,0.05)",
-                    }}
-                  >
-                    {card.icon}
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "text.secondary",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {card.label}
-                  </Typography>
-                </Stack>
+      <StatCards
+        documents={documents}
+        templates={templates}
+        isLoadingDocs={isLoadingDocs}
+        isLoadingTemplates={isLoadingTemplates}
+      />
 
-                {card.isLoading ? (
-                  <CircularProgress
-                    size={28}
-                    sx={{ mt: 1, color: card.iconColor }}
-                  />
-                ) : (
-                  <Typography
-                    variant="h2"
-                    sx={{
-                      fontWeight: 800,
-                      fontFamily: '"Inter", sans-serif',
-                      color: "text.primary",
-                      lineHeight: 1,
-                      fontSize: { xs: "2.25rem", md: "3.75rem" },
-                    }}
-                  >
-                    {card.value}
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      <RecentDocumentsCard
+        documents={documents}
+        templates={templates}
+        campaignId={campaignId}
+        isLoading={isLoadingDocs}
+      />
     </Box>
   );
 }
