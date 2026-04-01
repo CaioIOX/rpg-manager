@@ -10,6 +10,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useState } from "react";
 import { Folder } from "@/lib/types/Folder";
 import { DocumentSummary } from "@/lib/types/Documents";
+import { Template } from "@/lib/types/Template";
 import DocumentItem from "./DocumentItem";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
@@ -22,6 +23,7 @@ interface FolderTreeItemProps {
   folder: Folder;
   allFolders: Folder[];
   documents: DocumentSummary[];
+  templates?: Template[];
   depth?: number;
   onEditFolder?: (f: Folder) => void;
   onDeleteFolder?: (f: Folder) => void;
@@ -35,6 +37,7 @@ export default function FolderTreeItem({
   folder,
   allFolders,
   documents,
+  templates = [],
   depth = 0,
   onEditFolder,
   onDeleteFolder,
@@ -238,6 +241,7 @@ export default function FolderTreeItem({
               folder={childFolder}
               allFolders={allFolders}
               documents={documents}
+              templates={templates}
               depth={depth + 1}
               onEditFolder={onEditFolder}
               onDeleteFolder={onDeleteFolder}
@@ -249,15 +253,21 @@ export default function FolderTreeItem({
           ))}
 
           {/* Documents in this folder */}
-          {folderDocs.map((doc) => (
-            <DocumentItem 
-              key={doc.id} 
-              document={doc} 
-              onEdit={() => onEditDoc?.(doc)}
-              onDelete={() => onDeleteDoc?.(doc)}
-              onNavigate={onNavigate}
-            />
-          ))}
+          {folderDocs.map((doc) => {
+            const templateIcon = doc.template_id
+              ? templates.find((t) => t.id === doc.template_id)?.icon
+              : undefined;
+            return (
+              <DocumentItem 
+                key={doc.id} 
+                document={doc}
+                templateIcon={templateIcon}
+                onEdit={() => onEditDoc?.(doc)}
+                onDelete={() => onDeleteDoc?.(doc)}
+                onNavigate={onNavigate}
+              />
+            );
+          })}
 
           {/* Empty folder message */}
           {folderDocs.length === 0 && childFolders.length === 0 && (

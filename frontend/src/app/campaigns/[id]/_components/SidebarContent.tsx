@@ -109,13 +109,19 @@ export default function SidebarContent({
               Nenhum resultado encontrado
             </Typography>
           ) : (
-            searchResults.map((doc) => (
-              <DocumentItem
-                key={doc.id}
-                document={doc}
-                onNavigate={onNavigate}
-              />
-            ))
+            searchResults.map((doc) => {
+              const templateIcon = doc.template_id
+                ? templates.find((t) => t.id === doc.template_id)?.icon
+                : undefined;
+              return (
+                <DocumentItem
+                  key={doc.id}
+                  document={doc}
+                  templateIcon={templateIcon}
+                  onNavigate={onNavigate}
+                />
+              );
+            })
           )}
         </Stack>
       ) : (
@@ -265,6 +271,7 @@ export default function SidebarContent({
               folder={folder}
               allFolders={allFolders}
               documents={allDocuments}
+              templates={templates}
               onEditFolder={onEditFolder}
               onDeleteFolder={onDeleteFolder}
               onEditDoc={onEditDoc}
@@ -274,15 +281,21 @@ export default function SidebarContent({
             />
           ))}
 
-          {rootDocuments.map((doc) => (
-            <DocumentItem
-              key={doc.id}
-              document={doc}
-              onEdit={() => onEditDoc(doc)}
-              onDelete={() => onDeleteDoc(doc)}
-              onNavigate={onNavigate}
-            />
-          ))}
+          {rootDocuments.map((doc) => {
+            const templateIcon = doc.template_id
+              ? templates.find((t) => t.id === doc.template_id)?.icon
+              : undefined;
+            return (
+              <DocumentItem
+                key={doc.id}
+                document={doc}
+                templateIcon={templateIcon}
+                onEdit={() => onEditDoc(doc)}
+                onDelete={() => onDeleteDoc(doc)}
+                onNavigate={onNavigate}
+              />
+            );
+          })}
 
           {rootFolders.length === 0 && rootDocuments.length === 0 && (
             <Box sx={{ textAlign: "center", py: 4 }}>
