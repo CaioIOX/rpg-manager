@@ -7,6 +7,11 @@ body {
   scroll-behavior: smooth;
 }
 
+body[style*="overflow: hidden"] main {
+  overflow-y: hidden !important;
+  padding-right: var(--removed-body-scroll-bar-size, 0px);
+}
+
 body {
   color: #E6E6E6;
   background: #0D1117;

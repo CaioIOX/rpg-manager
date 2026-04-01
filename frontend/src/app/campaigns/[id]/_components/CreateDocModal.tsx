@@ -225,6 +225,15 @@ export default function CreateDocModal({
             fullWidth
             variant="outlined"
             {...register("folderId")}
+            slotProps={{
+              select: {
+                MenuProps: {
+                  PaperProps: {
+                    sx: { maxHeight: 250 },
+                  },
+                },
+              },
+            }}
             value={watch("folderId") || ""}
             sx={{
               "& .MuiOutlinedInput-root": {
@@ -247,6 +256,15 @@ export default function CreateDocModal({
             fullWidth
             variant="outlined"
             {...register("templateId")}
+            slotProps={{
+              select: {
+                MenuProps: {
+                  PaperProps: {
+                    sx: { maxHeight: 250 },
+                  },
+                },
+              },
+            }}
             value={watch("templateId") || ""}
             sx={{
               "& .MuiOutlinedInput-root": {

@@ -320,6 +320,7 @@ export default function Editor({
           borderRadius: { xs: "16px", md: "20px" },
           border: "1px solid rgba(212, 175, 55, 0.06)",
           minHeight: { xs: "60vh", md: "70vh" },
+          overflow: "visible",
           transition: "border-color 0.3s ease",
           "&:focus-within": {
             borderColor: "rgba(212, 175, 55, 0.15)",

@@ -430,6 +430,8 @@ export default function EditorToolbar({
         borderTopLeftRadius: { xs: "16px", md: "20px" },
         borderTopRightRadius: { xs: "16px", md: "20px" },
         backdropFilter: "blur(12px)",
+        borderTopLeftRadius: "inherit",
+        borderTopRightRadius: "inherit",
         overflowX: "auto",
         scrollbarWidth: "none",
         "&::-webkit-scrollbar": {
