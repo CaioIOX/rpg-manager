@@ -32,7 +32,6 @@ interface SchemaField {
   name: string;
   type: string;
   label: string;
-  required: boolean;
   options?: string[];
 }
 
@@ -79,8 +78,8 @@ export default function CreateTemplateModal({
     name: "",
     type: "text",
     label: "",
-    required: false,
   });
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newFieldOptions, setNewFieldOptions] = useState("");
 
   const {
@@ -116,7 +115,8 @@ export default function CreateTemplateModal({
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setNewField({ name: "", type: "text", label: "", required: false });
+    setNewField({ name: "", type: "text", label: "" });
+    setEditingIndex(null);
   };
 
   const addField = () => {
@@ -128,13 +128,51 @@ export default function CreateTemplateModal({
         .map((o) => o.trim())
         .filter((o) => o !== "");
     }
-    setFields([...fields, addedField]);
-    setNewField({ name: "", type: "text", label: "", required: false });
+    
+    if (editingIndex !== null) {
+      const updatedFields = [...fields];
+      updatedFields[editingIndex] = addedField;
+      setFields(updatedFields);
+      setEditingIndex(null);
+    } else {
+      setFields([...fields, addedField]);
+    }
+    setNewField({ name: "", type: "text", label: "" });
     setNewFieldOptions("");
   };
 
   const removeField = (index: number) => {
     setFields(fields.filter((_, i) => i !== index));
+    if (editingIndex === index) setEditingIndex(null);
+  };
+
+  const editField = (index: number) => {
+    const fieldToEdit = fields[index];
+    setNewField({
+      name: fieldToEdit.name,
+      type: fieldToEdit.type,
+      label: fieldToEdit.label,
+    });
+    setNewFieldOptions(fieldToEdit.options ? fieldToEdit.options.join(", ") : "");
+    setEditingIndex(index);
+  };
+
+  const moveFieldUp = (index: number) => {
+    if (index === 0) return;
+    const updatedFields = [...fields];
+    [updatedFields[index - 1], updatedFields[index]] = [updatedFields[index], updatedFields[index - 1]];
+    setFields(updatedFields);
+    if (editingIndex === index) setEditingIndex(index - 1);
+    else if (editingIndex === index - 1) setEditingIndex(index);
+  };
+
+  const moveFieldDown = (index: number) => {
+    if (index === fields.length - 1) return;
+    const updatedFields = [...fields];
+    [updatedFields[index], updatedFields[index + 1]] = [updatedFields[index + 1], updatedFields[index]];
+    setFields(updatedFields);
+    if (editingIndex === index) setEditingIndex(index + 1);
+    else if (editingIndex === index + 1) setEditingIndex(index);
   };
 
   const onSubmit = async (data: FormData) => {
@@ -365,22 +403,46 @@ export default function CreateTemplateModal({
                     <Typography>
                       {field.name} •{" "}
                       {FIELD_TYPES.find((t) => t.value === field.type)?.label}
-                      {field.required && " • Obrigatório"}
                       {field.type === "select" &&
                         field.options &&
                         ` • Opções: ${field.options.join(", ")}`}
                     </Typography>
                   </Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => removeField(index)}
-                    sx={{
-                      color: "error.main",
-                      "&:hover": { bgcolor: "rgba(248, 81, 73, 0.08)" },
-                    }}
-                  >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
+                  <Stack direction="row" spacing={0.5}>
+                    <IconButton
+                      size="small"
+                      onClick={() => moveFieldUp(index)}
+                      disabled={index === 0}
+                      sx={{ color: "text.secondary", "&.Mui-disabled": { opacity: 0.3 } }}
+                    >
+                      <span style={{ fontSize: "1.2rem" }}>↑</span>
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => moveFieldDown(index)}
+                      disabled={index === fields.length - 1}
+                      sx={{ color: "text.secondary", "&.Mui-disabled": { opacity: 0.3 } }}
+                    >
+                      <span style={{ fontSize: "1.2rem" }}>↓</span>
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => editField(index)}
+                      sx={{ color: "info.main", "&:hover": { bgcolor: "rgba(88, 166, 255, 0.08)" } }}
+                    >
+                      <span style={{ fontSize: "1rem" }}>✎</span>
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => removeField(index)}
+                      sx={{
+                        color: "error.main",
+                        "&:hover": { bgcolor: "rgba(248, 81, 73, 0.08)" },
+                      }}
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
                 </Box>
               ))}
             </Stack>
@@ -486,34 +548,6 @@ export default function CreateTemplateModal({
                   spacing={1}
                   alignItems={{ xs: "stretch", sm: "center" }}
                 >
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        size="small"
-                        checked={newField.required}
-                        onChange={(e) =>
-                          setNewField({
-                            ...newField,
-                            required: e.target.checked,
-                          })
-                        }
-                        sx={{
-                          "& .Mui-checked": { color: "#BA68C8" },
-                          "& .Mui-checked + .MuiSwitch-track": {
-                            bgcolor: "rgba(142, 36, 170, 0.5)",
-                          },
-                        }}
-                      />
-                    }
-                    label={
-                      <Typography
-                        variant="caption"
-                        sx={{ fontSize: "0.75rem" }}
-                      >
-                        Obrigatório
-                      </Typography>
-                    }
-                  />
                   <IconButton
                     onClick={addField}
                     disabled={
@@ -523,15 +557,16 @@ export default function CreateTemplateModal({
                         newFieldOptions.trim() === "")
                     }
                     sx={{
-                      color: "#BA68C8",
-                      border: "1px solid rgba(142, 36, 170, 0.3)",
+                      color: editingIndex !== null ? "info.main" : "#BA68C8",
+                      border: `1px solid ${editingIndex !== null ? "rgba(88, 166, 255, 0.3)" : "rgba(142, 36, 170, 0.3)"}`,
                       borderRadius: "10px",
                       alignSelf: { xs: "stretch", sm: "center" },
-                      "&:hover": { bgcolor: "rgba(142, 36, 170, 0.08)" },
+                      "&:hover": { bgcolor: editingIndex !== null ? "rgba(88, 166, 255, 0.08)" : "rgba(142, 36, 170, 0.08)" },
                       "&.Mui-disabled": { opacity: 0.3 },
+                      px: editingIndex !== null ? 2 : undefined,
                     }}
                   >
-                    <AddIcon fontSize="small" />
+                    {editingIndex !== null ? <span style={{fontSize: "0.85rem", fontWeight: 600}}>Salvar</span> : <AddIcon fontSize="small" />}
                   </IconButton>
                 </Stack>
               </Stack>

@@ -78,13 +78,22 @@ export default function CreateDocModal({
   };
 
   useEffect(() => {
-    if (initialData && isModalOpen) {
-      reset({
-        title: initialData.title,
-        folderId: initialData.folder_id || defaultFolderId || "",
-        templateId: initialData.template_id || "", // Cannot change template after creation
-        isSpoiler: initialData.is_spoiler || false,
-      });
+    if (isModalOpen) {
+      if (initialData) {
+        reset({
+          title: initialData.title,
+          folderId: initialData.folder_id || defaultFolderId || "",
+          templateId: initialData.template_id || "", // Cannot change template after creation
+          isSpoiler: initialData.is_spoiler || false,
+        });
+      } else {
+        reset({
+          title: "",
+          folderId: defaultFolderId || "",
+          templateId: "",
+          isSpoiler: false,
+        });
+      }
     }
   }, [initialData, isModalOpen, defaultFolderId, reset]);
 
@@ -124,6 +133,9 @@ export default function CreateDocModal({
             handleCloseModal();
             queryClient.invalidateQueries({
               queryKey: ["documents", campaignId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["currentUser"],
             });
             if (onSuccessCallback) {
               onSuccessCallback();
@@ -212,7 +224,6 @@ export default function CreateDocModal({
             select
             fullWidth
             variant="outlined"
-            defaultValue={defaultFolderId || ""}
             {...register("folderId")}
             SelectProps={{
               MenuProps: {
@@ -221,6 +232,7 @@ export default function CreateDocModal({
                 },
               },
             }}
+            value={watch("folderId") || ""}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "14px",
@@ -241,7 +253,6 @@ export default function CreateDocModal({
             select
             fullWidth
             variant="outlined"
-            defaultValue=""
             {...register("templateId")}
             SelectProps={{
               MenuProps: {
@@ -250,6 +261,7 @@ export default function CreateDocModal({
                 },
               },
             }}
+            value={watch("templateId") || ""}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "14px",
