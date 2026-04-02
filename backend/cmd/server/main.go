@@ -22,6 +22,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	_ "image/gif"
+	_ "image/png"
 )
 
 func main() {
@@ -74,6 +76,7 @@ func main() {
 	folderRepo := repository.NewFolderRepository(db)
 	documentRepo := repository.NewDocumentRepository(db)
 	templatesRepo := repository.NewTemplateRepository(db)
+	mapRepo := repository.NewMapRepository(db)
 
 	// Services
 	jwtSecret := os.Getenv("JWT_SECRET")
@@ -82,6 +85,7 @@ func main() {
 	folderService := service.NewFolderService(folderRepo, campaignRepo)
 	documentService := service.NewDocumentService(documentRepo, campaignRepo)
 	templateService := service.NewTemplateService(templatesRepo, campaignRepo)
+	mapService := service.NewMapService(mapRepo, campaignRepo, userRepo)
 
 	// Handlers
 	validate := validator.New()
@@ -90,9 +94,17 @@ func main() {
 	folderHandler := handler.NewFolderHandler(folderService, validate)
 	documentHandler := handler.NewDocumentHandler(documentService, validate)
 	templateHandler := handler.NewTemplateHandler(templateService, validate)
+	mapHandler := handler.NewMapHandler(mapService, validate)
 	wsH := ws.NewHandler(documentRepo)
 
-	app := fiber.New()
+	// Create uploads directory
+	if err := os.MkdirAll("./uploads/maps", 0755); err != nil {
+		log.Printf("WARNING: Failed to create uploads directory: %v", err)
+	}
+
+	app := fiber.New(fiber.Config{
+		BodyLimit: 52 * 1024 * 1024, // 52MB to support 50MB premium files + form overhead
+	})
 	app.Use(logger.New())
 	app.Use(recover.New())
 
@@ -149,6 +161,15 @@ func main() {
 	api.Post("/campaigns/:campaign_id/templates", templateHandler.Create)
 	api.Put("/campaigns/:campaign_id/templates/:template_id", templateHandler.Update)
 	api.Delete("/campaigns/:campaign_id/templates/:template_id", templateHandler.Delete)
+
+	// Mapas
+	api.Get("/campaigns/:campaign_id/maps", mapHandler.List)
+	api.Get("/campaigns/:campaign_id/maps/:map_id", mapHandler.Get)
+	api.Get("/campaigns/:campaign_id/maps/:map_id/image", mapHandler.ServeImage)
+	api.Post("/campaigns/:campaign_id/maps", mapHandler.Upload)
+	api.Put("/campaigns/:campaign_id/maps/:map_id", mapHandler.Update)
+	api.Delete("/campaigns/:campaign_id/maps/:map_id", mapHandler.Delete)
+	api.Post("/campaigns/:campaign_id/maps/:map_id/markers", mapHandler.SyncMarkers)
 
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {

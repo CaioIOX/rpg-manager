@@ -3,9 +3,11 @@
 import { DocumentSummary } from "@/lib/types/Documents";
 import { Folder } from "@/lib/types/Folder";
 import { Template } from "@/lib/types/Template";
+import { MapSummary } from "@/lib/types/Map";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import MapIcon from "@mui/icons-material/Map";
 import {
   Box,
   Collapse,
@@ -17,6 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { MouseEvent, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import DocumentItem from "./DocumentItem";
 import FolderTreeItem from "./FolderTreeItem";
 
@@ -43,6 +46,7 @@ interface SidebarContentProps {
   onDeleteTemplate: (template: Template) => void;
   onMoveDocument?: (docId: string, folderId: string) => void;
   onNavigate?: () => void;
+  maps?: MapSummary[];
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -85,7 +89,11 @@ export default function SidebarContent({
   onDeleteTemplate,
   onMoveDocument,
   onNavigate,
+  maps = [],
 }: SidebarContentProps) {
+  const router = useRouter();
+  const params = useParams();
+  const campaignId = params.id as string;
   const activeTemplate = templates.find(
     (template) => template.id === activeTemplateId,
   );
@@ -315,6 +323,54 @@ export default function SidebarContent({
               >
                 Nenhum documento ainda
               </Typography>
+            </Box>
+          )}
+
+          {/* Maps section */}
+          {maps.length > 0 && (
+            <Box sx={{ mt: 2 }}>
+              <Divider sx={{ mb: 1.5 }} />
+              <SectionLabel>Mapas</SectionLabel>
+              {maps.map((map) => (
+                <Box
+                  key={map.id}
+                  onClick={() => {
+                    router.push(`/campaigns/${campaignId}/maps/${map.id}`);
+                    onNavigate?.();
+                  }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.25,
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: "10px",
+                    color: "text.secondary",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    "&:hover": {
+                      bgcolor: "rgba(212, 175, 55, 0.06)",
+                      color: "text.primary",
+                    },
+                  }}
+                >
+                  <MapIcon sx={{ fontSize: "1rem", opacity: 0.6 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      minWidth: 0,
+                      flex: 1,
+                      fontSize: "0.85rem",
+                      fontWeight: 500,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {map.name}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           )}
         </Stack>
