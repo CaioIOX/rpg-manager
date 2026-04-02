@@ -100,19 +100,7 @@ export default function SidebarContent({
   const [templatesExpanded, setTemplatesExpanded] = useState(true);
 
   return (
-    <Box sx={{ 
-      flex: 1, 
-      overflow: "auto", 
-      px: 1, 
-      py: 1.5,
-      /* Hide scrollbar for Chrome, Safari and Opera */
-      "&::-webkit-scrollbar": {
-        display: "none"
-      },
-      /* Hide scrollbar for IE, Edge and Firefox */
-      msOverflowStyle: "none",
-      scrollbarWidth: "none"
-    }}>
+    <Box sx={{ flex: 1, overflow: "auto", minHeight: 0, px: 1, py: 1.5, "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none", msOverflowStyle: "none" }}>
       {searchQuery.length >= 2 && searchResults ? (
         <Stack spacing={0.5}>
           <SectionLabel>Resultados da busca</SectionLabel>

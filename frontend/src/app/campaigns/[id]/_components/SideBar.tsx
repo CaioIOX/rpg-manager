@@ -129,7 +129,7 @@ export default function SideBar({
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          minHeight: "100%",
+          height: "100%",
         }}
       >
         <SidebarHeader
