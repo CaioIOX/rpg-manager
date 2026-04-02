@@ -15,6 +15,7 @@ import useGetCampaign from "@/lib/hooks/useGetCampaign";
 import useSearchQuery from "@/lib/hooks/useSearchQuery";
 import useTemplates from "@/lib/hooks/useTemplates";
 import useCurrentUser from "@/lib/hooks/useCurrentUser";
+import useMaps from "@/lib/hooks/useMaps";
 import { DocumentSummary } from "@/lib/types/Documents";
 import { Folder } from "@/lib/types/Folder";
 import { Template } from "@/lib/types/Template";
@@ -25,6 +26,7 @@ import CreateTemplateModal from "./CreateTemplateModal";
 import SidebarContent from "./SidebarContent";
 import SidebarHeader from "./SidebarHeader";
 import SidebarQuickActions from "./SidebarQuickActions";
+import CreateMapModal from "../maps/_components/CreateMapModal";
 
 interface SideBarProps {
   isMobile?: boolean;
@@ -44,6 +46,7 @@ export default function SideBar({
   const documents = useDocuments(campaignId);
   const folders = useFolders(campaignId);
   const { data: currentUser } = useCurrentUser();
+  const maps = useMaps(campaignId);
 
   const deleteFolder = useDeleteFolder();
   const deleteTemplate = useDeleteTemplate();
@@ -72,6 +75,7 @@ export default function SideBar({
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const [folderToEdit, setFolderToEdit] = useState<Folder | undefined>();
   const [templateToEdit, setTemplateToEdit] = useState<Template | undefined>();
@@ -148,6 +152,7 @@ export default function SideBar({
           onCreateDoc={() => setIsDocModalOpen(true)}
           onCreateFolder={() => setIsFolderModalOpen(true)}
           onCreateTemplate={() => setIsTemplateModalOpen(true)}
+          onCreateMap={() => setIsMapModalOpen(true)}
         />
 
         <SidebarContent
@@ -173,6 +178,7 @@ export default function SideBar({
           onDeleteTemplate={setTemplateToDelete}
           onMoveDocument={handleMoveDocument}
           onNavigate={onNavigate}
+          maps={maps.data}
         />
         {currentUser && !currentUser.is_premium && (
           <Box
@@ -250,6 +256,11 @@ export default function SideBar({
       <AddMemberModal
         isModalOpen={isMemberModalOpen}
         setIsModalOpen={setIsMemberModalOpen}
+      />
+
+      <CreateMapModal
+        isModalOpen={isMapModalOpen}
+        setIsModalOpen={setIsMapModalOpen}
       />
 
       <ConfirmDeleteModal

@@ -21,6 +21,8 @@ services:
       - "8080:8080"
     depends_on:
       - db
+    volumes:
+      - uploads_data:/app/uploads
     environment:
       DATABASE_URL: postgres://rpg:${DB_PASSWORD}@db:5432/rpg_manager?sslmode=disable
       MIGRATION_URL: postgres://rpg:${DB_PASSWORD}@db:5432/rpg_manager?sslmode=disable
@@ -52,3 +54,4 @@ services:
 
 volumes:
   pgdata:
+  uploads_data:
