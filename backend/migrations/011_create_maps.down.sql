@@ -1,3 +1,0 @@
-DROP TABLE IF EXISTS map_markers;
-DROP TABLE IF EXISTS maps;
-ALTER TABLE users DROP COLUMN IF EXISTS storage_used;

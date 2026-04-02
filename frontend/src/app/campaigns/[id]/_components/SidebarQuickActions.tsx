@@ -3,20 +3,18 @@
 import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import SettingsIcon from "@mui/icons-material/Settings";
-import MapIcon from "@mui/icons-material/Map";
 import { Button, Stack } from "@mui/material";
 
 interface SidebarQuickActionsProps {
   onCreateDoc: () => void;
   onCreateFolder: () => void;
   onCreateTemplate: () => void;
-  onCreateMap: () => void;
 }
 
 const actions = [
   {
     key: "doc",
-    label: "Doc",
+    label: "Documento",
     icon: <AddIcon sx={{ fontSize: "1rem" }} />,
   },
   {
@@ -29,24 +27,17 @@ const actions = [
     label: "Template",
     icon: <SettingsIcon sx={{ fontSize: "1rem" }} />,
   },
-  {
-    key: "map",
-    label: "Mapa",
-    icon: <MapIcon sx={{ fontSize: "1rem" }} />,
-  },
 ] as const;
 
 export default function SidebarQuickActions({
   onCreateDoc,
   onCreateFolder,
   onCreateTemplate,
-  onCreateMap,
 }: SidebarQuickActionsProps) {
   const handlers = {
     doc: onCreateDoc,
     folder: onCreateFolder,
     template: onCreateTemplate,
-    map: onCreateMap,
   };
 
   return (

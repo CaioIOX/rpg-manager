@@ -48,22 +48,15 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*m
 
 func (r *UserRepository) GetByID(ctx context.Context, id string) (*model.User, error) {
 	user := &model.User{}
-
+	
 	query := `
-		SELECT id, username, email, password_hash, created_at, updated_at, is_premium, storage_used,
-		(SELECT COUNT(id) FROM documents WHERE created_by = users.id) as document_count
+		SELECT id, username, email, password_hash, created_at, updated_at, is_premium, 
+		(SELECT COUNT(id) FROM documents WHERE created_by = users.id) as document_count 
 		FROM users WHERE id = $1`
 	err := r.db.QueryRow(ctx, query, id).
-		Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt, &user.IsPremium, &user.StorageUsed, &user.DocumentCount)
+		Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt, &user.IsPremium, &user.DocumentCount)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
-}
-
-func (r *UserRepository) UpdateStorageUsed(ctx context.Context, userID string, delta int64) error {
-	_, err := r.db.Exec(ctx,
-		`UPDATE users SET storage_used = GREATEST(storage_used + $1, 0) WHERE id = $2`,
-		delta, userID)
-	return err
 }
