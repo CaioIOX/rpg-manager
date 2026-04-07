@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/CaioIOX/rpg-manager/backend/internal/ai"
 	"github.com/CaioIOX/rpg-manager/backend/internal/handler"
 	"github.com/CaioIOX/rpg-manager/backend/internal/middleware"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
@@ -87,6 +88,24 @@ func main() {
 	templateService := service.NewTemplateService(templatesRepo, campaignRepo)
 	mapService := service.NewMapService(mapRepo, campaignRepo, userRepo)
 
+	// AI Provider (Gemini) — Lorena
+	geminiAPIKey := os.Getenv("GEMINI_API_KEY")
+	var aiProvider ai.Provider
+	if geminiAPIKey != "" {
+		geminiProvider, err := ai.NewGeminiProvider(geminiAPIKey)
+		if err != nil {
+			log.Printf("WARNING: Falha ao inicializar Gemini AI — Lorena não estará disponível: %v", err)
+		} else {
+			aiProvider = geminiProvider
+			log.Println("Lorena (Gemini AI) inicializada com sucesso")
+		}
+	} else {
+		log.Println("WARNING: GEMINI_API_KEY não configurada — Lorena não estará disponível")
+	}
+
+	chatRepo := repository.NewChatRepository(db)
+	chatService := service.NewChatService(chatRepo, documentRepo, campaignRepo, userRepo, aiProvider)
+
 	// Handlers
 	validate := validator.New()
 	authHandler := handler.NewAuthHandler(authService, validate)
@@ -95,6 +114,7 @@ func main() {
 	documentHandler := handler.NewDocumentHandler(documentService, validate)
 	templateHandler := handler.NewTemplateHandler(templateService, validate)
 	mapHandler := handler.NewMapHandler(mapService, validate)
+	chatHandler := handler.NewChatHandler(chatService, validate)
 	wsH := ws.NewHandler(documentRepo)
 
 	// Create uploads directory
@@ -170,6 +190,10 @@ func main() {
 	api.Put("/campaigns/:campaign_id/maps/:map_id", mapHandler.Update)
 	api.Delete("/campaigns/:campaign_id/maps/:map_id", mapHandler.Delete)
 	api.Post("/campaigns/:campaign_id/maps/:map_id/markers", mapHandler.SyncMarkers)
+
+	// Lorena — Chatbot de IA
+	api.Post("/campaigns/:campaign_id/chat", chatHandler.Send)
+	api.Get("/campaigns/:campaign_id/chat/usage", chatHandler.GetUsage)
 
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
