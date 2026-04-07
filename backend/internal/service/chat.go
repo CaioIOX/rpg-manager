@@ -136,6 +136,10 @@ func (s *ChatService) Send(ctx context.Context, campaignID, loggedUser string, r
 	}
 
 	// 6. Chamar o AI provider
+	if s.aiProvider == nil {
+		return nil, errors.New("Lorena não está habilitada neste servidor (GEMINI_API_KEY não configurada).")
+	}
+
 	aiResp, err := s.aiProvider.Chat(ctx, ai.ChatRequest{
 		UserMessage: req.Message,
 		Documents:   docs,
