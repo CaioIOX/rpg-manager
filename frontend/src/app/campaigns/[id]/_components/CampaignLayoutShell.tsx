@@ -5,6 +5,7 @@ import { Box, Drawer } from "@mui/material";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import CampaignMobileHeader from "./CampaignMobileHeader";
+import LorenaDrawer from "./LoreKeeper/LorenaDrawer";
 import SideBar from "./SideBar";
 import SidebarToggleButton from "./SidebarToggleButton";
 
@@ -13,8 +14,10 @@ const DESKTOP_SIDEBAR_WIDTH = 320;
 
 export default function CampaignLayoutShell({
   children,
+  campaignID,
 }: {
   children: React.ReactNode;
+  campaignID: string;
 }) {
   const pathname = usePathname();
   const { isMobile, isSidebarOpen, openSidebar, closeSidebar } =
@@ -124,6 +127,8 @@ export default function CampaignLayoutShell({
           {children}
         </Box>
       </Box>
+      {/* Lorena — Chatbot de IA disponível em todas as telas da campanha */}
+      <LorenaDrawer campaignID={campaignID} />
     </Box>
   );
 }

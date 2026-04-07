@@ -29,6 +29,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
       GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     logging:
       driver: "json-file"
       options:

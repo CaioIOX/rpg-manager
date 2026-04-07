@@ -1,9 +1,12 @@
 import CampaignLayoutShell from "./_components/CampaignLayoutShell";
 
-export default function CampaignLayout({
+export default async function CampaignLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ id: string }>;
 }) {
-  return <CampaignLayoutShell>{children}</CampaignLayoutShell>;
+  const { id } = await params;
+  return <CampaignLayoutShell campaignID={id}>{children}</CampaignLayoutShell>;
 }
