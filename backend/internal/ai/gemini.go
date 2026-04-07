@@ -74,7 +74,7 @@ func (p *GeminiProvider) Chat(ctx context.Context, req ChatRequest) (*ChatRespon
 	}
 
 	// Extrair texto da resposta
-	if len(resp.Candidates) == 0 || resp.Candidates[0].Content == nil {
+	if resp == nil || len(resp.Candidates) == 0 || resp.Candidates[0].Content == nil {
 		return nil, fmt.Errorf("resposta vazia da Gemini API")
 	}
 
