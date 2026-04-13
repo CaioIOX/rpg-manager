@@ -67,3 +67,8 @@ func (r *UserRepository) UpdateStorageUsed(ctx context.Context, userID string, d
 		delta, userID)
 	return err
 }
+
+func (r *UserRepository) UpdatePassword(ctx context.Context, userID string, passwordHash string) error {
+	_, err := r.db.Exec(ctx, `UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, passwordHash, userID)
+	return err
+}

@@ -112,6 +112,22 @@ export default function LoginForm() {
           },
         }}
       />
+      <Box sx={{ width: "100%", textAlign: "right", mt: -1.5 }}>
+        <Link
+          href="/auth/forgot-password"
+          sx={{
+            color: "text.secondary",
+            fontSize: "0.875rem",
+            textDecoration: "none",
+            "&:hover": {
+              color: "primary.main",
+              textDecoration: "underline",
+            },
+          }}
+        >
+          Esqueceu a senha?
+        </Link>
+      </Box>
 
       {loginMutation.isError && (
         <Typography color="error" variant="body2" textAlign="center">
