@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS daily_email_usage (
+    date DATE PRIMARY KEY,
+    count INTEGER NOT NULL DEFAULT 0
+);

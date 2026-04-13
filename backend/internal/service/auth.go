@@ -2,11 +2,16 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/customErrors"
 	"github.com/CaioIOX/rpg-manager/backend/internal/dto"
+	"github.com/CaioIOX/rpg-manager/backend/internal/email"
 	"github.com/CaioIOX/rpg-manager/backend/internal/model"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
@@ -16,13 +21,30 @@ import (
 	"os"
 )
 
-type AuthService struct {
-	userRepo  *repository.UserRepository
-	jwtSecret string
+func generateRandomToken() (string, error) {
+	b := make([]byte, 32)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }
 
-func NewAuthService(userRepo *repository.UserRepository, jwtSecret string) *AuthService {
-	return &AuthService{userRepo: userRepo, jwtSecret: jwtSecret}
+func hashToken(token string) string {
+	h := sha256.New()
+	h.Write([]byte(token))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+type AuthService struct {
+	userRepo     *repository.UserRepository
+	prRepo       *repository.PasswordResetRepository
+	emailService email.Service
+	jwtSecret    string
+}
+
+func NewAuthService(userRepo *repository.UserRepository, prRepo *repository.PasswordResetRepository, emailService email.Service, jwtSecret string) *AuthService {
+	return &AuthService{userRepo: userRepo, prRepo: prRepo, emailService: emailService, jwtSecret: jwtSecret}
 }
 
 func (s *AuthService) Register(ctx context.Context, req dto.RegisterInput) error {
@@ -141,4 +163,74 @@ func (s *AuthService) GoogleLogin(ctx context.Context, token string) (string, er
 	}
 
 	return signed, nil
+}
+
+func (s *AuthService) ForgotPassword(ctx context.Context, req dto.ForgotPasswordInput) error {
+	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	if err != nil || user == nil {
+		return nil // Silent fail if user does not exist
+	}
+
+	token, err := generateRandomToken()
+	if err != nil {
+		return err
+	}
+
+	tokenHash := hashToken(token)
+
+	pr := &model.PasswordReset{
+		UserID:    user.ID,
+		TokenHash: tokenHash,
+		ExpiresAt: time.Now().Add(1 * time.Hour),
+	}
+
+	if err := s.prRepo.Create(ctx, pr); err != nil {
+		return err
+	}
+
+	frontendUrl := os.Getenv("FRONTEND_URL")
+	if frontendUrl == "" {
+		frontendUrl = "http://localhost:3000"
+	}
+	resetLink := fmt.Sprintf("%s/auth/reset-password?token=%s", frontendUrl, token)
+
+	err = s.emailService.SendResetPasswordEmail(ctx, user.Email, resetLink)
+	if err != nil {
+		if errors.Is(err, email.ErrEmailLimitReached) {
+			return err
+		}
+		log.Printf("Failed to send reset email: %v", err)
+	}
+
+	return nil
+}
+
+func (s *AuthService) ResetPassword(ctx context.Context, req dto.ResetPasswordInput) error {
+	tokenHash := hashToken(req.Token)
+
+	pr, err := s.prRepo.GetByTokenHash(ctx, tokenHash)
+	if err != nil {
+		return err
+	}
+	if pr == nil {
+		return errors.New("token inválido ou expirado")
+	}
+
+	if time.Now().After(pr.ExpiresAt) {
+		_ = s.prRepo.Delete(ctx, pr.ID)
+		return errors.New("token expirado")
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	if err := s.userRepo.UpdatePassword(ctx, pr.UserID, string(hash)); err != nil {
+		return err
+	}
+
+	_ = s.prRepo.Delete(ctx, pr.ID)
+
+	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/CaioIOX/rpg-manager/backend/internal/ai"
+	"github.com/CaioIOX/rpg-manager/backend/internal/email"
 	"github.com/CaioIOX/rpg-manager/backend/internal/handler"
 	"github.com/CaioIOX/rpg-manager/backend/internal/middleware"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
@@ -78,10 +79,13 @@ func main() {
 	documentRepo := repository.NewDocumentRepository(db)
 	templatesRepo := repository.NewTemplateRepository(db)
 	mapRepo := repository.NewMapRepository(db)
+	prRepo := repository.NewPasswordResetRepository(db)
+	emailUsageRepo := repository.NewEmailUsageRepository(db)
 
 	// Services
 	jwtSecret := os.Getenv("JWT_SECRET")
-	authService := service.NewAuthService(userRepo, jwtSecret)
+	emailService := email.NewSMTPService(emailUsageRepo)
+	authService := service.NewAuthService(userRepo, prRepo, emailService, jwtSecret)
 	campaignService := service.NewCampaignService(campaignRepo, userRepo)
 	folderService := service.NewFolderService(folderRepo, campaignRepo)
 	documentService := service.NewDocumentService(documentRepo, campaignRepo)
@@ -145,6 +149,8 @@ func main() {
 	auth.Post("/register", authHandler.Register)
 	auth.Post("/login", authHandler.Login)
 	auth.Post("/google", authHandler.GoogleLogin)
+	auth.Post("/forgot-password", authHandler.ForgotPassword)
+	auth.Post("/reset-password", authHandler.ResetPassword)
 
 	api := app.Group("/api", middleware.AuthRequired)
 
