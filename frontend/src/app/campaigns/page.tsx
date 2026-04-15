@@ -19,11 +19,13 @@ import AddIcon from "@mui/icons-material/Add";
 import ExploreIcon from "@mui/icons-material/Explore";
 import useDeleteCampaign from "@/lib/hooks/useDeleteCampaign";
 import ConfirmDeleteModal from "./_components/ConfirmDeleteModal";
+import { useLocale } from "@/lib/i18n";
 
 export default function CampaignPage() {
   const campaigns = useCampaigns();
   const queryClient = useQueryClient();
   const deleteCampaign = useDeleteCampaign();
+  const { t } = useLocale();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [campaignToEdit, setCampaignToEdit] = useState<Campaign | undefined>();
@@ -72,13 +74,13 @@ export default function CampaignPage() {
                 fontSize: { xs: "1.9rem", sm: "2.25rem" },
               }}
             >
-              Minhas Campanhas
+              {t.campaigns.title}
             </Typography>
             <Typography
               variant="body2"
               sx={{ color: "text.secondary", mt: 0.5 }}
             >
-              Gerencie e explore suas aventuras épicas
+              {t.campaigns.subtitle}
             </Typography>
           </Box>
           <Button
@@ -98,7 +100,7 @@ export default function CampaignPage() {
             }}
             onClick={handleOpenModal}
           >
-            Nova Campanha
+            {t.campaigns.newCampaign}
           </Button>
         </Box>
 
@@ -139,15 +141,14 @@ export default function CampaignPage() {
                 color="text.secondary"
                 sx={{ mb: 1 }}
               >
-                Nenhuma campanha encontrada
+                {t.campaigns.noCampaigns}
               </Typography>
               <Typography
                 variant="body2"
                 color="text.secondary"
                 sx={{ mb: 3, maxWidth: 360, mx: "auto" }}
               >
-                Crie sua primeira campanha e comece uma nova aventura épica com
-                seus jogadores!
+                {t.campaigns.noCampaignsDesc}
               </Typography>
               <Button
                 variant="outlined"
@@ -156,7 +157,7 @@ export default function CampaignPage() {
                 onClick={handleOpenModal}
                 sx={{ px: 3 }}
               >
-                Criar Primeira Campanha
+                {t.campaigns.createFirst}
               </Button>
             </Box>
           )}
@@ -184,8 +185,8 @@ export default function CampaignPage() {
       <ConfirmDeleteModal
         isModalOpen={!!campaignToDelete}
         setIsModalOpen={() => setCampaignToDelete(undefined)}
-        title="Apagar Campanha"
-        description={`Tem certeza que deseja apagar a campanha "${campaignToDelete?.name}"? Esta ação não pode ser desfeita e todas as pastas e documentos serão removidos.`}
+        title={t.campaigns.deleteCampaignTitle}
+        description={t.campaigns.deleteCampaignDesc(campaignToDelete?.name ?? "")}
         isLoading={deleteCampaign.isPending}
         onConfirm={() => {
           if (campaignToDelete) {

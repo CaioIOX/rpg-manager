@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Update } from "../api/campaigns";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useUpdateCampaign() {
   return useMutation({
@@ -14,10 +15,10 @@ export default function useUpdateCampaign() {
       description?: string;
     }) => Update(campaignId, name, description),
     onSuccess: () => {
-      toast.success("Campanha atualizada com sucesso!");
+      toast.success(getLocaleDict().toast.campaignUpdated);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Falha ao atualizar campanha");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.campaignUpdateError);
     },
   });
 }

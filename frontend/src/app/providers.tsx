@@ -5,6 +5,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { LocaleProvider } from "@/lib/i18n";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +25,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <QueryClientProvider client={queryClient}>
-            {children}
+            <LocaleProvider>
+              {children}
+            </LocaleProvider>
           </QueryClientProvider>
         </ThemeProvider>
       </AppRouterCacheProvider>

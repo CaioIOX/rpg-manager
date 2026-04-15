@@ -14,6 +14,7 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useState, MouseEvent } from "react";
+import { useLocale } from "@/lib/i18n";
 
 interface CampaignCardProps {
   campaign: Campaign;
@@ -23,6 +24,7 @@ interface CampaignCardProps {
 
 export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCardProps) {
   const router = useRouter();
+  const { t, locale } = useLocale();
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -127,7 +129,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
               fontSize: { xs: "1rem", md: "1.25rem" },
             }}
           >
-            {campaign.name || "Campanha sem nome"}
+            {campaign.name || t.campaigns.noName}
           </Typography>
           <Typography
             variant="body2"
@@ -140,7 +142,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
               overflow: "hidden",
             }}
           >
-            {campaign.description || "Sem descrição"}
+            {campaign.description || t.campaigns.noDescription}
           </Typography>
         </CardContent>
 
@@ -153,7 +155,10 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
         }}
       >
         <Typography variant="caption" sx={{ color: "text.disabled" }}>
-          Criado em {new Date(campaign.created_at).toLocaleDateString("pt-BR")}
+          {t.campaigns.createdAt}{" "}
+          {new Date(campaign.created_at).toLocaleDateString(
+            locale === "pt" ? "pt-BR" : "en-US"
+          )}
         </Typography>
       </CardActions>
       <Menu
@@ -178,7 +183,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
             }}
             sx={{ fontSize: "0.85rem" }}
           >
-            Editar
+            {t.campaigns.edit}
           </MenuItem>
         )}
         {onDelete && (
@@ -189,7 +194,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
             }}
             sx={{ fontSize: "0.85rem", color: "error.main" }}
           >
-            Apagar
+            {t.campaigns.delete}
           </MenuItem>
         )}
       </Menu>

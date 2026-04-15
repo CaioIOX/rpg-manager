@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { DocumentSummary } from "@/lib/types/Documents";
 import { Template } from "@/lib/types/Template";
+import { useLocale } from "@/lib/i18n";
 
 interface StatCardsProps {
   documents: DocumentSummary[] | undefined;
@@ -37,13 +38,14 @@ export default function StatCards({
   isLoadingDocs,
   isLoadingTemplates,
 }: StatCardsProps) {
+  const { t } = useLocale();
   const allCards = useMemo(() => {
     const totalDocuments = documents?.length ?? 0;
     const totalTemplates = templates?.length ?? 0;
 
     const baseCards = [
       {
-        label: "Total de Documentos",
+        label: t.dashboard.totalDocs,
         value: totalDocuments,
         isLoading: isLoadingDocs,
         icon: <DescriptionIcon fontSize="small" />,
@@ -53,7 +55,7 @@ export default function StatCards({
         borderColor: "rgba(212, 175, 55, 0.15)",
       },
       {
-        label: "Total de Templates",
+        label: t.dashboard.totalTemplates,
         value: totalTemplates,
         isLoading: isLoadingTemplates,
         icon: <SettingsIcon fontSize="small" />,

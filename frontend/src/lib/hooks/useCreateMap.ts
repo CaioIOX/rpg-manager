@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Upload } from "../api/maps";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useCreateMap() {
   return useMutation({
@@ -16,11 +17,11 @@ export default function useCreateMap() {
       onProgress?: (percent: number) => void;
     }) => Upload(campaignId, name, file, onProgress),
     onSuccess: () => {
-      toast.success("Mapa criado com sucesso!");
+      toast.success(getLocaleDict().toast.mapCreated);
     },
     onError: (error: any) => {
       toast.error(
-        error.response?.data?.error || "Ocorreu um erro ao criar o mapa.",
+        error.response?.data?.error || getLocaleDict().toast.mapCreateError,
       );
     },
   });

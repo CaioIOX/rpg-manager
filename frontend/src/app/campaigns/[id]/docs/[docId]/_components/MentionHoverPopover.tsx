@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { TypeDocument } from "@/lib/types/Documents";
+import { useLocale } from "@/lib/i18n";
 
 interface MentionHoverPopoverProps {
   anchorEl: HTMLElement | null;
@@ -23,6 +24,7 @@ export default function MentionHoverPopover({
   isLoading,
   onClose,
 }: MentionHoverPopoverProps) {
+  const { t } = useLocale();
   const open = Boolean(anchorEl);
 
   if (!open) return null;
@@ -82,7 +84,7 @@ export default function MentionHoverPopover({
           >
             <CircularProgress size={14} sx={{ color: "#BA68C8" }} />
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Carregando...
+              {t.common.loading}
             </Typography>
           </Box>
         ) : mentionData ? (
@@ -174,14 +176,14 @@ export default function MentionHoverPopover({
                   fontStyle: "italic",
                 }}
               >
-                Clique para abrir o documento
+                {t.editor.clickToOpen}
               </Typography>
             </Box>
           </>
         ) : (
           <Box sx={{ p: 1.5 }}>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Documento não encontrado
+              {t.editor.notFound}
             </Typography>
           </Box>
         )}

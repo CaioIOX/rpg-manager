@@ -18,6 +18,7 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessageItem } from "./ChatMessageItem";
 import { LorenaTypingIndicator } from "./LorenaTypingIndicator";
 import { LorenaWelcome } from "./LorenaWelcome";
+import { useLocale } from "@/lib/i18n";
 
 interface LorenaDrawerProps {
   campaignID: string;
@@ -37,6 +38,7 @@ export default function LorenaDrawer({ campaignID }: LorenaDrawerProps) {
     sendMessage,
     clearHistory,
   } = useLorena(campaignID);
+  const { t } = useLocale();
 
   // Scroll automático para a última mensagem
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -53,7 +55,7 @@ export default function LorenaDrawer({ campaignID }: LorenaDrawerProps) {
   return (
     <>
       {/* FAB — Botão flutuante para abrir a Lorena */}
-      <Tooltip title="Consultar Lorena — Grimório da Campanha" placement="left">
+      <Tooltip title={t.lorena.tooltip} placement="left">
         <Fab
           id="lorena-fab-button"
           onClick={toggleChat}
@@ -150,20 +152,20 @@ export default function LorenaDrawer({ campaignID }: LorenaDrawerProps) {
                   fontSize: "1rem",
                 }}
               >
-                Lorena
+                {t.lorena.title}
               </Typography>
               <Typography
                 variant="caption"
                 sx={{ color: "text.secondary", fontSize: "0.72rem" }}
               >
-                Grimório da Campanha
+                {t.lorena.subtitle}
               </Typography>
             </Box>
           </Box>
 
           <Box sx={{ display: "flex", gap: 0.5 }}>
             {messages.length > 0 && (
-              <Tooltip title="Limpar conversa">
+              <Tooltip title={t.lorena.clearHistory}>
                 <IconButton
                   id="lorena-clear-history"
                   onClick={clearHistory}
@@ -212,8 +214,8 @@ export default function LorenaDrawer({ campaignID }: LorenaDrawerProps) {
               }}
             >
               {messagesRemaining === 0
-                ? "Lorena está cansada por hoje 📚"
-                : `${messagesRemaining} consulta${messagesRemaining !== 1 ? "s" : ""} restante${messagesRemaining !== 1 ? "s" : ""} hoje`}
+                ? t.lorena.tiredToday
+                : messagesRemaining !== 1 ? t.lorena.queriesLeft.replace("{count}", messagesRemaining?.toString() || "0") : t.lorena.queryLeft.replace("{count}", messagesRemaining?.toString() || "1")}
             </Typography>
           </Box>
         )}

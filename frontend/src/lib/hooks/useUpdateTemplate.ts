@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Update } from "../api/templates";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useUpdateTemplate() {
   return useMutation({
@@ -31,10 +32,10 @@ export default function useUpdateTemplate() {
         icon,
       ),
     onSuccess: () => {
-      toast.success("Template atualizado com sucesso!");
+      toast.success(getLocaleDict().toast.templateUpdated);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Ocorreu um erro ao atualizar the template.");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.templateUpdateError);
     },
   });
 }

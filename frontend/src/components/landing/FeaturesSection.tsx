@@ -10,51 +10,7 @@ import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import MapIcon from "@mui/icons-material/Map";
-
-// ─── Feature data ─────────────────────────────────────────────────────────────
-
-const features = [
-  {
-    title: "Editor Riquíssimo",
-    description:
-      "Editor TipTap completo com formatação, tabelas, checklists, blocos colapsáveis e muito mais. Escreva lore imersiva sem limites.",
-    icon: <AutoFixHighIcon sx={{ fontSize: "1.75rem", color: "#D4AF37" }} />,
-  },
-  {
-    title: "Menções Inteligentes",
-    description:
-      "Use @ para criar links entre documentos. Personagens, locais e itens se interconectam formando uma wiki viva da sua campanha.",
-    icon: <AccountTreeIcon sx={{ fontSize: "1.75rem", color: "#BA68C8" }} />,
-  },
-  {
-    title: "Templates Customizáveis",
-    description:
-      "Crie templates com campos personalizados para organizar NPCs, locais ou itens. Os dados aparecem em um painel lateral elegante.",
-    icon: (
-      <DashboardCustomizeIcon
-        sx={{ fontSize: "1.75rem", color: "#D4AF37" }}
-      />
-    ),
-  },
-  {
-    title: "Multiplayer em Tempo Real",
-    description:
-      "Edite documentos simultaneamente com seus jogadores. Cursores colaborativos e sincronização automática via WebSocket.",
-    icon: <GroupsIcon sx={{ fontSize: "1.75rem", color: "#BA68C8" }} />,
-  },
-  {
-    title: "Lorena, a Guardiã do Lore",
-    description:
-      "Assistente de IA que conhece cada detalhe da sua campanha. Pergunte sobre qualquer pessoa, lugar ou evento dos seus documentos.",
-    icon: <SmartToyIcon sx={{ fontSize: "1.75rem", color: "#D4AF37" }} />,
-  },
-  {
-    title: "Mapas Interativos",
-    description:
-      "Faça upload de mapas e adicione marcadores clicáveis vinculados aos seus documentos. Explore o mundo visualmente.",
-    icon: <MapIcon sx={{ fontSize: "1.75rem", color: "#BA68C8" }} />,
-  },
-];
+import { useLocale } from "@/lib/i18n";
 
 // ─── Feature card ─────────────────────────────────────────────────────────────
 
@@ -123,6 +79,41 @@ function FeatureCard({
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function FeaturesSection() {
+  const { t } = useLocale();
+
+  const features = [
+    {
+      title: t.landing.featureEditor,
+      description: t.landing.featureEditorDesc,
+      icon: <AutoFixHighIcon sx={{ fontSize: "1.75rem", color: "#D4AF37" }} />,
+    },
+    {
+      title: t.landing.featureMentions,
+      description: t.landing.featureMentionsDesc,
+      icon: <AccountTreeIcon sx={{ fontSize: "1.75rem", color: "#BA68C8" }} />,
+    },
+    {
+      title: t.landing.featureTemplates,
+      description: t.landing.featureTemplatesDesc,
+      icon: <DashboardCustomizeIcon sx={{ fontSize: "1.75rem", color: "#D4AF37" }} />,
+    },
+    {
+      title: t.landing.featureMultiplayer,
+      description: t.landing.featureMultiplayerDesc,
+      icon: <GroupsIcon sx={{ fontSize: "1.75rem", color: "#BA68C8" }} />,
+    },
+    {
+      title: t.landing.featureLorena,
+      description: t.landing.featureLorenaDesc,
+      icon: <SmartToyIcon sx={{ fontSize: "1.75rem", color: "#D4AF37" }} />,
+    },
+    {
+      title: t.landing.featureMaps,
+      description: t.landing.featureMapsDesc,
+      icon: <MapIcon sx={{ fontSize: "1.75rem", color: "#BA68C8" }} />,
+    },
+  ];
+
   return (
     <Box
       sx={{
@@ -140,15 +131,14 @@ export default function FeaturesSection() {
           sx={{
             fontWeight: 800,
             mb: { xs: 2, md: 3 },
-            background:
-              "linear-gradient(135deg, #FFFFFF 0%, #BA68C8 100%)",
+            background: "linear-gradient(135deg, #FFFFFF 0%, #BA68C8 100%)",
             backgroundClip: "text",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             fontSize: { xs: "2rem", md: "3rem" },
           }}
         >
-          Para Mestres de Respeito
+          {t.landing.featuresTitle}
         </Typography>
 
         <Typography
@@ -163,7 +153,7 @@ export default function FeaturesSection() {
             lineHeight: 1.6,
           }}
         >
-          Ferramentas imersivas projetadas para quem leva storytelling a sério.
+          {t.landing.featuresSubtitle}
         </Typography>
 
         <Grid container spacing={3}>

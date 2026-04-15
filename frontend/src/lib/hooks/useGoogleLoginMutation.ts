@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { GoogleAuth } from "../api/auth";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export function useGoogleLoginMutation() {
   return useMutation({
@@ -9,7 +10,7 @@ export function useGoogleLoginMutation() {
       // Success handled by caller
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Falha ao logar com Google");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.googleLoginError);
     },
   });
 }

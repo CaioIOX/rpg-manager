@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Update } from "../api/documents";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useUpdateDocument() {
   const queryClient = useQueryClient();
@@ -39,7 +40,7 @@ export default function useUpdateDocument() {
       }
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Ocorreu um erro ao salvar o documento.");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.docSaveError);
     },
   });
 }

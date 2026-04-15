@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Update } from "../api/folders";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useUpdateFolder() {
   return useMutation({
@@ -20,10 +21,10 @@ export default function useUpdateFolder() {
       color?: string;
     }) => Update(campaignId, folderId, name, position, parentId, color),
     onSuccess: () => {
-      toast.success("Pasta atualizada com sucesso!");
+      toast.success(getLocaleDict().toast.folderUpdated);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Ocorreu um erro ao atualizar a pasta.");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.folderUpdateError);
     },
   });
 }

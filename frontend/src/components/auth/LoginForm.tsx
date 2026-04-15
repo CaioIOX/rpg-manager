@@ -13,16 +13,20 @@ import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "sonner";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-
-const loginSchema = z.object({
-  email: z.string().email("Email inválido.").min(1, "Email obrigatório."),
-  password: z.string().min(1, "Senha obrigatória."),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+import { useLocale } from "@/lib/i18n";
 
 export default function LoginForm() {
   const router = useRouter();
+  const { t } = useLocale();
+
+  const loginSchema = z.object({
+    email: z.string().email(t.auth.emailInvalid).min(1, t.auth.emailRequired),
+    password: z.string().min(1, t.auth.passwordRequired),
+  });
+
+  type LoginFormData = z.infer<typeof loginSchema>;
+
+
 
   const {
     register,
@@ -69,7 +73,7 @@ export default function LoginForm() {
             }
           }}
           onError={() => {
-            toast.error('Falha no Login com o Google');
+            toast.error(t.auth.googleLoginFailed);
           }}
           theme="filled_black"
           shape="pill"
@@ -78,12 +82,12 @@ export default function LoginForm() {
       </Box>
 
       <Typography variant="body2" sx={{ color: "text.secondary", textAlign: "center", mt: -1, mb: -1 }}>
-        ou com email
+        {t.auth.orWithEmail}
       </Typography>
 
       <TextField
-        label="Email"
-        placeholder="exemplo@gmail.com"
+        label={t.auth.email}
+        placeholder={t.auth.emailPlaceholder}
         variant="outlined"
         fullWidth
         sx={{
@@ -97,7 +101,7 @@ export default function LoginForm() {
         helperText={errors.email?.message}
       />
       <TextField
-        label="Senha"
+        label={t.auth.password}
         type="password"
         placeholder="••••••••"
         variant="outlined"
@@ -125,7 +129,7 @@ export default function LoginForm() {
             },
           }}
         >
-          Esqueceu a senha?
+          {t.auth.forgotPassword}
         </Link>
       </Box>
 
@@ -133,7 +137,7 @@ export default function LoginForm() {
         <Typography color="error" variant="body2" textAlign="center">
           {loginMutation.error instanceof Error
             ? loginMutation.error.message
-            : "Erro ao realizar login"}
+            : t.auth.loginError}
         </Typography>
       )}
       <Button
@@ -151,11 +155,11 @@ export default function LoginForm() {
           },
         }}
       >
-        Entrar
+        {t.auth.loginButton}
       </Button>
 
       <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-        Não tem uma conta?{" "}
+        {t.auth.noAccount}{" "}
         <Link
           href="/auth/register"
           sx={{
@@ -169,7 +173,7 @@ export default function LoginForm() {
             },
           }}
         >
-          Cadastre-se
+          {t.auth.signUp}
         </Link>
       </Typography>
     </Box>

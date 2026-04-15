@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Register } from "../api/auth";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useRegisterMutation() {
   return useMutation({
@@ -17,7 +18,7 @@ export default function useRegisterMutation() {
       // Success handled by caller
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Falha ao cadastrar");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.registerError);
     },
   });
 }

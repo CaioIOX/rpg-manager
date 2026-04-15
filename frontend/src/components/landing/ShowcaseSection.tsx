@@ -1,10 +1,10 @@
 "use client";
 
-
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { keyframes } from "@mui/system";
+import { useLocale } from "@/lib/i18n";
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 
@@ -14,30 +14,7 @@ const glowPulse = keyframes`
 `;
 
 // ─── Showcase items ───────────────────────────────────────────────────────────
-
-const showcaseItems = [
-  {
-    title: "Editor com Menções",
-    description:
-      "Escreva documentos ricos com formatação avançada, menções interativas (@) que conectam personagens, locais e itens em uma wiki viva.",
-    image: "/screenshots/editor.png",
-    alt: "Editor de documentos com menções interativas e formatação rica",
-  },
-  {
-    title: "Templates em Painel Lateral",
-    description:
-      "Campos de template organizados em um painel lateral elegante ao lado do documento. Visualize e edite atributos, tags e propriedades sem perder o foco na escrita.",
-    image: "/screenshots/template.png",
-    alt: "Painel lateral de template com campos customizáveis ao lado do editor",
-  },
-  {
-    title: "Lorena: IA Guardiã do Lore",
-    description:
-      "Assistente de inteligência artificial que conhece toda a lore da sua campanha. Pergunte sobre qualquer NPC, local, item ou evento — ela consulta seus documentos e responde com precisão.",
-    image: "/screenshots/lorena.png",
-    alt: "Chatbot Lorena respondendo perguntas sobre a lore da campanha",
-  },
-];
+// Items are now defined inside the component to use the translation hook.
 
 // ─── Showcase card ────────────────────────────────────────────────────────────
 
@@ -45,7 +22,7 @@ function ShowcaseCard({
   item,
   index,
 }: {
-  item: (typeof showcaseItems)[number];
+  item: { title: string; description: string; image: string; alt: string };
   index: number;
 }) {
   const isReversed = index % 2 !== 0;
@@ -116,7 +93,6 @@ function ShowcaseCard({
             animation: `${glowPulse} 4s ease-in-out infinite`,
           }}
         />
-
         <Box
           component="img"
           src={item.image}
@@ -145,6 +121,29 @@ function ShowcaseCard({
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function ShowcaseSection() {
+  const { t } = useLocale();
+
+  const showcaseItems = [
+    {
+      title: t.landing.showcaseEditorTitle,
+      description: t.landing.showcaseEditorDesc,
+      image: "/screenshots/editor.png",
+      alt: t.landing.showcaseEditorTitle,
+    },
+    {
+      title: t.landing.showcaseTemplateTitle,
+      description: t.landing.showcaseTemplateDesc,
+      image: "/screenshots/template.png",
+      alt: t.landing.showcaseTemplateTitle,
+    },
+    {
+      title: t.landing.showcaseLorenaTitle,
+      description: t.landing.showcaseLorenaDesc,
+      image: "/screenshots/lorena.png",
+      alt: t.landing.showcaseLorenaTitle,
+    },
+  ];
+
   return (
     <Box
       sx={{
@@ -181,7 +180,7 @@ export default function ShowcaseSection() {
             fontSize: { xs: "2rem", md: "2.8rem" },
           }}
         >
-          Um Vislumbre do Compêndio
+          {t.landing.showcaseTitle}
         </Typography>
 
         <Typography
@@ -196,8 +195,7 @@ export default function ShowcaseSection() {
             lineHeight: 1.6,
           }}
         >
-          Interface projetada do zero para ser intuitiva, bela e livre de
-          distrações — o foco é apenas na sua história.
+          {t.landing.showcaseSubtitle}
         </Typography>
 
         {/* Showcase items — alternating layout */}

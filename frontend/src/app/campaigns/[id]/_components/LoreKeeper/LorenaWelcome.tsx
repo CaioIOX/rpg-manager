@@ -2,12 +2,14 @@
 
 import { Box, Typography } from "@mui/material";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import { useLocale } from "@/lib/i18n";
 
 /**
  * Tela de boas-vindas quando não há nenhuma mensagem ainda.
  * Introduz a Lorena como personagem — grimório mímico da campanha.
  */
 export function LorenaWelcome() {
+  const { t } = useLocale();
   return (
     <Box
       sx={{
@@ -55,7 +57,7 @@ export function LorenaWelcome() {
             mb: 0.75,
           }}
         >
-          Olá, sou Lorena!
+          {t.lorena.welcomeTitle}
         </Typography>
 
         <Typography
@@ -67,9 +69,7 @@ export function LorenaWelcome() {
             maxWidth: 280,
           }}
         >
-          Sou um grimório mímico e guardiã de todo o lore desta campanha. Faça
-          uma pergunta sobre qualquer lugar, personagem ou evento registrado nos
-          documentos.
+          {t.lorena.welcomeDesc}
         </Typography>
       </Box>
 
@@ -88,8 +88,7 @@ export function LorenaWelcome() {
           variant="caption"
           sx={{ color: "text.secondary", fontSize: "0.78rem", lineHeight: 1.5 }}
         >
-          💡 Experimente perguntar:{" "}
-          <em>&quot;O que sei sobre [nome do lugar]?&quot;</em>
+          {t.lorena.welcomeHint}
         </Typography>
       </Box>
     </Box>

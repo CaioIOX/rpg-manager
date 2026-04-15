@@ -11,6 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useLocale } from "@/lib/i18n";
 
 interface SidebarHeaderProps {
   campaignName?: string;
@@ -31,6 +32,8 @@ export default function SidebarHeader({
   onOpenCampaign,
   onOpenMembers,
 }: SidebarHeaderProps) {
+  const { t } = useLocale();
+
   return (
     <Box
       sx={{
@@ -70,7 +73,7 @@ export default function SidebarHeader({
           }}
         >
           <IconButton
-            aria-label="Voltar"
+            aria-label={t.sidebar.back}
             size="small"
             className="back-arrow"
             sx={{
@@ -114,11 +117,11 @@ export default function SidebarHeader({
               textAlign: "center",
             }}
           >
-            {campaignName || "Campanha"}
+            {campaignName || t.sidebar.campaign}
           </Typography>
         </Box>
 
-        <Tooltip title="Adicionar membro" arrow>
+        <Tooltip title={t.sidebar.addMember} arrow>
           <IconButton
             aria-label="Membros"
             size="small"
@@ -138,7 +141,7 @@ export default function SidebarHeader({
       </Box>
 
       <TextField
-        placeholder="Buscar documentos..."
+        placeholder={t.sidebar.searchPlaceholder}
         value={searchQuery}
         onChange={(event) => onSearchChange(event.target.value)}
         fullWidth

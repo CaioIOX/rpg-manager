@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useLocale } from "@/lib/i18n";
 
 interface ConfirmDeleteModalProps {
   isModalOpen: boolean;
@@ -27,6 +28,8 @@ export default function ConfirmDeleteModal({
   onConfirm,
   isLoading = false,
 }: ConfirmDeleteModalProps) {
+  const { t } = useLocale();
+
   const handleClose = () => {
     if (!isLoading) setIsModalOpen(false);
   };
@@ -93,7 +96,7 @@ export default function ConfirmDeleteModal({
             },
           }}
         >
-          Cancelar
+          {t.modals.cancel}
         </Button>
         <Button
           onClick={onConfirm}
@@ -109,7 +112,7 @@ export default function ConfirmDeleteModal({
             },
           }}
         >
-          {isLoading ? <CircularProgress size={24} color="inherit" /> : "Apagar"}
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : t.common.delete}
         </Button>
       </DialogActions>
     </Dialog>

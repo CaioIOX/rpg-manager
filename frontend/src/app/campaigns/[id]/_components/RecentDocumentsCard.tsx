@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { DocumentSummary } from "@/lib/types/Documents";
 import { Template } from "@/lib/types/Template";
+import { useLocale } from "@/lib/i18n";
 
 interface RecentDocumentsCardProps {
   documents: DocumentSummary[] | undefined;
@@ -30,6 +31,7 @@ export default function RecentDocumentsCard({
   isLoading,
 }: RecentDocumentsCardProps) {
   const router = useRouter();
+  const { t, locale } = useLocale();
 
   const recentDocuments = useMemo(() => {
     if (!documents) return [];
@@ -78,7 +80,7 @@ export default function RecentDocumentsCard({
                 color: "text.primary",
               }}
             >
-              Últimos Documentos Editados
+              {t.dashboard.recentDocs}
             </Typography>
           </Stack>
 
@@ -91,7 +93,7 @@ export default function RecentDocumentsCard({
               variant="body2"
               sx={{ color: "text.secondary", textAlign: "center", py: 4 }}
             >
-              Nenhum documento encontrado.
+              {t.dashboard.noDocsFound}
             </Typography>
           ) : (
             <Stack spacing={1}>
@@ -164,7 +166,7 @@ export default function RecentDocumentsCard({
                           variant="caption"
                           sx={{ color: "text.secondary", display: "block" }}
                         >
-                          Editado em: {new Date(doc.updated_at).toLocaleDateString("pt-BR", {
+                          {t.dashboard.editedAt}: {new Date(doc.updated_at).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US", {
                             day: "2-digit",
                             month: "long",
                             year: "numeric",

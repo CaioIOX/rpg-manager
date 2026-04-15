@@ -12,22 +12,24 @@ import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import { useState, Suspense } from "react";
 import Alert from "@mui/material/Alert";
-
-const resetSchema = z
-  .object({
-    password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "As senhas não coincidem.",
-    path: ["confirmPassword"],
-  });
-
-type ResetFormData = z.infer<typeof resetSchema>;
+import { useLocale } from "@/lib/i18n";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const { t } = useLocale();
+
+  const resetSchema = z
+    .object({
+      password: z.string().min(8, t.auth.passwordMinLength),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t.auth.passwordsDontMatch,
+      path: ["confirmPassword"],
+    });
+
+  type ResetFormData = z.infer<typeof resetSchema>;
 
   const {
     register,
@@ -83,14 +85,13 @@ function ResetPasswordForm() {
               mt: 2,
             }}
           >
-            Voltar para o Login
+            {t.auth.backToLogin}
           </Button>
         </Box>
       ) : success ? (
         <Box>
           <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
-            Senha redefinida com sucesso! Você já pode fazer login com a nova
-            senha.
+            {t.auth.resetSuccess}
           </Alert>
           <Button
             variant="contained"
@@ -108,7 +109,7 @@ function ResetPasswordForm() {
               },
             }}
           >
-            Ir para o Login
+            {t.auth.goToLogin}
           </Button>
         </Box>
       ) : (
@@ -122,7 +123,7 @@ function ResetPasswordForm() {
           }}
         >
           <TextField
-            label="Nova Senha"
+            label={t.auth.resetNewPassword}
             type="password"
             placeholder="••••••••"
             variant="outlined"
@@ -139,7 +140,7 @@ function ResetPasswordForm() {
           />
 
           <TextField
-            label="Confirmar Nova Senha"
+            label={t.auth.resetConfirmPassword}
             type="password"
             placeholder="••••••••"
             variant="outlined"
@@ -158,8 +159,8 @@ function ResetPasswordForm() {
           {mutation.isError && (
             <Typography color="error" variant="body2" textAlign="center">
               {mutation.error instanceof Error
-                ? mutation.error.message || "Erro ao redefinir a senha."
-                : "Token inválido ou expirado."}
+                ? mutation.error.message || t.auth.resetError
+                : t.auth.resetTokenExpired}
             </Typography>
           )}
 
@@ -178,7 +179,7 @@ function ResetPasswordForm() {
               },
             }}
           >
-            Redefinir Senha
+            {t.auth.resetButton}
           </Button>
         </Box>
       )}
@@ -187,6 +188,8 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useLocale();
+
   return (
     <Box
       sx={{
@@ -255,7 +258,7 @@ export default function ResetPasswordPage() {
             fontSize: { xs: "2rem", sm: "3rem" },
           }}
         >
-          Criar Nova Senha
+          {t.auth.resetTitle}
         </Typography>
 
         <Typography
@@ -268,11 +271,10 @@ export default function ResetPasswordPage() {
             lineHeight: 1.6,
           }}
         >
-          Digite sua nova senha abaixo. Certifique-se de usar uma senha forte e
-          fácil de lembrar.
+          {t.auth.resetSubtitle}
         </Typography>
 
-        <Suspense fallback={<div>Carregando formulário...</div>}>
+        <Suspense fallback={<div>{t.auth.loadingForm}</div>}>
           <ResetPasswordForm />
         </Suspense>
       </Box>

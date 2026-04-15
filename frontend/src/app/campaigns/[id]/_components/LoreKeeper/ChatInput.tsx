@@ -3,6 +3,7 @@
 import SendIcon from "@mui/icons-material/Send";
 import { Box, CircularProgress, IconButton, TextField } from "@mui/material";
 import { KeyboardEvent, useCallback, useState } from "react";
+import { useLocale } from "@/lib/i18n";
 
 interface ChatInputProps {
   onSend: (message: string) => Promise<void>;
@@ -11,6 +12,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, isLoading, isDisabled }: ChatInputProps) {
+  const { t } = useLocale();
   const [value, setValue] = useState("");
 
   const handleSend = useCallback(async () => {
@@ -47,8 +49,8 @@ export function ChatInput({ onSend, isLoading, isDisabled }: ChatInputProps) {
         maxRows={4}
         placeholder={
           isDisabled
-            ? "Lorena está descansando por hoje..."
-            : "Pergunte sobre o lore da campanha..."
+            ? t.lorena.inputDisabled
+            : t.lorena.inputPlaceholder
         }
         value={value}
         onChange={(e) => setValue(e.target.value)}

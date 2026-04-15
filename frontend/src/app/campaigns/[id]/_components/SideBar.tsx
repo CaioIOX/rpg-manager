@@ -27,6 +27,8 @@ import SidebarContent from "./SidebarContent";
 import SidebarHeader from "./SidebarHeader";
 import SidebarQuickActions from "./SidebarQuickActions";
 import CreateMapModal from "../maps/_components/CreateMapModal";
+import LanguageSwitch from "@/components/layout/LanguageSwitch";
+import { useLocale } from "@/lib/i18n";
 
 interface SideBarProps {
   isMobile?: boolean;
@@ -40,6 +42,7 @@ export default function SideBar({
   const params = useParams();
   const router = useRouter();
   const campaignId = params.id as string;
+  const { t } = useLocale();
 
   const campaign = useGetCampaign(campaignId);
   const templates = useTemplates(campaignId);
@@ -201,7 +204,7 @@ export default function SideBar({
                 letterSpacing: "0.05em",
               }}
             >
-              Documentos Criados
+              {t.sidebar.docsCreated}
             </Box>
             <Box
               component="span"
@@ -218,6 +221,9 @@ export default function SideBar({
             </Box>
           </Box>
         )}
+        <Box sx={{ p: 2, display: "flex", justifyContent: "center", borderTop: "1px solid rgba(212, 175, 55, 0.06)", mt: currentUser && !currentUser.is_premium ? 0 : "auto" }}>
+          <LanguageSwitch />
+        </Box>
       </Box>
 
       <CreateDocModal
@@ -266,8 +272,8 @@ export default function SideBar({
       <ConfirmDeleteModal
         isModalOpen={!!folderToDelete}
         setIsModalOpen={() => setFolderToDelete(undefined)}
-        title="Apagar Pasta"
-        description={`Tem certeza que deseja apagar a pasta "${folderToDelete?.name}"? Os documentos poderÃ£o ser perdidos.`}
+        title={t.modals.deleteFolderTitle}
+        description={t.modals.deleteFolderDesc(folderToDelete?.name ?? "")}
         isLoading={deleteFolder.isPending}
         onConfirm={() => {
           if (folderToDelete) {
@@ -289,8 +295,8 @@ export default function SideBar({
       <ConfirmDeleteModal
         isModalOpen={!!templateToDelete}
         setIsModalOpen={() => setTemplateToDelete(undefined)}
-        title="Apagar Template"
-        description={`Tem certeza que deseja apagar o template "${templateToDelete?.name}"? Documentos que usam este template continuarÃ£o existindo, mas os campos especiais nÃ£o.`}
+        title={t.modals.deleteTemplateTitle}
+        description={t.modals.deleteTemplateDesc(templateToDelete?.name ?? "")}
         isLoading={deleteTemplate.isPending}
         onConfirm={() => {
           if (templateToDelete) {
@@ -312,8 +318,8 @@ export default function SideBar({
       <ConfirmDeleteModal
         isModalOpen={!!docToDelete}
         setIsModalOpen={() => setDocToDelete(undefined)}
-        title="Apagar Documento"
-        description={`Tem certeza que deseja apagar o documento "${docToDelete?.title}"?`}
+        title={t.modals.deleteDocTitle}
+        description={t.modals.deleteDocDesc(docToDelete?.title ?? "")}
         isLoading={deleteDocument.isPending}
         onConfirm={() => {
           if (docToDelete) {

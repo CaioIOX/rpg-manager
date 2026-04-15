@@ -3,8 +3,10 @@
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import { useLocale } from "@/lib/i18n";
 
 export default function Footer() {
+  const { t } = useLocale();
   return (
     <Box
       sx={{
@@ -19,7 +21,7 @@ export default function Footer() {
           align="center"
           sx={{ color: "text.secondary", fontSize: "0.9rem" }}
         >
-          © {new Date().getFullYear()} CodexLore. O destino final das suas campanhas em RPG.
+          © {new Date().getFullYear()} CodexLore. {t.landing.footer}
         </Typography>
       </Container>
     </Box>
