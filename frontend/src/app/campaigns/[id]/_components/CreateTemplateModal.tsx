@@ -27,6 +27,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Template } from "@/lib/types/Template";
 import { useEffect } from "react";
+import { useLocale, getLocaleDict } from "@/lib/i18n";
 
 interface SchemaField {
   name: string;
@@ -36,7 +37,7 @@ interface SchemaField {
 }
 
 const templateSchema = z.object({
-  name: z.string().min(1, "O nome é obrigatório"),
+  name: z.string().min(1, { message: getLocaleDict().modals.nameRequired }),
   description: z.string().optional(),
   icon: z.string(),
 });
@@ -48,13 +49,6 @@ interface CreateTemplateModalProps {
   setIsModalOpen: (open: boolean) => void;
   initialData?: Template;
 }
-
-const FIELD_TYPES = [
-  { value: "text", label: "Texto curto" },
-  { value: "textarea", label: "Texto longo" },
-  { value: "number", label: "Número" },
-  { value: "select", label: "Seleção" },
-];
 
 const ICON_OPTIONS = [
   "📄", "⚔️", "🛡️", "👤", "🏰", "🗺️", "💎", "🐉", "📜", "🧙",
@@ -72,6 +66,14 @@ export default function CreateTemplateModal({
   const params = useParams();
   const campaignId = params.id as string;
   const queryClient = useQueryClient();
+  const { t } = useLocale();
+
+  const FIELD_TYPES = [
+    { value: "text", label: t.modals.fieldTypeText },
+    { value: "textarea", label: t.modals.fieldTypeTextarea },
+    { value: "number", label: t.modals.fieldTypeNumber },
+    { value: "select", label: t.modals.fieldTypeSelect },
+  ];
 
   const [fields, setFields] = useState<SchemaField[]>([]);
   const [newField, setNewField] = useState<SchemaField>({
@@ -243,7 +245,7 @@ export default function CreateTemplateModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          {initialData ? "Editar Template" : "Novo Template"}
+          {initialData ? t.modals.editTemplate : t.modals.newTemplate}
         </Typography>
         <Typography
           component="span"
@@ -257,7 +259,7 @@ export default function CreateTemplateModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          {initialData ? "Configurar Template" : "Criar Template"}
+          {initialData ? t.modals.configureTemplate : t.modals.createTemplate}
         </Typography>
       </DialogTitle>
 
@@ -275,13 +277,13 @@ export default function CreateTemplateModal({
         >
           {/* Name */}
           <TextField
-            label="Nome do template"
-            placeholder="Ex: Ficha de Personagem"
+            label={t.modals.templateNameLabel}
+            placeholder={t.modals.templateNamePlaceholder}
             fullWidth
             variant="outlined"
             {...register("name", {
-              required: "O nome é obrigatório",
-              minLength: { value: 1, message: "Nome muito curto" },
+              required: t.modals.nameRequired,
+              minLength: { value: 1, message: t.modals.nameMinLength },
             })}
             error={!!errors.name}
             helperText={errors.name?.message}
@@ -295,8 +297,8 @@ export default function CreateTemplateModal({
 
           {/* Description */}
           <TextField
-            label="Descrição (opcional)"
-            placeholder="Descreva o propósito deste template"
+            label={t.modals.templateDescLabel}
+            placeholder={t.modals.templateDescPlaceholder}
             fullWidth
             multiline
             rows={2}
@@ -321,7 +323,7 @@ export default function CreateTemplateModal({
                 fontWeight: 600,
               }}
             >
-              Ícone
+              {t.modals.templateIconLabel}
             </Typography>
             <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
               {ICON_OPTIONS.map((icon) => {
@@ -378,7 +380,7 @@ export default function CreateTemplateModal({
                 letterSpacing: "0.06em",
               }}
             >
-              Campos do Template
+              {t.modals.templateFieldsLabel}
             </Typography>
 
             {/* Existing fields */}
@@ -402,10 +404,10 @@ export default function CreateTemplateModal({
                     </Typography>
                     <Typography>
                       {field.name} •{" "}
-                      {FIELD_TYPES.find((t) => t.value === field.type)?.label}
+                      {FIELD_TYPES.find((type) => type.value === field.type)?.label}
                       {field.type === "select" &&
                         field.options &&
-                        ` • Opções: ${field.options.join(", ")}`}
+                        ` • ${t.modals.fieldOptions}: ${field.options.join(", ")}`}
                     </Typography>
                   </Box>
                   <Stack direction="row" spacing={0.5}>
@@ -459,8 +461,8 @@ export default function CreateTemplateModal({
               <Stack spacing={1.5}>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
                   <TextField
-                    label="Nome do campo"
-                    placeholder="ex: nome"
+                    label={t.modals.templateFieldName}
+                    placeholder={t.modals.templateFieldNamePlaceholder}
                     size="small"
                     value={newField.name}
                     onChange={(e) =>
@@ -475,8 +477,8 @@ export default function CreateTemplateModal({
                     }}
                   />
                   <TextField
-                    label="Rótulo"
-                    placeholder="ex: Nome do Personagem"
+                    label={t.modals.templateFieldLabel}
+                    placeholder={t.modals.templateFieldLabelPlaceholder}
                     size="small"
                     value={newField.label}
                     onChange={(e) =>
@@ -497,7 +499,7 @@ export default function CreateTemplateModal({
                   alignItems={{ xs: "stretch", sm: "center" }}
                 >
                   <TextField
-                    label="Tipo"
+                    label={t.modals.fieldType}
                     select
                     size="small"
                     value={newField.type}
@@ -529,8 +531,8 @@ export default function CreateTemplateModal({
                   </TextField>
                   {newField.type === "select" && (
                     <TextField
-                      label="Opções (separadas por vírgula)"
-                      placeholder="ex: Opção 1, Opção 2, Opção 3"
+                      label={t.modals.fieldOptions}
+                      placeholder={t.modals.templateFieldOptionsPlaceholder}
                       size="small"
                       fullWidth
                       value={newFieldOptions}
@@ -568,7 +570,7 @@ export default function CreateTemplateModal({
                       px: editingIndex !== null ? 2 : undefined,
                     }}
                   >
-                    {editingIndex !== null ? <span style={{fontSize: "0.85rem", fontWeight: 600}}>Salvar</span> : <AddIcon fontSize="small" />}
+                    {editingIndex !== null ? <span style={{fontSize: "0.85rem", fontWeight: 600}}>{t.modals.save}</span> : <AddIcon fontSize="small" />}
                   </IconButton>
                 </Stack>
               </Stack>
@@ -596,7 +598,7 @@ export default function CreateTemplateModal({
               "&:hover": { bgcolor: "rgba(255, 255, 255, 0.04)" },
             }}
           >
-            Cancelar
+            {t.modals.cancel}
           </Button>
           <Button
             type="submit"
@@ -616,7 +618,7 @@ export default function CreateTemplateModal({
               },
             }}
           >
-            {initialData ? "Salvar Template" : "Criar Template"}
+            {initialData ? t.modals.saveTemplate : t.modals.createTemplate}
           </Button>
         </DialogActions>
       </form>

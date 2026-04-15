@@ -12,6 +12,7 @@ import ShieldIcon from "@mui/icons-material/Shield";
 import useCurrentUser from "@/lib/hooks/useCurrentUser";
 import useLogout from "@/lib/hooks/useLogout";
 import { useRouter } from "next/navigation";
+import LanguageSwitch from "@/components/layout/LanguageSwitch";
 
 export default function Navbar() {
   const loggedUser = useCurrentUser();
@@ -95,6 +96,9 @@ export default function Navbar() {
             minWidth: 0,
           }}
         >
+          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            <LanguageSwitch />
+          </Box>
           <Box
             sx={{
               display: "flex",

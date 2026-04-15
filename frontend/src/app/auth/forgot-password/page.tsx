@@ -11,14 +11,17 @@ import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import { useState } from "react";
 import Alert from "@mui/material/Alert";
-
-const forgotSchema = z.object({
-  email: z.string().email("Email inválido.").min(1, "Email obrigatório."),
-});
-
-type ForgotFormData = z.infer<typeof forgotSchema>;
+import { useLocale } from "@/lib/i18n";
 
 export default function ForgotPasswordPage() {
+  const { t } = useLocale();
+
+  const forgotSchema = z.object({
+    email: z.string().email(t.auth.emailInvalid).min(1, t.auth.emailRequired),
+  });
+
+  type ForgotFormData = z.infer<typeof forgotSchema>;
+
   const {
     register,
     handleSubmit,
@@ -116,7 +119,7 @@ export default function ForgotPasswordPage() {
             fontSize: { xs: "2rem", sm: "3rem" },
           }}
         >
-          Redefinir Senha
+          {t.auth.forgotTitle}
         </Typography>
 
         <Typography
@@ -129,7 +132,7 @@ export default function ForgotPasswordPage() {
             lineHeight: 1.6,
           }}
         >
-          Esqueceu sua senha? Insira seu email e enviaremos um link de recuperação se sua conta existir.
+          {t.auth.forgotSubtitle}
         </Typography>
 
         {/* Card */}
@@ -150,7 +153,7 @@ export default function ForgotPasswordPage() {
           {success ? (
             <Box>
               <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
-                Email de redefinição enviado com sucesso! Verifique sua caixa de entrada ou spam.
+                {t.auth.forgotSuccess}
               </Alert>
               <Button
                 variant="outlined"
@@ -168,7 +171,7 @@ export default function ForgotPasswordPage() {
           ) : limitReached ? (
             <Box>
               <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}>
-                Os serviços de email estão temporariamente indisponíveis por conta do limite diário do nosso servidor gratuito. Por favor, tente novamente amanhã.
+                {t.auth.forgotLimitReached}
               </Alert>
               <Button
                 variant="outlined"
@@ -211,7 +214,7 @@ export default function ForgotPasswordPage() {
 
               {mutation.isError && !limitReached && (
                 <Typography color="error" variant="body2" textAlign="center">
-                  Ocorreu um erro ao enviar. Verifique o email e tente novamente.
+                  {t.auth.forgotSendError}
                 </Typography>
               )}
 
@@ -232,14 +235,14 @@ export default function ForgotPasswordPage() {
                   },
                 }}
               >
-                Enviar Link
+                {t.auth.forgotSendLink}
               </Button>
 
               <Typography
                 variant="body2"
                 sx={{ color: "text.secondary", mt: 0.5 }}
               >
-                Lembrou a senha?{" "}
+                {t.auth.forgotRemember}{" "}
                 <Link
                   href="/"
                   sx={{
@@ -253,7 +256,7 @@ export default function ForgotPasswordPage() {
                     },
                   }}
                 >
-                  Fazer login
+                  {t.auth.doLogin}
                 </Link>
               </Typography>
             </Box>

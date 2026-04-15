@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Create } from "../api/folders";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useCreateFolder() {
   return useMutation({
@@ -16,10 +17,10 @@ export default function useCreateFolder() {
       color?: string;
     }) => Create(campaignId, name, parentId, color),
     onSuccess: () => {
-      toast.success("Pasta criada com sucesso!");
+      toast.success(getLocaleDict().toast.folderCreated);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Ocorreu um erro ao criar a pasta.");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.folderCreateError);
     },
   });
 }

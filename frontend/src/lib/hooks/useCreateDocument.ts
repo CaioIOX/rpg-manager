@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Create } from "../api/documents";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useCreateDocument() {
   return useMutation({
@@ -20,10 +21,10 @@ export default function useCreateDocument() {
       isSpoiler?: boolean;
     }) => Create(campaignId, title, content, folderId, templateId, isSpoiler),
     onSuccess: () => {
-      toast.success("Documento criado com sucesso!");
+      toast.success(getLocaleDict().toast.docCreated);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Ocorreu um erro ao criar o documento.");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.docCreateError);
     },
   });
 }

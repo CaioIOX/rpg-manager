@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Link from "next/link";
 import { keyframes } from "@mui/system";
+import { useLocale } from "@/lib/i18n";
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 
@@ -34,6 +35,7 @@ const fadeInScale = keyframes`
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function HeroSection() {
+  const { t } = useLocale();
   return (
     <Box
       sx={{
@@ -104,9 +106,9 @@ export default function HeroSection() {
             letterSpacing: "-0.02em",
           }}
         >
-          O Compêndio da
+          {t.landing.heroTitle.split("\n")[0]}
           <br />
-          Sua Aventura
+          {t.landing.heroTitle.split("\n")[1]}
         </Typography>
 
         <Typography
@@ -121,10 +123,9 @@ export default function HeroSection() {
             fontSize: { xs: "1rem", sm: "1.25rem" },
           }}
         >
-          Escreva a lore da sua campanha, crie wikis complexas, e colabore em
-          tempo real com seus jogadores usando o{" "}
-          <strong style={{ color: "#D4AF37" }}>CodexLore</strong>. O seu mundo
-          na ponta dos dedos.
+          {t.landing.heroSubtitle}{" "}
+          <strong style={{ color: "#D4AF37" }}>{t.landing.heroSubtitleBrand}</strong>
+          {t.landing.heroSubtitleEnd}
         </Typography>
 
         <Stack
@@ -156,7 +157,7 @@ export default function HeroSection() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            Começar Gratuitamente
+            {t.landing.ctaStart}
           </Button>
 
           <Button
@@ -181,7 +182,7 @@ export default function HeroSection() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            Já possuo conta
+            {t.landing.ctaLogin}
           </Button>
         </Stack>
       </Box>

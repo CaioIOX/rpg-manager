@@ -31,6 +31,7 @@ import {
 } from "@mui/material";
 import { useRef, useState } from "react";
 import CollaborationAvatars from "./CollaborationAvatars";
+import { useLocale } from "@/lib/i18n";
 
 interface ConnectedUser {
   name: string;
@@ -52,18 +53,7 @@ interface ToolbarActionButtonProps {
   disabled?: boolean;
 }
 
-const TEXT_COLORS = [
-  { label: "Padrao", value: "" },
-  { label: "Dourado", value: "#D4AF37" },
-  { label: "Dourado Claro", value: "#E8CC6E" },
-  { label: "Roxo", value: "#BA68C8" },
-  { label: "Vermelho", value: "#F85149" },
-  { label: "Verde", value: "#3FB950" },
-  { label: "Azul", value: "#58A6FF" },
-  { label: "Laranja", value: "#F0883E" },
-  { label: "Cinza", value: "#8B949E" },
-  { label: "Branco", value: "#FFFFFF" },
-];
+// TEXT_COLORS is now handled inside the component to support translations
 
 function ToolbarActionButton({
   onClick,
@@ -118,6 +108,7 @@ function ToolbarDivider() {
 
 // Insert table dialog
 function InsertTableButton({ editor }: { editor: Editor }) {
+  const { t } = useLocale();
   const anchorRef = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState("3");
@@ -136,7 +127,7 @@ function InsertTableButton({ editor }: { editor: Editor }) {
 
   return (
     <>
-      <Tooltip title="Inserir tabela" arrow>
+      <Tooltip title={t.editor.toolbar.insertTable} arrow>
         <span ref={anchorRef}>
           <IconButton
             onClick={() => setOpen(true)}
@@ -191,11 +182,11 @@ function InsertTableButton({ editor }: { editor: Editor }) {
             display: "block",
           }}
         >
-          Nova tabela
+          {t.editor.toolbar.newTable}
         </Typography>
         <Box sx={{ display: "flex", gap: 1.5, mb: 2 }}>
           <TextField
-            label="Linhas"
+            label={t.editor.toolbar.rows}
             type="number"
             value={rows}
             onChange={(e) => setRows(e.target.value)}
@@ -211,7 +202,7 @@ function InsertTableButton({ editor }: { editor: Editor }) {
             }}
           />
           <TextField
-            label="Colunas"
+            label={t.editor.toolbar.cols}
             type="number"
             value={cols}
             onChange={(e) => setCols(e.target.value)}
@@ -250,7 +241,7 @@ function InsertTableButton({ editor }: { editor: Editor }) {
           }}
         >
           <AddIcon sx={{ fontSize: "0.9rem" }} />
-          Inserir tabela
+          {t.editor.toolbar.insertTable}
         </Box>
       </Popover>
     </>
@@ -259,40 +250,41 @@ function InsertTableButton({ editor }: { editor: Editor }) {
 
 // Table editing actions (row/col add/delete)
 function TableActionsMenu({ editor }: { editor: Editor }) {
+  const { t } = useLocale();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   if (!editor.isActive("table")) return null;
 
   const actions = [
     {
-      label: "Adicionar linha abaixo",
+      label: t.editor.toolbar.addRowAfter,
       action: () => editor.chain().focus().addRowAfter().run(),
     },
     {
-      label: "Adicionar linha acima",
+      label: t.editor.toolbar.addRowBefore,
       action: () => editor.chain().focus().addRowBefore().run(),
     },
     {
-      label: "Adicionar coluna à direita",
+      label: t.editor.toolbar.addColumnAfter,
       action: () => editor.chain().focus().addColumnAfter().run(),
     },
     {
-      label: "Adicionar coluna à esquerda",
+      label: t.editor.toolbar.addColumnBefore,
       action: () => editor.chain().focus().addColumnBefore().run(),
     },
     { label: "divider", action: () => {} },
     {
-      label: "Deletar linha",
+      label: t.editor.toolbar.deleteRow,
       action: () => editor.chain().focus().deleteRow().run(),
       danger: true,
     },
     {
-      label: "Deletar coluna",
+      label: t.editor.toolbar.deleteColumn,
       action: () => editor.chain().focus().deleteColumn().run(),
       danger: true,
     },
     {
-      label: "Deletar tabela",
+      label: t.editor.toolbar.deleteTable,
       action: () => editor.chain().focus().deleteTable().run(),
       danger: true,
     },
@@ -300,7 +292,7 @@ function TableActionsMenu({ editor }: { editor: Editor }) {
 
   return (
     <>
-      <Tooltip title="Editar tabela" arrow>
+      <Tooltip title={t.editor.toolbar.editTable} arrow>
         <span>
           <IconButton
             onClick={(e) => setAnchorEl(e.currentTarget)}
@@ -378,7 +370,21 @@ export default function EditorToolbar({
   connectedUsers,
   providerRef,
 }: EditorToolbarProps) {
+  const { t } = useLocale();
   const [colorAnchor, setColorAnchor] = useState<HTMLElement | null>(null);
+
+  const TEXT_COLORS = [
+    { label: t.editor.colors.default, value: "" },
+    { label: t.editor.colors.gold, value: "#D4AF37" },
+    { label: t.editor.colors.lightGold, value: "#E8CC6E" },
+    { label: t.editor.colors.purple, value: "#BA68C8" },
+    { label: t.editor.colors.red, value: "#F85149" },
+    { label: t.editor.colors.green, value: "#3FB950" },
+    { label: t.editor.colors.blue, value: "#58A6FF" },
+    { label: t.editor.colors.orange, value: "#F0883E" },
+    { label: t.editor.colors.gray, value: "#8B949E" },
+    { label: t.editor.colors.white, value: "#FFFFFF" },
+  ];
 
   // Subscribe to editor state so toolbar re-renders on every selection/transaction change.
   // This ensures isActive() reflects the correct state when cursor moves or text is selected.
@@ -450,7 +456,7 @@ export default function EditorToolbar({
                 .run()
             }
             isActive={level === 1 ? editorState.isH1 : level === 2 ? editorState.isH2 : editorState.isH3}
-            tooltip={`Titulo ${level}`}
+            tooltip={level === 1 ? t.editor.toolbar.h1 : level === 2 ? t.editor.toolbar.h2 : t.editor.toolbar.h3}
           >
             <Box
               component="span"
@@ -473,28 +479,28 @@ export default function EditorToolbar({
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editorState.isBold}
-          tooltip="Negrito"
+          tooltip={t.editor.toolbar.bold}
         >
           <FormatBoldIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editorState.isItalic}
-          tooltip="Italico"
+          tooltip={t.editor.toolbar.italic}
         >
           <FormatItalicIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           isActive={editorState.isUnderline}
-          tooltip="Sublinhado"
+          tooltip={t.editor.toolbar.underline}
         >
           <FormatUnderlinedIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
           isActive={editorState.isStrike}
-          tooltip="Tachado"
+          tooltip={t.editor.toolbar.strikethrough}
         >
           <StrikethroughSIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
@@ -504,21 +510,21 @@ export default function EditorToolbar({
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           isActive={editorState.isBulletList}
-          tooltip="Lista"
+          tooltip={t.editor.toolbar.bulletList}
         >
           <FormatListBulletedIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           isActive={editorState.isOrderedList}
-          tooltip="Lista numerada"
+          tooltip={t.editor.toolbar.orderedList}
         >
           <FormatListNumberedIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleTaskList().run()}
           isActive={editorState.isTaskList}
-          tooltip="Lista de tarefas"
+          tooltip={t.editor.toolbar.taskList}
         >
           <CheckBoxOutlinedIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
@@ -533,34 +539,34 @@ export default function EditorToolbar({
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           isActive={editorState.isBlockquote}
-          tooltip="Citacao"
+          tooltip={t.editor.toolbar.blockquote}
         >
           <FormatQuoteIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           isActive={editorState.isCodeBlock}
-          tooltip="Bloco de codigo"
+          tooltip={t.editor.toolbar.codeBlock}
         >
           <CodeIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().setDetails().run()}
           isActive={editorState.isDetails}
-          tooltip="Bloco recolhivel"
+          tooltip={t.editor.toolbar.details}
         >
           <UnfoldLessIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
         <ToolbarActionButton
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          tooltip="Linha horizontal"
+          tooltip={t.editor.toolbar.horizontalRule}
         >
           <HorizontalRuleIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>
 
         <ToolbarDivider />
 
-        <Tooltip title="Cor do texto" arrow>
+        <Tooltip title={t.editor.toolbar.textColor} arrow>
           <IconButton
             onClick={(event) => setColorAnchor(event.currentTarget)}
             size="small"
@@ -636,7 +642,7 @@ export default function EditorToolbar({
           onClick={() =>
             editor.chain().focus().clearNodes().unsetAllMarks().run()
           }
-          tooltip="Limpar formatacao"
+          tooltip={t.editor.toolbar.clearFormatting}
         >
           <FormatClearIcon sx={{ fontSize: "1.1rem" }} />
         </ToolbarActionButton>

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Delete } from "../api/documents";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useDeleteDocument() {
   return useMutation({
@@ -12,10 +13,10 @@ export default function useDeleteDocument() {
       documentId: string;
     }) => Delete(campaignId, documentId),
     onSuccess: () => {
-      toast.success("Documento removido com sucesso!");
+      toast.success(getLocaleDict().toast.docDeleted);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Ocorreu um erro ao apagar o documento.");
+      toast.error(error.response?.data?.error || getLocaleDict().toast.docDeleteError);
     },
   });
 }

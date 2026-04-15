@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { SyncMarkers } from "../api/maps";
 import { MapMarker } from "../types/Map";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useSyncMapMarkers() {
   return useMutation({
@@ -15,12 +16,12 @@ export default function useSyncMapMarkers() {
       markers: Omit<MapMarker, "id" | "map_id" | "created_at">[];
     }) => SyncMarkers(campaignId, mapId, markers),
     onSuccess: () => {
-      toast.success("Marcadores salvos com sucesso!");
+      toast.success(getLocaleDict().toast.markersSaved);
     },
     onError: (error: any) => {
       toast.error(
         error.response?.data?.error ||
-          "Ocorreu um erro ao salvar os marcadores.",
+          getLocaleDict().toast.markersError,
       );
     },
   });

@@ -38,6 +38,7 @@ import MentionHoverPopover from "./MentionHoverPopover";
 import useMentionSuggestion from "@/lib/hooks/useMentionSuggestion";
 import { SyncLinks, GetLinks } from "@/lib/api/documents";
 import { toast } from "sonner";
+import { useLocale, getLocaleDict } from "@/lib/i18n";
 
 // ─── Public handle (for resyncMentions from parent) ──────────────────────────
 export interface EditorHandle {
@@ -63,6 +64,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
   const docId = params.docId as string;
   const updateDocument = useUpdateDocument();
   const router = useRouter();
+  const { t } = useLocale();
 
   const currentUser = useCurrentUser();
   const username = currentUser.data?.username ?? "Anônimo";
@@ -166,14 +168,14 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
 
     // Só sincroniza menções se houver mudança (evita request a cada save sem alteração)
     const mentionKey = uniqueMentions.map((m) => m.target_doc_id).sort().join(",");
-    if (mentionKey !== prevMentionKeyRef.current) {
+        if (mentionKey !== prevMentionKeyRef.current) {
       prevMentionKeyRef.current = mentionKey;
       SyncLinks(campaignId, docId, uniqueMentions)
         .then(() => {
           // Atualiza o painel de backlinks após sincronizar
           queryClient.invalidateQueries({ queryKey: ["documentLinks", campaignId, docId] });
         })
-        .catch(() => toast.error("Falha ao salvar menções"));
+        .catch(() => toast.error(getLocaleDict().toast.docUpdateError || "Falha ao salvar menções"));
     }
   }, 1000);
 
@@ -383,7 +385,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
             >
               {documentLinks.data.links_to?.length > 0 && (
                 <Box sx={{ mb: 2 }}>
-                  <Typography
+                    <Typography
                     variant="caption"
                     sx={{
                       color: "text.secondary",
@@ -394,7 +396,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
                       letterSpacing: "0.05em",
                     }}
                   >
-                    Mencionado em
+                    {t.editor.mentionedBy}
                   </Typography>
                   <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                     {documentLinks.data.links_to.map((link: DocumentLink) => {
@@ -404,7 +406,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
                       return (
                         <Chip
                           key={link.id}
-                          label={sourceDoc?.title || "Documento"}
+                          label={sourceDoc?.title || t.common.document}
                           size="small"
                           onClick={() =>
                             router.push(
@@ -437,7 +439,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
                       letterSpacing: "0.05em",
                     }}
                   >
-                    Menciona
+                    {t.editor.mentions}
                   </Typography>
                   <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                     {documentLinks.data.links_from.map((link: DocumentLink) => {
@@ -448,7 +450,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
                         <Chip
                           key={link.id}
                           label={
-                            targetDoc?.title || link.mention_text || "Documento"
+                            targetDoc?.title || link.mention_text || t.common.document
                           }
                           size="small"
                           onClick={() =>

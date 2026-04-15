@@ -14,10 +14,11 @@ import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocale, getLocaleDict } from "@/lib/i18n";
 
 const memberSchema = z.object({
-  email: z.string().min(1, "O email é obrigatório").email("Email inválido"),
-  role: z.string().min(1, "O papel é obrigatório"),
+  email: z.string().min(1, { message: getLocaleDict().modals.emailRequired }).email({ message: getLocaleDict().modals.emailInvalid }),
+  role: z.string().min(1, { message: getLocaleDict().modals.roleRequired }),
 });
 
 type FormData = z.infer<typeof memberSchema>;
@@ -35,6 +36,7 @@ export default function AddMemberModal({
   const params = useParams();
   const campaignId = params.id as string;
   const queryClient = useQueryClient();
+  const { t } = useLocale();
 
   const {
     register,
@@ -92,7 +94,7 @@ export default function AddMemberModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          Gerenciar Equipe
+          {t.modals.addMemberManage}
         </Typography>
         <Typography
           component="span"
@@ -106,7 +108,7 @@ export default function AddMemberModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          Adicionar Membro
+          {t.modals.addMemberTitle}
         </Typography>
       </DialogTitle>
 
@@ -121,16 +123,16 @@ export default function AddMemberModal({
           }}
         >
           <TextField
-            label="Email do jogador"
+            label={t.modals.addMemberEmail}
             placeholder="jogador@email.com"
             fullWidth
             variant="outlined"
             type="email"
             {...register("email", {
-              required: "O email é obrigatório",
+              required: t.modals.emailRequired,
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Email inválido",
+                message: t.modals.emailInvalid,
               },
             })}
             error={!!errors.email}
@@ -144,7 +146,7 @@ export default function AddMemberModal({
           />
 
           <TextField
-            label="Papel na campanha"
+            label={t.modals.addMemberRole}
             select
             fullWidth
             variant="outlined"
@@ -157,8 +159,8 @@ export default function AddMemberModal({
               },
             }}
           >
-            <MenuItem value="editor">Editor — Pode criar e editar</MenuItem>
-            <MenuItem value="viewer">Visualizador — Apenas leitura</MenuItem>
+            <MenuItem value="editor">{t.modals.addMemberEditorRole}</MenuItem>
+            <MenuItem value="viewer">{t.modals.addMemberViewerRole}</MenuItem>
           </TextField>
         </DialogContent>
         <DialogActions
@@ -183,7 +185,7 @@ export default function AddMemberModal({
               },
             }}
           >
-            Cancelar
+            {t.modals.cancel}
           </Button>
           <Button
             type="submit"
@@ -202,7 +204,7 @@ export default function AddMemberModal({
               },
             }}
           >
-            Adicionar
+            {t.modals.add}
           </Button>
         </DialogActions>
       </form>

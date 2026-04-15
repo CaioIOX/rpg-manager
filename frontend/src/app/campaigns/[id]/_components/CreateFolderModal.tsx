@@ -18,15 +18,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Folder } from "@/lib/types/Folder";
+import { useLocale, getLocaleDict } from "@/lib/i18n";
 
 const DEFAULT_FOLDER_COLOR = "#9E9E9E";
 
 const folderSchema = z.object({
-  name: z.string().min(1, "O nome da pasta é obrigatório"),
+  name: z.string().min(1, { message: getLocaleDict().modals.nameRequired }),
   parentId: z.string().optional(),
   color: z
     .string()
-    .regex(/^#([0-9A-Fa-f]{6})$/, "Informe um hexadecimal válido")
+    .regex(/^#([0-9A-Fa-f]{6})$/, { message: getLocaleDict().modals.invalidHex })
     .optional(),
 });
 
@@ -49,6 +50,7 @@ export default function CreateFolderModal({
   const campaignId = params.id as string;
   const queryClient = useQueryClient();
   const { data: folders } = useFolders(campaignId);
+  const { t } = useLocale();
 
   const {
     register,
@@ -146,7 +148,7 @@ export default function CreateFolderModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          {initialData ? "Editar Pasta" : "Nova Pasta"}
+          {initialData ? t.modals.editFolder : t.modals.newFolder}
         </Typography>
         <Typography
           component="span"
@@ -160,7 +162,7 @@ export default function CreateFolderModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          {initialData ? "Editar Pasta" : "Criar Pasta"}
+          {initialData ? t.modals.editFolder : t.modals.createFolder}
         </Typography>
       </DialogTitle>
 
@@ -175,13 +177,13 @@ export default function CreateFolderModal({
           }}
         >
           <TextField
-            label="Nome da pasta"
-            placeholder="Ex: Personagens"
+            label={t.modals.folderName}
+            placeholder={t.modals.folderPlaceholder}
             fullWidth
             variant="outlined"
             {...register("name", {
-              required: "O nome da pasta é obrigatório",
-              minLength: { value: 1, message: "Nome muito curto" },
+              required: t.modals.nameRequired,
+              minLength: { value: 1, message: t.modals.nameMinLength },
             })}
             error={!!errors.name}
             helperText={errors.name?.message}
@@ -194,7 +196,7 @@ export default function CreateFolderModal({
           />
 
           <TextField
-            label="Pasta pai (opcional)"
+            label={t.modals.folderParent}
             select
             fullWidth
             variant="outlined"
@@ -207,7 +209,7 @@ export default function CreateFolderModal({
               },
             }}
           >
-            <MenuItem value="">Nenhuma (raiz)</MenuItem>
+            <MenuItem value="">{t.modals.noneRoot}</MenuItem>
             {folders?.map((folder) => (
               <MenuItem key={folder.id} value={folder.id}>
                 {folder.name}
@@ -216,7 +218,7 @@ export default function CreateFolderModal({
           </TextField>
 
           <TextField
-            label="Cor da pasta"
+            label={t.modals.folderColor}
             type="color"
             fullWidth
             variant="outlined"
@@ -224,7 +226,7 @@ export default function CreateFolderModal({
             {...register("color")}
             error={!!errors.color}
             helperText={
-              errors.color?.message ?? "Escolha uma cor exibida no ícone da pasta."
+              errors.color?.message ?? t.modals.folderColorHelper
             }
             sx={{
               "& .MuiOutlinedInput-root": {
@@ -259,7 +261,7 @@ export default function CreateFolderModal({
               },
             }}
           >
-            Cancelar
+            {t.modals.cancel}
           </Button>
           <Button
             type="submit"
@@ -278,7 +280,7 @@ export default function CreateFolderModal({
               },
             }}
           >
-            {initialData ? "Salvar Alterações" : "Criar Pasta"}
+            {initialData ? t.modals.saveChanges : t.modals.createFolder}
           </Button>
         </DialogActions>
       </form>

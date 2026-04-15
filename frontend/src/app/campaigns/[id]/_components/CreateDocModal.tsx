@@ -21,9 +21,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DocumentSummary } from "@/lib/types/Documents";
+import { useLocale, getLocaleDict } from "@/lib/i18n";
 
 const docSchema = z.object({
-  title: z.string().min(1, "O título é obrigatório"),
+  title: z.string().min(1, { message: getLocaleDict().modals.titleRequired }),
   folderId: z.string().optional(),
   templateId: z.string().optional(),
   isSpoiler: z.boolean(),
@@ -53,6 +54,7 @@ export default function CreateDocModal({
   const queryClient = useQueryClient();
   const { data: folders } = useFolders(campaignId);
   const { data: templates } = useTemplates(campaignId);
+  const { t } = useLocale();
 
   const {
     register,
@@ -169,7 +171,7 @@ export default function CreateDocModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          {initialData ? "Editar Documento" : "Novo Documento"}
+          {initialData ? t.modals.editDoc : t.modals.newDoc}
         </Typography>
         <Typography
           component="span"
@@ -183,7 +185,7 @@ export default function CreateDocModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          {initialData ? "Editar Documento" : "Criar Documento"}
+          {initialData ? t.modals.editDoc : t.modals.createDoc}
         </Typography>
       </DialogTitle>
 
@@ -198,15 +200,15 @@ export default function CreateDocModal({
           }}
         >
           <TextField
-            label="Título do documento"
-            placeholder="Aventura dos amigos"
+            label={t.modals.docTitleLabel}
+            placeholder={t.modals.docTitlePlaceholder}
             fullWidth
             variant="outlined"
             {...register("title", {
-              required: "O título é obrigatório",
+              required: t.modals.titleRequired,
               minLength: {
                 value: 3,
-                message: "O título precisa ter pelo menos 3 caracteres",
+                message: t.modals.titleMinLength,
               },
             })}
             error={!!errors.title}
@@ -220,7 +222,7 @@ export default function CreateDocModal({
           />
 
           <TextField
-            label="Pasta (opcional)"
+            label={t.modals.docFolder}
             select
             fullWidth
             variant="outlined"
@@ -242,7 +244,7 @@ export default function CreateDocModal({
               },
             }}
           >
-            <MenuItem value="">Nenhuma (raiz)</MenuItem>
+            <MenuItem value="">{t.modals.noneRoot}</MenuItem>
             {folders?.map((folder) => (
               <MenuItem key={folder.id} value={folder.id}>
                 📁 {folder.name}
@@ -251,7 +253,7 @@ export default function CreateDocModal({
           </TextField>
 
           <TextField
-            label="Template (opcional)"
+            label={t.modals.docTemplate}
             select
             fullWidth
             variant="outlined"
@@ -273,7 +275,7 @@ export default function CreateDocModal({
               },
             }}
           >
-            <MenuItem value="">Nenhum</MenuItem>
+            <MenuItem value="">{t.modals.noTemplate}</MenuItem>
             {templates?.map((template) => (
               <MenuItem key={template.id} value={template.id}>
                 {template.icon} {template.name}
@@ -296,7 +298,7 @@ export default function CreateDocModal({
             }
             label={
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                🔒 Spoiler — Apenas você e o dono da campanha podem ver
+                {t.modals.spoilerLabel}
               </Typography>
             }
           />
@@ -323,7 +325,7 @@ export default function CreateDocModal({
               },
             }}
           >
-            Cancelar
+            {t.modals.cancel}
           </Button>
           <Button
             type="submit"
@@ -342,7 +344,7 @@ export default function CreateDocModal({
               },
             }}
           >
-            {initialData ? "Salvar Alterações" : "Criar Documento"}
+            {initialData ? t.modals.saveChanges : t.modals.createDoc}
           </Button>
         </DialogActions>
       </form>

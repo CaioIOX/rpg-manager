@@ -13,17 +13,20 @@ import z from "zod";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
-
-const registerSchema = z.object({
-  email: z.email("Email inválido").min(1, "Email obrigatório"),
-  username: z.string().min(3, "Username obrigatório."),
-  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
-});
-
-type RegisterFormData = z.infer<typeof registerSchema>;
+import { useLocale } from "@/lib/i18n";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLocale();
+
+  const registerSchema = z.object({
+    email: z.email(t.auth.emailInvalid).min(1, t.auth.emailRequired),
+    username: z.string().min(3, t.auth.usernameRequired),
+    password: z.string().min(8, t.auth.passwordMinLength),
+  });
+
+  type RegisterFormData = z.infer<typeof registerSchema>;
+
 
   const {
     register,
@@ -133,8 +136,7 @@ export default function RegisterPage() {
             lineHeight: 1.6,
           }}
         >
-          Junte-se à aventura. Crie sua conta e comece a gerenciar suas
-          campanhas.
+          {t.auth.registerSubtitle}
         </Typography>
 
         {/* Register Card */}
@@ -186,7 +188,7 @@ export default function RegisterPage() {
             </Typography>
 
             <TextField
-              label="Username"
+              label={t.auth.username}
               variant="outlined"
               fullWidth
               {...register("username")}
@@ -200,8 +202,8 @@ export default function RegisterPage() {
               }}
             />
             <TextField
-              label="Email"
-              placeholder="exemplo@gmail.com"
+              label={t.auth.email}
+              placeholder={t.auth.emailPlaceholder}
               variant="outlined"
               fullWidth
               sx={{
@@ -215,7 +217,7 @@ export default function RegisterPage() {
               helperText={errors.email?.message}
             />
             <TextField
-              label="Senha"
+              label={t.auth.password}
               type="password"
               placeholder="••••••••"
               variant="outlined"
@@ -235,7 +237,7 @@ export default function RegisterPage() {
               <Typography color="error" variant="body2" textAlign="center">
                 {registerMutation.error instanceof Error
                   ? registerMutation.error.message
-                  : "Erro ao realizar cadastro"}
+                  : t.auth.registerError}
               </Typography>
             )}
             <Button
@@ -262,7 +264,7 @@ export default function RegisterPage() {
               variant="body2"
               sx={{ color: "text.secondary", mt: 0.5 }}
             >
-              Já tem uma conta?{" "}
+              {t.auth.hasAccount}{" "}
               <Link
                 href="/"
                 sx={{
@@ -276,7 +278,7 @@ export default function RegisterPage() {
                   },
                 }}
               >
-                Fazer login
+                {t.auth.doLogin}
               </Link>
             </Typography>
           </Box>

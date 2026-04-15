@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Update } from "../api/maps";
 import { toast } from "sonner";
+import { getLocaleDict } from "@/lib/i18n";
 
 export default function useUpdateMap() {
   return useMutation({
@@ -14,11 +15,11 @@ export default function useUpdateMap() {
       name: string;
     }) => Update(campaignId, mapId, name),
     onSuccess: () => {
-      toast.success("Mapa atualizado com sucesso!");
+      toast.success(getLocaleDict().toast.mapUpdated);
     },
     onError: (error: any) => {
       toast.error(
-        error.response?.data?.error || "Ocorreu um erro ao atualizar o mapa.",
+        error.response?.data?.error || getLocaleDict().toast.mapUpdateError,
       );
     },
   });

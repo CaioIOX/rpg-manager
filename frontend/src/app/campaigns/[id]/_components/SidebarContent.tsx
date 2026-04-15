@@ -22,6 +22,7 @@ import { MouseEvent, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DocumentItem from "./DocumentItem";
 import FolderTreeItem from "./FolderTreeItem";
+import { useLocale } from "@/lib/i18n";
 
 interface SidebarContentProps {
   searchQuery: string;
@@ -98,12 +99,13 @@ export default function SidebarContent({
     (template) => template.id === activeTemplateId,
   );
   const [templatesExpanded, setTemplatesExpanded] = useState(true);
+  const { t } = useLocale();
 
   return (
     <Box sx={{ flex: 1, overflow: "auto", minHeight: 0, px: 1, py: 1.5, "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none", msOverflowStyle: "none" }}>
       {searchQuery.length >= 2 && searchResults ? (
         <Stack spacing={0.5}>
-          <SectionLabel>Resultados da busca</SectionLabel>
+          <SectionLabel>{t.sidebar.searchResults}</SectionLabel>
           {searchResults.length === 0 ? (
             <Typography
               variant="body2"
@@ -114,7 +116,7 @@ export default function SidebarContent({
                 fontSize: "0.85rem",
               }}
             >
-              Nenhum resultado encontrado
+              {t.sidebar.noResults}
             </Typography>
           ) : (
             searchResults.map((doc) => {
@@ -160,7 +162,7 @@ export default function SidebarContent({
                     flex: 1,
                   }}
                 >
-                  Templates
+                  {t.sidebar.templatesSection}
                 </Typography>
                 <KeyboardArrowDownIcon
                   className="templ-chevron"
@@ -253,7 +255,7 @@ export default function SidebarContent({
                     }}
                     sx={{ fontSize: "0.85rem" }}
                   >
-                    Editar
+                    {t.common.edit}
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
@@ -262,7 +264,7 @@ export default function SidebarContent({
                     }}
                     sx={{ fontSize: "0.85rem", color: "error.main" }}
                   >
-                    Apagar
+                    {t.common.delete}
                   </MenuItem>
                 </Menu>
               </Collapse>
@@ -271,7 +273,8 @@ export default function SidebarContent({
             </Box>
           )}
 
-          <SectionLabel>Arquivos</SectionLabel>
+          <SectionLabel>{t.sidebar.archivesSection}</SectionLabel>
+
 
           {rootFolders.map((folder) => (
             <FolderTreeItem
@@ -321,7 +324,7 @@ export default function SidebarContent({
                   fontSize: "0.8rem",
                 }}
               >
-                Nenhum documento ainda
+                {t.sidebar.noDocs}
               </Typography>
             </Box>
           )}
@@ -330,7 +333,7 @@ export default function SidebarContent({
           {maps.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Divider sx={{ mb: 1.5 }} />
-              <SectionLabel>Mapas</SectionLabel>
+              <SectionLabel>{t.sidebar.mapsSection}</SectionLabel>
               {maps.map((map) => (
                 <Box
                   key={map.id}

@@ -9,6 +9,7 @@ import {
 import { useParams } from "next/navigation";
 import useDocuments from "@/lib/hooks/useDocuments";
 import useTemplates from "@/lib/hooks/useTemplates";
+import { useLocale } from "@/lib/i18n";
 
 export default function CampaignDashboard() {
   const params = useParams();
@@ -18,6 +19,7 @@ export default function CampaignDashboard() {
     useDocuments(campaignId);
   const { data: templates, isLoading: isLoadingTemplates } =
     useTemplates(campaignId);
+  const { t } = useLocale();
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3, md: 5 } }}>
@@ -34,10 +36,10 @@ export default function CampaignDashboard() {
             fontSize: { xs: "1.8rem", sm: "2.125rem" },
           }}
         >
-          Visao Geral
+          {t.dashboard.title}
         </Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Acompanhe o progresso da sua campanha
+          {t.dashboard.subtitle}
         </Typography>
       </Box>
 

@@ -5,6 +5,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import SettingsIcon from "@mui/icons-material/Settings";
 import MapIcon from "@mui/icons-material/Map";
 import { Button, Stack } from "@mui/material";
+import { useLocale } from "@/lib/i18n";
 
 interface SidebarQuickActionsProps {
   onCreateDoc: () => void;
@@ -13,41 +14,40 @@ interface SidebarQuickActionsProps {
   onCreateMap: () => void;
 }
 
-const actions = [
-  {
-    key: "doc",
-    label: "Doc",
-    icon: <AddIcon sx={{ fontSize: "1rem" }} />,
-  },
-  {
-    key: "folder",
-    label: "Pasta",
-    icon: <FolderIcon sx={{ fontSize: "1rem" }} />,
-  },
-  {
-    key: "template",
-    label: "Template",
-    icon: <SettingsIcon sx={{ fontSize: "1rem" }} />,
-  },
-  {
-    key: "map",
-    label: "Mapa",
-    icon: <MapIcon sx={{ fontSize: "1rem" }} />,
-  },
-] as const;
-
 export default function SidebarQuickActions({
   onCreateDoc,
   onCreateFolder,
   onCreateTemplate,
   onCreateMap,
 }: SidebarQuickActionsProps) {
-  const handlers = {
-    doc: onCreateDoc,
-    folder: onCreateFolder,
-    template: onCreateTemplate,
-    map: onCreateMap,
-  };
+  const { t } = useLocale();
+
+  const actions = [
+    {
+      key: "doc" as const,
+      label: t.sidebar.docAction,
+      icon: <AddIcon sx={{ fontSize: "1rem" }} />,
+      handler: onCreateDoc,
+    },
+    {
+      key: "folder" as const,
+      label: t.sidebar.folderAction,
+      icon: <FolderIcon sx={{ fontSize: "1rem" }} />,
+      handler: onCreateFolder,
+    },
+    {
+      key: "template" as const,
+      label: t.sidebar.templateAction,
+      icon: <SettingsIcon sx={{ fontSize: "1rem" }} />,
+      handler: onCreateTemplate,
+    },
+    {
+      key: "map" as const,
+      label: t.sidebar.mapAction,
+      icon: <MapIcon sx={{ fontSize: "1rem" }} />,
+      handler: onCreateMap,
+    },
+  ];
 
   return (
     <Stack
@@ -66,7 +66,7 @@ export default function SidebarQuickActions({
           variant="text"
           color="inherit"
           startIcon={action.icon}
-          onClick={handlers[action.key]}
+          onClick={action.handler}
           sx={{
             flex: 1,
             minHeight: 40,

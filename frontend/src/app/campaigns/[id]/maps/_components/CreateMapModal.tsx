@@ -17,6 +17,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useLocale, getLocaleDict } from "@/lib/i18n";
 
 interface CreateMapModalProps {
   isModalOpen: boolean;
@@ -39,6 +40,7 @@ export default function CreateMapModal({
   const isPremium = !!currentUser?.is_premium;
   const maxFileSize = isPremium ? MAX_FILE_SIZE_PREMIUM : MAX_FILE_SIZE_FREE;
   const maxFileSizeMB = isPremium ? 50 : 25;
+  const { t } = useLocale();
 
   const [name, setName] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -66,15 +68,15 @@ export default function CreateMapModal({
   const processFile = useCallback(
     (f: File) => {
       if (!f.type.startsWith("image/")) {
-        toast.error("Apenas imagens são aceitas (PNG, JPEG, GIF, WebP).");
+        toast.error(getLocaleDict().modals.mapOnlyImages);
         return;
       }
       if (f.size > maxFileSize) {
         if (isPremium) {
-          toast.error(`O arquivo é muito grande. O limite para premium é ${maxFileSizeMB}MB.`);
+          toast.error(getLocaleDict().modals.mapTooBigPremium.replace("{size}", maxFileSizeMB.toString()));
         } else {
           toast.error(
-            `O arquivo é muito grande (${(f.size / 1024 / 1024).toFixed(1)}MB). Limite: 25MB. Usuários premium podem enviar até 50MB!`,
+            getLocaleDict().modals.mapTooBigFree.replace("{current}", (f.size / 1024 / 1024).toFixed(1)),
           );
         }
         return;
@@ -143,7 +145,7 @@ export default function CreateMapModal({
           variant="body2"
           sx={{ color: "text.secondary", mb: 0.5, fontSize: "0.8rem" }}
         >
-          Novo Mapa
+          {t.modals.newMap}
         </Typography>
         <Typography
           component="span"
@@ -157,7 +159,7 @@ export default function CreateMapModal({
             WebkitTextFillColor: "transparent",
           }}
         >
-          Upload de Mapa
+          {t.modals.mapUploadTitle}
         </Typography>
       </DialogTitle>
 
@@ -171,8 +173,8 @@ export default function CreateMapModal({
         }}
       >
         <TextField
-          label="Nome do mapa"
-          placeholder="Mapa da Cidade Imperial"
+          label={t.modals.mapNameLabel}
+          placeholder={t.modals.mapNamePlaceholder}
           fullWidth
           variant="outlined"
           value={name}
@@ -260,7 +262,7 @@ export default function CreateMapModal({
                   mt: 0.5,
                 }}
               >
-                Clique para trocar a imagem
+                {t.modals.mapChangeImage}
               </Typography>
             </>
           ) : (
@@ -283,7 +285,7 @@ export default function CreateMapModal({
                   fontSize: "0.85rem",
                 }}
               >
-                Arraste e solte uma imagem aqui
+                {t.modals.mapDropzoneText}
               </Typography>
               <Typography
                 variant="caption"
@@ -293,13 +295,13 @@ export default function CreateMapModal({
                   textAlign: "center",
                 }}
               >
-                ou clique para selecionar • Máximo {maxFileSizeMB}MB
+                {t.modals.mapDropzoneOr.replace("{size}", maxFileSizeMB.toString())}
                 {!isPremium && (
                   <Box
                     component="span"
                     sx={{ color: "primary.main", ml: 0.5 }}
                   >
-                    (Premium: 50MB)
+                    {t.modals.mapPremiumMax}
                   </Box>
                 )}
               </Typography>
@@ -344,7 +346,7 @@ export default function CreateMapModal({
                 textAlign: "center",
               }}
             >
-              Enviando… {progress}%
+              {t.modals.mapUploading.replace("{progress}", progress.toString())}
             </Typography>
           </Box>
         )}
@@ -372,7 +374,7 @@ export default function CreateMapModal({
             },
           }}
         >
-          Cancelar
+          {t.modals.cancel}
         </Button>
         <Button
           onClick={handleSubmit}
@@ -388,7 +390,7 @@ export default function CreateMapModal({
             },
           }}
         >
-          Criar Mapa
+          {t.modals.createMap}
         </Button>
       </DialogActions>
     </Dialog>
