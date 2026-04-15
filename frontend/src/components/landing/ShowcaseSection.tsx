@@ -1,40 +1,175 @@
 "use client";
 
+
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { keyframes } from "@mui/system";
 
-const floatContainer = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+// ─── Animations ───────────────────────────────────────────────────────────────
+
+const glowPulse = keyframes`
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 `;
+
+// ─── Showcase items ───────────────────────────────────────────────────────────
+
+const showcaseItems = [
+  {
+    title: "Editor com Menções",
+    description:
+      "Escreva documentos ricos com formatação avançada, menções interativas (@) que conectam personagens, locais e itens em uma wiki viva.",
+    image: "/screenshots/editor.png",
+    alt: "Editor de documentos com menções interativas e formatação rica",
+  },
+  {
+    title: "Templates em Painel Lateral",
+    description:
+      "Campos de template organizados em um painel lateral elegante ao lado do documento. Visualize e edite atributos, tags e propriedades sem perder o foco na escrita.",
+    image: "/screenshots/template.png",
+    alt: "Painel lateral de template com campos customizáveis ao lado do editor",
+  },
+  {
+    title: "Lorena: IA Guardiã do Lore",
+    description:
+      "Assistente de inteligência artificial que conhece toda a lore da sua campanha. Pergunte sobre qualquer NPC, local, item ou evento — ela consulta seus documentos e responde com precisão.",
+    image: "/screenshots/lorena.png",
+    alt: "Chatbot Lorena respondendo perguntas sobre a lore da campanha",
+  },
+];
+
+// ─── Showcase card ────────────────────────────────────────────────────────────
+
+function ShowcaseCard({
+  item,
+  index,
+}: {
+  item: (typeof showcaseItems)[number];
+  index: number;
+}) {
+  const isReversed = index % 2 !== 0;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: {
+          xs: "column",
+          md: isReversed ? "row-reverse" : "row",
+        },
+        alignItems: "center",
+        gap: { xs: 4, md: 6 },
+        mb: { xs: 8, md: 0 },
+      }}
+    >
+      {/* Text side */}
+      <Box
+        sx={{
+          flex: { md: "0 0 35%" },
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 800,
+            mb: 2,
+            color: "text.primary",
+            fontSize: { xs: "1.6rem", md: "2rem" },
+            lineHeight: 1.2,
+          }}
+        >
+          {item.title}
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+            lineHeight: 1.7,
+            fontSize: { xs: "0.95rem", md: "1.05rem" },
+          }}
+        >
+          {item.description}
+        </Typography>
+      </Box>
+
+      {/* Image side */}
+      <Box
+        sx={{
+          flex: { md: "0 0 60%" },
+          position: "relative",
+        }}
+      >
+        {/* Subtle glow */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: "-10%",
+            background:
+              index % 2 === 0
+                ? "radial-gradient(ellipse, rgba(212, 175, 55, 0.06) 0%, transparent 70%)"
+                : "radial-gradient(ellipse, rgba(142, 36, 170, 0.08) 0%, transparent 70%)",
+            pointerEvents: "none",
+            animation: `${glowPulse} 4s ease-in-out infinite`,
+          }}
+        />
+
+        <Box
+          component="img"
+          src={item.image}
+          alt={item.alt}
+          sx={{
+            position: "relative",
+            width: "100%",
+            height: "auto",
+            borderRadius: { xs: "10px", md: "14px" },
+            border: "1px solid rgba(212, 175, 55, 0.12)",
+            boxShadow:
+              "0 20px 50px -10px rgba(0, 0, 0, 0.5), 0 0 60px rgba(142, 36, 170, 0.06)",
+            transition: "transform 0.4s ease, box-shadow 0.4s ease",
+            "&:hover": {
+              transform: "scale(1.015)",
+              boxShadow:
+                "0 25px 60px -10px rgba(0, 0, 0, 0.6), 0 0 80px rgba(212, 175, 55, 0.1)",
+            },
+          }}
+        />
+      </Box>
+    </Box>
+  );
+}
+
+// ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function ShowcaseSection() {
   return (
     <Box
       sx={{
         width: "100%",
-        py: { xs: 8, md: 15 },
+        py: { xs: 8, md: 14 },
         position: "relative",
         overflow: "hidden",
       }}
     >
+      {/* Background gradient */}
       <Box
         sx={{
           position: "absolute",
-          top: "15%",
+          top: "10%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "80%",
+          width: "90%",
           height: "80%",
-          background: "radial-gradient(ellipse, rgba(142, 36, 170, 0.15) 0%, transparent 70%)",
+          background:
+            "radial-gradient(ellipse, rgba(142, 36, 170, 0.08) 0%, transparent 70%)",
           zIndex: 0,
           pointerEvents: "none",
         }}
       />
-      
+
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
         <Typography
           variant="h3"
@@ -54,105 +189,28 @@ export default function ShowcaseSection() {
           align="center"
           sx={{
             mx: "auto",
-            mb: { xs: 6, md: 8 },
+            mb: { xs: 6, md: 10 },
             color: "text.secondary",
             maxWidth: "600px",
             fontSize: "1.1rem",
             lineHeight: 1.6,
           }}
         >
-          Interface projetada do zero para ser intuitiva, bela e livre de distrações, deixando o foco apenas no que importa: a sua história.
+          Interface projetada do zero para ser intuitiva, bela e livre de
+          distrações — o foco é apenas na sua história.
         </Typography>
 
+        {/* Showcase items — alternating layout */}
         <Box
           sx={{
-            width: "100%",
-            maxWidth: "1000px",
-            mx: "auto",
-            height: { xs: "300px", md: "500px" },
-            bgcolor: "rgba(13, 17, 23, 0.8)", // GitHub dark mode inspired bg
-            borderRadius: "16px",
-            border: "1px solid rgba(212, 175, 55, 0.2)",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 80px rgba(142, 36, 170, 0.15)",
-            backdropFilter: "blur(20px)",
             display: "flex",
             flexDirection: "column",
-            overflow: "hidden",
-            animation: `${floatContainer} 6s ease-in-out infinite`,
+            gap: { xs: 4, md: 12 },
           }}
         >
-          {/* Mockup Top Bar */}
-          <Box
-            sx={{
-              height: "40px",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
-              display: "flex",
-              alignItems: "center",
-              px: 2,
-              gap: 1,
-            }}
-          >
-            <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#FF5F56" }} />
-            <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#FFBD2E" }} />
-            <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#27C93F" }} />
-          </Box>
-          
-          {/* Mockup Body */}
-          <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
-            {/* Sidebar */}
-            <Box
-              sx={{
-                width: { xs: "0px", md: "250px" },
-                display: { xs: "none", md: "flex" },
-                flexDirection: "column",
-                borderRight: "1px solid rgba(255,255,255,0.05)",
-                p: 2,
-                gap: 2,
-              }}
-            >
-              {[1, 2, 3, 4, 5].map((item) => (
-                <Box key={item} sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Box sx={{ width: 24, height: 24, borderRadius: "4px", bgcolor: "rgba(212, 175, 55, 0.1)" }} />
-                  <Box sx={{ flex: 1, height: 12, borderRadius: "4px", bgcolor: "rgba(255, 255, 255, 0.05)" }} />
-                </Box>
-              ))}
-            </Box>
-
-            {/* Main Content Area */}
-            <Box sx={{ flex: 1, p: { xs: 3, md: 5 }, display: "flex", flexDirection: "column", gap: 3 }}>
-              {/* Title representation */}
-              <Box sx={{ width: "40%", height: 32, borderRadius: "6px", bgcolor: "rgba(212, 175, 55, 0.15)" }} />
-              
-              {/* Paragraphs representation */}
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <Box sx={{ width: "100%", height: 12, borderRadius: "4px", bgcolor: "rgba(255, 255, 255, 0.05)" }} />
-                <Box sx={{ width: "95%", height: 12, borderRadius: "4px", bgcolor: "rgba(255, 255, 255, 0.05)" }} />
-                <Box sx={{ width: "80%", height: 12, borderRadius: "4px", bgcolor: "rgba(255, 255, 255, 0.05)" }} />
-              </Box>
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 2 }}>
-                <Box sx={{ width: "90%", height: 12, borderRadius: "4px", bgcolor: "rgba(255, 255, 255, 0.05)" }} />
-                <Box sx={{ width: "60%", height: 12, borderRadius: "4px", bgcolor: "rgba(255, 255, 255, 0.05)" }} />
-              </Box>
-
-              {/* Special block representing a template field or mention */}
-              <Box
-                sx={{
-                  mt: "auto",
-                  width: "100%",
-                  height: 60,
-                  borderRadius: "8px",
-                  bgcolor: "rgba(142, 36, 170, 0.1)",
-                  border: "1px solid rgba(142, 36, 170, 0.2)",
-                  display: "flex",
-                  alignItems: "center",
-                  px: 2,
-                }}
-              >
-                <Box sx={{ width: "30%", height: 12, borderRadius: "4px", bgcolor: "rgba(142, 36, 170, 0.3)" }} />
-              </Box>
-            </Box>
-          </Box>
+          {showcaseItems.map((item, idx) => (
+            <ShowcaseCard key={idx} item={item} index={idx} />
+          ))}
         </Box>
       </Container>
     </Box>

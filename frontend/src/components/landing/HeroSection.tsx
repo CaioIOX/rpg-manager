@@ -6,7 +6,8 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Link from "next/link";
 import { keyframes } from "@mui/system";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+
+// ─── Animations ───────────────────────────────────────────────────────────────
 
 const float = keyframes`
   0% { transform: translateY(0px) rotate(0deg); }
@@ -25,6 +26,13 @@ const fadeInUp = keyframes`
   100% { opacity: 1; transform: translateY(0); }
 `;
 
+const fadeInScale = keyframes`
+  0% { opacity: 0; transform: scale(0.95) translateY(40px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+`;
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function HeroSection() {
   return (
     <Box
@@ -37,7 +45,7 @@ export default function HeroSection() {
         justifyContent: "center",
         position: "relative",
         px: { xs: 2, sm: 4 },
-        py: { xs: 8, md: 12 },
+        py: { xs: 8, md: 10 },
         overflow: "hidden",
       }}
     >
@@ -48,7 +56,8 @@ export default function HeroSection() {
           width: { xs: "300px", md: "500px" },
           height: { xs: "300px", md: "500px" },
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 60%)",
+          background:
+            "radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 60%)",
           top: "-10%",
           right: "-10%",
           pointerEvents: "none",
@@ -61,7 +70,8 @@ export default function HeroSection() {
           width: { xs: "250px", md: "400px" },
           height: { xs: "250px", md: "400px" },
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(142, 36, 170, 0.09) 0%, transparent 65%)",
+          background:
+            "radial-gradient(circle, rgba(142, 36, 170, 0.09) 0%, transparent 65%)",
           bottom: "10%",
           left: "-5%",
           pointerEvents: "none",
@@ -69,6 +79,7 @@ export default function HeroSection() {
         }}
       />
 
+      {/* Hero Text */}
       <Box
         sx={{
           position: "relative",
@@ -85,14 +96,17 @@ export default function HeroSection() {
             fontSize: { xs: "3rem", sm: "4.5rem", md: "5.5rem" },
             lineHeight: 1.1,
             mb: 2,
-            background: "linear-gradient(135deg, #FFFFFF 0%, #D4AF37 50%, #9E8024 100%)",
+            background:
+              "linear-gradient(135deg, #FFFFFF 0%, #D4AF37 50%, #9E8024 100%)",
             backgroundClip: "text",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             letterSpacing: "-0.02em",
           }}
         >
-          O Compêndio da<br />Sua Aventura
+          O Compêndio da
+          <br />
+          Sua Aventura
         </Typography>
 
         <Typography
@@ -107,7 +121,10 @@ export default function HeroSection() {
             fontSize: { xs: "1rem", sm: "1.25rem" },
           }}
         >
-          Escreva a lore da sua campanha, crie wikis complexas, e colabore em tempo real com seus jogadores usando o <strong style={{color:"#D4AF37"}}>CodexLore</strong>. O seu mundo na ponta dos dedos.
+          Escreva a lore da sua campanha, crie wikis complexas, e colabore em
+          tempo real com seus jogadores usando o{" "}
+          <strong style={{ color: "#D4AF37" }}>CodexLore</strong>. O seu mundo
+          na ponta dos dedos.
         </Typography>
 
         <Stack
@@ -121,7 +138,6 @@ export default function HeroSection() {
             href="/auth/register"
             variant="contained"
             size="large"
-            startIcon={<AutoAwesomeIcon />}
             sx={{
               borderRadius: "16px",
               py: 1.8,
@@ -129,10 +145,12 @@ export default function HeroSection() {
               fontSize: "1.05rem",
               fontWeight: 700,
               textTransform: "none",
-              background: "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
+              background:
+                "linear-gradient(135deg, #D4AF37 0%, #9E8024 100%)",
               boxShadow: "0 8px 24px rgba(212, 175, 55, 0.25)",
               "&:hover": {
-                background: "linear-gradient(135deg, #E8CC6E 0%, #D4AF37 100%)",
+                background:
+                  "linear-gradient(135deg, #E8CC6E 0%, #D4AF37 100%)",
                 boxShadow: "0 12px 32px rgba(212, 175, 55, 0.35)",
               },
               width: { xs: "100%", sm: "auto" },
@@ -140,7 +158,7 @@ export default function HeroSection() {
           >
             Começar Gratuitamente
           </Button>
-          
+
           <Button
             component={Link}
             href="/auth/login"
@@ -166,6 +184,46 @@ export default function HeroSection() {
             Já possuo conta
           </Button>
         </Stack>
+      </Box>
+
+      {/* Hero Screenshot — Dashboard */}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 2,
+          mt: { xs: 6, md: 8 },
+          width: "100%",
+          maxWidth: "1100px",
+          animation: `${fadeInScale} 1.2s 0.3s ease-out both`,
+        }}
+      >
+        {/* Glow behind the image */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: "-20%",
+            background:
+              "radial-gradient(ellipse at center, rgba(212, 175, 55, 0.08) 0%, rgba(142, 36, 170, 0.06) 40%, transparent 70%)",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+
+        <Box
+          component="img"
+          src="/screenshots/dashboard.png"
+          alt="CodexLore — Dashboard da campanha com visão geral de documentos, templates e mapas"
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            width: "100%",
+            height: "auto",
+            borderRadius: { xs: "12px", md: "16px" },
+            border: "1px solid rgba(212, 175, 55, 0.15)",
+            boxShadow:
+              "0 25px 60px -12px rgba(0, 0, 0, 0.6), 0 0 80px rgba(212, 175, 55, 0.08)",
+          }}
+        />
       </Box>
     </Box>
   );
