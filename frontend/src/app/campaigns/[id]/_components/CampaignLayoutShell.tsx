@@ -3,17 +3,21 @@
 import useResponsiveSidebar from "@/hooks/use-responsive-sidebar";
 import { Box, Drawer } from "@mui/material";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import CampaignMobileHeader from "./CampaignMobileHeader";
+import LorenaDrawer from "./LoreKeeper/LorenaDrawer";
 import SideBar from "./SideBar";
+import SidebarToggleButton from "./SidebarToggleButton";
 
 const MOBILE_SIDEBAR_WIDTH = "min(86vw, 320px)";
 const DESKTOP_SIDEBAR_WIDTH = 320;
 
 export default function CampaignLayoutShell({
   children,
+  campaignID,
 }: {
   children: React.ReactNode;
+  campaignID: string;
 }) {
   const pathname = usePathname();
   const { isMobile, isSidebarOpen, openSidebar, closeSidebar } =
@@ -25,26 +29,41 @@ export default function CampaignLayoutShell({
     }
   }, [pathname, isMobile, closeSidebar]);
 
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
+
   return (
     <Box
       sx={{
         display: "flex",
-        minHeight: "100vh",
+        height: "100vh",
         width: "100%",
         bgcolor: "background.default",
+        overflow: "hidden",
+        position: "relative",
       }}
     >
       <Box
         sx={{
-          display: { xs: "none", md: "flex" },
-          width: DESKTOP_SIDEBAR_WIDTH,
-          minWidth: DESKTOP_SIDEBAR_WIDTH,
-          borderRight: "1px solid rgba(212, 175, 55, 0.08)",
+          display: { xs: "none", md: "block" },
+          position: "relative",
+          width: isDesktopSidebarOpen ? DESKTOP_SIDEBAR_WIDTH : 0,
+          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          borderRight: isDesktopSidebarOpen ? "1px solid rgba(212, 175, 55, 0.08)" : "none",
           bgcolor: "background.paper",
+          zIndex: 10,
+          overflow: "hidden",
         }}
       >
-        <SideBar />
+        <Box sx={{ width: DESKTOP_SIDEBAR_WIDTH, height: "100%", overflow: "hidden" }}>
+          <SideBar />
+        </Box>
       </Box>
+
+      <SidebarToggleButton
+        isOpen={isDesktopSidebarOpen}
+        onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
+        desktopWidth={DESKTOP_SIDEBAR_WIDTH}
+      />
 
       <Drawer
         open={isSidebarOpen}
@@ -89,11 +108,27 @@ export default function CampaignLayoutShell({
             overflowX: "hidden",
             overflowY: "auto",
             position: "relative",
+            "&::-webkit-scrollbar": {
+              width: "6px",
+              height: "6px",
+            },
+            "&::-webkit-scrollbar-track": {
+              bgcolor: "transparent",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              bgcolor: "rgba(255, 255, 255, 0.1)",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              bgcolor: "rgba(255, 255, 255, 0.2)",
+            },
           }}
         >
           {children}
         </Box>
       </Box>
+      {/* Lorena — Chatbot de IA disponível em todas as telas da campanha */}
+      <LorenaDrawer campaignID={campaignID} />
     </Box>
   );
 }

@@ -14,6 +14,8 @@ import useFolders from "@/lib/hooks/useFolders";
 import useGetCampaign from "@/lib/hooks/useGetCampaign";
 import useSearchQuery from "@/lib/hooks/useSearchQuery";
 import useTemplates from "@/lib/hooks/useTemplates";
+import useCurrentUser from "@/lib/hooks/useCurrentUser";
+import useMaps from "@/lib/hooks/useMaps";
 import { DocumentSummary } from "@/lib/types/Documents";
 import { Folder } from "@/lib/types/Folder";
 import { Template } from "@/lib/types/Template";
@@ -24,6 +26,7 @@ import CreateTemplateModal from "./CreateTemplateModal";
 import SidebarContent from "./SidebarContent";
 import SidebarHeader from "./SidebarHeader";
 import SidebarQuickActions from "./SidebarQuickActions";
+import CreateMapModal from "../maps/_components/CreateMapModal";
 
 interface SideBarProps {
   isMobile?: boolean;
@@ -42,6 +45,8 @@ export default function SideBar({
   const templates = useTemplates(campaignId);
   const documents = useDocuments(campaignId);
   const folders = useFolders(campaignId);
+  const { data: currentUser } = useCurrentUser();
+  const maps = useMaps(campaignId);
 
   const deleteFolder = useDeleteFolder();
   const deleteTemplate = useDeleteTemplate();
@@ -70,6 +75,7 @@ export default function SideBar({
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const [folderToEdit, setFolderToEdit] = useState<Folder | undefined>();
   const [templateToEdit, setTemplateToEdit] = useState<Template | undefined>();
@@ -123,7 +129,7 @@ export default function SideBar({
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          minHeight: "100%",
+          height: "100%",
         }}
       >
         <SidebarHeader
@@ -146,6 +152,7 @@ export default function SideBar({
           onCreateDoc={() => setIsDocModalOpen(true)}
           onCreateFolder={() => setIsFolderModalOpen(true)}
           onCreateTemplate={() => setIsTemplateModalOpen(true)}
+          onCreateMap={() => setIsMapModalOpen(true)}
         />
 
         <SidebarContent
@@ -171,7 +178,46 @@ export default function SideBar({
           onDeleteTemplate={setTemplateToDelete}
           onMoveDocument={handleMoveDocument}
           onNavigate={onNavigate}
+          maps={maps.data}
         />
+        {currentUser && !currentUser.is_premium && (
+          <Box
+            sx={{
+              p: 2,
+              borderTop: "1px solid",
+              borderColor: "rgba(212, 175, 55, 0.06)",
+              textAlign: "center",
+              mt: "auto",
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                fontSize: "0.75rem",
+                color: "text.secondary",
+                display: "block",
+                mb: 0.5,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Documentos Criados
+            </Box>
+            <Box
+              component="span"
+              sx={{
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                color:
+                  (currentUser.document_count || 0) >= 15
+                    ? "error.main"
+                    : "primary.main",
+              }}
+            >
+              {String(currentUser.document_count || 0).padStart(2, "0")}/15
+            </Box>
+          </Box>
+        )}
       </Box>
 
       <CreateDocModal
@@ -210,6 +256,11 @@ export default function SideBar({
       <AddMemberModal
         isModalOpen={isMemberModalOpen}
         setIsModalOpen={setIsMemberModalOpen}
+      />
+
+      <CreateMapModal
+        isModalOpen={isMapModalOpen}
+        setIsModalOpen={setIsMapModalOpen}
       />
 
       <ConfirmDeleteModal
@@ -273,6 +324,9 @@ export default function SideBar({
                   setDocToDelete(undefined);
                   queryClient.invalidateQueries({
                     queryKey: ["documents", campaignId],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["currentUser"],
                   });
                 },
               },

@@ -54,6 +54,7 @@ export default function CreateFolderModal({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
@@ -70,12 +71,20 @@ export default function CreateFolderModal({
   };
 
   useEffect(() => {
-    if (initialData && isModalOpen) {
-      reset({
-        name: initialData.name,
-        parentId: initialData.parent_id || "",
-        color: initialData.color || DEFAULT_FOLDER_COLOR,
-      });
+    if (isModalOpen) {
+      if (initialData) {
+        reset({
+          name: initialData.name,
+          parentId: initialData.parent_id || "",
+          color: initialData.color || DEFAULT_FOLDER_COLOR,
+        });
+      } else {
+        reset({
+          name: "",
+          parentId: "",
+          color: DEFAULT_FOLDER_COLOR,
+        });
+      }
     }
   }, [initialData, isModalOpen, reset]);
 
@@ -189,8 +198,8 @@ export default function CreateFolderModal({
             select
             fullWidth
             variant="outlined"
-            defaultValue=""
             {...register("parentId")}
+            value={watch("parentId") || ""}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "14px",

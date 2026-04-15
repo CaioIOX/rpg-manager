@@ -427,6 +427,8 @@ export default function EditorToolbar({
         position: "sticky",
         top: 0,
         zIndex: 10,
+        borderTopLeftRadius: "inherit",
+        borderTopRightRadius: "inherit",
         backdropFilter: "blur(12px)",
         overflowX: "auto",
         scrollbarWidth: "none",

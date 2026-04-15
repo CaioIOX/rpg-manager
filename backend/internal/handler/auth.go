@@ -123,3 +123,42 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 		"message": "success",
 	})
 }
+
+func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
+	input := dto.ForgotPasswordInput{}
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida!"})
+	}
+
+	if err := h.validate.Struct(input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	err := h.authService.ForgotPassword(c.Context(), input)
+	if err != nil {
+		if err.Error() == "EMAIL_DAILY_LIMIT_EXCEEDED" { 
+			return c.Status(503).JSON(fiber.Map{"error": "EMAIL_DAILY_LIMIT_EXCEEDED"})
+		}
+		return c.Status(400).JSON(fiber.Map{"error": "Erro ao solicitar redefinição, tente novamente."})
+	}
+
+	return c.JSON(fiber.Map{"message": "Se o email existir, um link de redefinição será enviado."})
+}
+
+func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
+	input := dto.ResetPasswordInput{}
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Requisição inválida!"})
+	}
+
+	if err := h.validate.Struct(input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	err := h.authService.ResetPassword(c.Context(), input)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"message": "Senha redefinida com sucesso!"})
+}

@@ -14,6 +14,7 @@ import { DocumentSummary } from "@/lib/types/Documents";
 
 interface DocumentItemProps {
   document: DocumentSummary;
+  templateIcon?: string;
   onEdit?: () => void;
   onDelete?: () => void;
   onNavigate?: () => void;
@@ -21,6 +22,7 @@ interface DocumentItemProps {
 
 export default function DocumentItem({
   document,
+  templateIcon,
   onEdit,
   onDelete,
   onNavigate,
@@ -75,13 +77,30 @@ export default function DocumentItem({
         },
       }}
     >
-      <DescriptionOutlinedIcon
-        sx={{
-          fontSize: "1rem",
-          color: isActive ? "primary.main" : "text.secondary",
-          flexShrink: 0,
-        }}
-      />
+      {templateIcon ? (
+        <Box
+          sx={{
+            fontSize: "1.1rem",
+            lineHeight: 1,
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "1rem",
+            height: "1rem",
+          }}
+        >
+          {templateIcon}
+        </Box>
+      ) : (
+        <DescriptionOutlinedIcon
+          sx={{
+            fontSize: "1rem",
+            color: isActive ? "primary.main" : "text.secondary",
+            flexShrink: 0,
+          }}
+        />
+      )}
       <Typography
         variant="body2"
         sx={{

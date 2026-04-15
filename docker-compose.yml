@@ -9,6 +9,11 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports: 
       - 5432:5432
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   backend:
     build: ./backend
@@ -16,12 +21,20 @@ services:
       - "8080:8080"
     depends_on:
       - db
+    volumes:
+      - uploads_data:/app/uploads
     environment:
       DATABASE_URL: postgres://rpg:${DB_PASSWORD}@db:5432/rpg_manager?sslmode=disable
       MIGRATION_URL: postgres://rpg:${DB_PASSWORD}@db:5432/rpg_manager?sslmode=disable
       JWT_SECRET: ${JWT_SECRET}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
       GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   frontend:
     build:
@@ -34,6 +47,12 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   pgdata:
+  uploads_data:

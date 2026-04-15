@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/CaioIOX/rpg-manager/backend/internal/ai"
+	"github.com/CaioIOX/rpg-manager/backend/internal/email"
 	"github.com/CaioIOX/rpg-manager/backend/internal/handler"
 	"github.com/CaioIOX/rpg-manager/backend/internal/middleware"
 	"github.com/CaioIOX/rpg-manager/backend/internal/repository"
@@ -22,6 +24,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	_ "image/gif"
+	_ "image/png"
 )
 
 func main() {
@@ -74,14 +78,37 @@ func main() {
 	folderRepo := repository.NewFolderRepository(db)
 	documentRepo := repository.NewDocumentRepository(db)
 	templatesRepo := repository.NewTemplateRepository(db)
+	mapRepo := repository.NewMapRepository(db)
+	prRepo := repository.NewPasswordResetRepository(db)
+	emailUsageRepo := repository.NewEmailUsageRepository(db)
 
 	// Services
 	jwtSecret := os.Getenv("JWT_SECRET")
-	authService := service.NewAuthService(userRepo, jwtSecret)
+	emailService := email.NewSMTPService(emailUsageRepo)
+	authService := service.NewAuthService(userRepo, prRepo, emailService, jwtSecret)
 	campaignService := service.NewCampaignService(campaignRepo, userRepo)
 	folderService := service.NewFolderService(folderRepo, campaignRepo)
 	documentService := service.NewDocumentService(documentRepo, campaignRepo)
 	templateService := service.NewTemplateService(templatesRepo, campaignRepo)
+	mapService := service.NewMapService(mapRepo, campaignRepo, userRepo)
+
+	// AI Provider (Gemini) — Lorena
+	geminiAPIKey := os.Getenv("GEMINI_API_KEY")
+	var aiProvider ai.Provider
+	if geminiAPIKey != "" {
+		geminiProvider, err := ai.NewGeminiProvider(geminiAPIKey)
+		if err != nil {
+			log.Printf("WARNING: Falha ao inicializar Gemini AI — Lorena não estará disponível: %v", err)
+		} else {
+			aiProvider = geminiProvider
+			log.Println("Lorena (Gemini AI) inicializada com sucesso")
+		}
+	} else {
+		log.Println("WARNING: GEMINI_API_KEY não configurada — Lorena não estará disponível")
+	}
+
+	chatRepo := repository.NewChatRepository(db)
+	chatService := service.NewChatService(chatRepo, documentRepo, campaignRepo, userRepo, aiProvider)
 
 	// Handlers
 	validate := validator.New()
@@ -90,9 +117,18 @@ func main() {
 	folderHandler := handler.NewFolderHandler(folderService, validate)
 	documentHandler := handler.NewDocumentHandler(documentService, validate)
 	templateHandler := handler.NewTemplateHandler(templateService, validate)
+	mapHandler := handler.NewMapHandler(mapService, validate)
+	chatHandler := handler.NewChatHandler(chatService, validate)
 	wsH := ws.NewHandler(documentRepo)
 
-	app := fiber.New()
+	// Create uploads directory
+	if err := os.MkdirAll("./uploads/maps", 0755); err != nil {
+		log.Printf("WARNING: Failed to create uploads directory: %v", err)
+	}
+
+	app := fiber.New(fiber.Config{
+		BodyLimit: 52 * 1024 * 1024, // 52MB to support 50MB premium files + form overhead
+	})
 	app.Use(logger.New())
 	app.Use(recover.New())
 
@@ -113,6 +149,8 @@ func main() {
 	auth.Post("/register", authHandler.Register)
 	auth.Post("/login", authHandler.Login)
 	auth.Post("/google", authHandler.GoogleLogin)
+	auth.Post("/forgot-password", authHandler.ForgotPassword)
+	auth.Post("/reset-password", authHandler.ResetPassword)
 
 	api := app.Group("/api", middleware.AuthRequired)
 
@@ -136,7 +174,7 @@ func main() {
 	// Documentos
 	api.Get("/campaigns/:campaign_id/documents", documentHandler.List)
 	api.Get("/campaigns/:campaign_id/documents/:document_id", documentHandler.Get)
-	api.Post("/campaigns/:campaign_id/documents", documentHandler.Create)
+	api.Post("/campaigns/:campaign_id/documents", middleware.DocumentLimit(userRepo), documentHandler.Create)
 	api.Put("/campaigns/:campaign_id/documents/:document_id", documentHandler.Update)
 	api.Delete("/campaigns/:campaign_id/documents/:document_id", documentHandler.Delete)
 	api.Get("/campaigns/:campaign_id/search", documentHandler.Search)
@@ -149,6 +187,19 @@ func main() {
 	api.Post("/campaigns/:campaign_id/templates", templateHandler.Create)
 	api.Put("/campaigns/:campaign_id/templates/:template_id", templateHandler.Update)
 	api.Delete("/campaigns/:campaign_id/templates/:template_id", templateHandler.Delete)
+
+	// Mapas
+	api.Get("/campaigns/:campaign_id/maps", mapHandler.List)
+	api.Get("/campaigns/:campaign_id/maps/:map_id", mapHandler.Get)
+	api.Get("/campaigns/:campaign_id/maps/:map_id/image", mapHandler.ServeImage)
+	api.Post("/campaigns/:campaign_id/maps", mapHandler.Upload)
+	api.Put("/campaigns/:campaign_id/maps/:map_id", mapHandler.Update)
+	api.Delete("/campaigns/:campaign_id/maps/:map_id", mapHandler.Delete)
+	api.Post("/campaigns/:campaign_id/maps/:map_id/markers", mapHandler.SyncMarkers)
+
+	// Lorena — Chatbot de IA
+	api.Post("/campaigns/:campaign_id/chat", chatHandler.Send)
+	api.Get("/campaigns/:campaign_id/chat/usage", chatHandler.GetUsage)
 
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {

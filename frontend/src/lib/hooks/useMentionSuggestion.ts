@@ -9,9 +9,10 @@ export default function useMentionSuggestion(campaignId: string, docId: string) 
 
   return {
     items: ({ query }: { query: string }) => {
+      const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
       const documents = queryClient.getQueryData<DocumentSummary[]>(['documents', campaignId]) || [];
       return documents
-        .filter((item) => item.id !== docId && item.title.toLowerCase().includes(query.toLowerCase()))
+        .filter((item) => item.id !== docId && normalize(item.title).includes(normalize(query)))
         .slice(0, 5);
     },
     render: () => {
