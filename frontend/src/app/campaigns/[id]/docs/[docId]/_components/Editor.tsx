@@ -17,7 +17,7 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import { Markdown } from "tiptap-markdown";
 import { Details, DetailsSummary, DetailsContent } from "@/lib/tiptap/extensions/details";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useImperativeHandle, useRef, forwardRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import useUpdateDocument from "@/lib/hooks/useUpdateDocument";
@@ -39,17 +39,25 @@ import useMentionSuggestion from "@/lib/hooks/useMentionSuggestion";
 import { SyncLinks, GetLinks } from "@/lib/api/documents";
 import { toast } from "sonner";
 
+// ─── Public handle (for resyncMentions from parent) ──────────────────────────
+export interface EditorHandle {
+  resyncMentions: () => void;
+}
+
 interface EditorProps {
   title?: string;
   folderId?: string;
   initialContent?: Record<string, unknown>;
+  /** Ref to latest template field values — used to include template @mentions in SyncLinks */
+  templateDataRef?: React.RefObject<Record<string, string>>;
 }
 
-export default function Editor({
+const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({
   title,
   folderId,
   initialContent,
-}: EditorProps) {
+  templateDataRef,
+}, ref) {
   const params = useParams();
   const campaignId = params.id as string;
   const docId = params.docId as string;
@@ -90,6 +98,20 @@ export default function Editor({
 
   const isReadyRef = useRef(false);
   const prevMentionKeyRef = useRef<string>("");
+  // Stable ref to avoid stale closures in useImperativeHandle
+  const editorInstanceRef = useRef<ReturnType<typeof useEditor>>(null);
+
+  // Exposes resyncMentions to parent (page.tsx).
+  // When template fields change, this resets the mention key AND fires debouncedSave
+  // so SyncLinks runs immediately (editor + template mentions), updating the backlinks panel.
+  useImperativeHandle(ref, () => ({
+    resyncMentions: () => {
+      prevMentionKeyRef.current = "";
+      if (editorInstanceRef.current && isReadyRef.current) {
+        debouncedSave(editorInstanceRef.current.getJSON());
+      }
+    },
+  }));
 
   const debouncedSave = useDebouncedCallback((jsonContent: JSONContent) => {
     if (!isReadyRef.current) return;
@@ -123,6 +145,18 @@ export default function Editor({
       }
     };
     if (jsonContent) traverse(jsonContent);
+
+    // Also extract @[Title](id) mentions from template fields
+    const tplData = templateDataRef?.current ?? {};
+    const TMPL_RE = /@\[([^\]]+)\]\(([^)]+)\)/g;
+    Object.values(tplData).forEach((fieldVal) => {
+      if (typeof fieldVal !== "string") return;
+      let m: RegExpExecArray | null;
+      const re = new RegExp(TMPL_RE.source, "g");
+      while ((m = re.exec(fieldVal)) !== null) {
+        extractedMentions.push({ target_doc_id: m[2], mention_text: m[1] });
+      }
+    });
 
     const uniqueMentions = Array.from(
       new Map(
@@ -194,6 +228,9 @@ export default function Editor({
       }
     },
   });
+
+  // Keep editorInstanceRef in sync so useImperativeHandle can call getJSON() without a dep array
+  editorInstanceRef.current = editor ?? null;
 
   // Update CollaborationCursor provider when it becomes available
   const editorExtensionsUpdatedRef = useRef(false);
@@ -313,8 +350,6 @@ export default function Editor({
     <>
       <Box
         sx={{
-          maxWidth: "960px",
-          mx: "auto",
           my: { xs: 2, md: 4 },
           bgcolor: "rgba(22, 27, 34, 0.5)",
           borderRadius: { xs: "16px", md: "20px" },
@@ -446,4 +481,6 @@ export default function Editor({
       />
     </>
   );
-}
+});
+
+export default Editor;
