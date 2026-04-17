@@ -85,4 +85,10 @@ Se você já lida com desenvolvimento, Github e usa CLI:
 4. Acesse tudo rodando em `http://localhost:3000`.
 
 ---
+
+## Licença
+
+Este projeto está licenciado sob a **GNU Affero General Public License v3 (AGPLv3)**. Isso significa que você é livre para usar, modificar e distribuir o código, desde que as versões modificadas também sejam distribuídas sob a mesma licença e o código-fonte seja disponibilizado para os usuários que interagem com o software através de uma rede.
+
+---
 Desenvolvido por [CaioIOX](https://github.com/CaioIOX)
